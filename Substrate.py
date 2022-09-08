@@ -24,6 +24,8 @@ class Substrate:
             result = cross1p(solution1, solution2)
         elif self.cross_method == "2point":
             result = cross2p(solution1, solution2)
+        elif self.cross_method == "Multipoint":
+            result = crossMp(solution1, solution2)
         else:
             print("Error: cross method not defined")
             exit(1)
@@ -48,3 +50,9 @@ def cross2p(solution1, solution2):
     cross_point2 = random.randrange(cross_point1, len(solution1))
 
     return np.hstack([solution1[:cross_point1], solution2[cross_point1:cross_point2], solution1[cross_point2:]])
+
+def crossMp(solution1, solution2):
+    vector = 1*(np.random.rand(len(solution1)) > 0.5)  
+    aux = np.copy(solution1)
+    aux[np.where(vector==1)[0]] = solution2[np.where(vector==1)[0]]
+    return aux
