@@ -78,10 +78,8 @@ class CRO_SL:
         return self.population.best_solution()
     
 def main():
-    substrates = [Substrate("Gauss", "1point"), Substrate("Gauss", "2point")]
-    c = CRO_SL(ExampleObj(100), substrates)
-    #c.init_population()
-    #c.step()
+    substrates = [Substrate("Xor", "1point"), Substrate("Perm", "2point"), Substrate("Xor", "Multipoint")]
+    c = CRO_SL(ExampleObj(1000), substrates)
     ind, fit = c.optimize()
 
     print(ind)

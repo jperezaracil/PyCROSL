@@ -16,8 +16,7 @@ class ExampleObj(AbsObjetiveFunc):
         return solution.sum()
     
     def random_solution(self):
-        one_ratio = random.random()
-        return (np.random.random(self.size) < one_ratio).astype(np.int32)
+        return (np.random.random(self.size) < 0.5).astype(np.int32)
     
     def mutate(self, solution, strength):
         mask = (np.random.random(self.size) < strength).astype(np.int32)
