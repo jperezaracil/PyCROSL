@@ -67,9 +67,7 @@ class CRO_SL:
         self.budding()
 
         if depredate:
-            print(len(self.population.population), end=" ")
             self.depredation()
-            print(len(self.population.population))
 
         _, best_fitness = self.population.best_solution()
         self.history.append(best_fitness)
@@ -89,6 +87,8 @@ def main():
 
     print(ind)
     plt.plot(c.history)
+    plt.xlabel("generations")
+    plt.ylabel("fitness")
     plt.show()
 
 if __name__ == "__main__":

@@ -61,7 +61,6 @@ class CoralPopulation:
 
     def generate_random(self, proportion):
         amount = int(self.size*proportion)
-        print(amount)
         self.population = []
         for i in range(amount):
             substrate_idx = self.substrate_list[i]
