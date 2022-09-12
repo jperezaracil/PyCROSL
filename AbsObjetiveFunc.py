@@ -14,3 +14,6 @@ class AbsObjetiveFunc:
     
     def random_solution(self):
         pass
+    
+    def check_bounds(self, solution):
+        pass

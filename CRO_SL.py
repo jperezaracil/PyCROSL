@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt 
 from CoralPopulation import CoralPopulation
 from ExampleObj import ExampleObj
-from Substrate import Substrate
+from Substrate import *
 
 """
 Coral reef optimization with substrate layers
@@ -19,8 +19,8 @@ Parameters:
     K: maximum amount of equal corals
 """
 class CRO_SL:
-    def __init__(self, objfunc, substrates, Ngen=500, ReefSize=300,
-                rho=0.6, Fb=0.9, Fa=0.01, Fd=0.01, k=3, Pd=0.1, K=20):
+    def __init__(self, objfunc, substrates, Ngen=500, ReefSize=500,
+                rho=0.5, Fb=0.1, Fa=0.01, Fd=0.14, k=3, Pd=0.6, K=20):
         self.objfunc = objfunc
         self.substrates = substrates
         self.population = CoralPopulation(ReefSize, self.objfunc, self.substrates)
@@ -55,6 +55,8 @@ class CRO_SL:
         self.population.depredation(self.Pd, self.Fd)
 
     def step(self, depredate=True):
+        self.population.generate_substrates()
+
         larvae_broadcast, corals_chosen = self.broadcast_spawning()
 
         larvae_brooding = self.brooding(corals_chosen)
@@ -65,7 +67,9 @@ class CRO_SL:
         self.budding()
 
         if depredate:
+            print(len(self.population.population), end=" ")
             self.depredation()
+            print(len(self.population.population))
 
         _, best_fitness = self.population.best_solution()
         self.history.append(best_fitness)
@@ -78,7 +82,8 @@ class CRO_SL:
         return self.population.best_solution()
     
 def main():
-    substrates = [Substrate("Xor", "1point"), Substrate("Perm", "2point"), Substrate("Xor", "Multipoint")]
+    substrates = [SubstrateInt("Xor", "1point"), SubstrateInt("Xor", "2point"), SubstrateInt("Xor", "Multipoint"),
+     SubstrateInt("Perm", "1point"), SubstrateInt("Perm", "2point"), SubstrateInt("Perm", "Multipoint")]
     c = CRO_SL(ExampleObj(1000), substrates)
     ind, fit = c.optimize()
 

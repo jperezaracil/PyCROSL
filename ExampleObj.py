@@ -18,9 +18,5 @@ class ExampleObj(AbsObjetiveFunc):
     def random_solution(self):
         return (np.random.random(self.size) < 0.5).astype(np.int32)
     
-    def mutate(self, solution, strength):
-        mask = (np.random.random(self.size) < strength).astype(np.int32)
-        return solution ^ mask
-    
-    def cross2p(self, solution1, solution2):
-        return 0,0
+    def check_bounds(self, solution):
+        return np.equal(solution.copy(),0).astype(np.int32)

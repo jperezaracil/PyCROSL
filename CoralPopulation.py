@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from Substrate import Substrate
+from Substrate import *
 
 """
 Individual that holds a tentative solution with 
@@ -20,9 +20,7 @@ class Coral:
 
         self.objfunc = objfunc
 
-        if substrate is None:
-            self.substrate = Substrate("Gauss", "1point")
-
+        self.substrate = substrate
 
     def get_fitness(self):
         if not self.fitness_calculated:
@@ -34,10 +32,14 @@ class Coral:
         self.substrate = substrate
     
     def mutate(self, strength):
-        return Coral(self.substrate.mutate(self.solution, strength), self.objfunc)
+        mutated_solution = self.substrate.mutate(self.solution.copy(), strength)
+        mutated_solution = self.objfunc.check_bounds(mutated_solution)
+        return Coral(mutated_solution, self.objfunc)
     
     def cross(self, indiv):
-        return Coral(self.substrate.cross(self.solution, indiv.solution), self.objfunc)
+        crossed_solution = self.substrate.cross(self.solution.copy(), indiv.solution.copy())
+        crossed_solution = self.objfunc.check_bounds(crossed_solution)
+        return Coral(crossed_solution, self.objfunc)
 
 """
 Population of corals
@@ -50,6 +52,8 @@ class CoralPopulation:
 
         if population is None:
             self.population = []
+        
+        self.substrate_list = [i%len(substrates) for i in range(self.size)]
 
     def best_solution(self):
         best_solution = sorted(self.population, reverse=True, key = lambda c: c.get_fitness())[0]
@@ -57,8 +61,11 @@ class CoralPopulation:
 
     def generate_random(self, proportion):
         amount = int(self.size*proportion)
-        self.population = [Coral(self.objfunc.random_solution(), self.objfunc) for i in range(amount)]
-        print(len(self.population))
+        print(amount)
+        self.population = []
+        for i in range(amount):
+            substrate_idx = self.substrate_list[i]
+            self.population.append(Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx]))
 
     def broadcast_spawning(self, proportion):
         # Calculate the number of affected corals
@@ -99,6 +106,9 @@ class CoralPopulation:
         
         return larvae
     
+    def generate_substrates(self):
+        self.substrate_list = [random.randrange(0,len(self.substrates)) for i in range(self.size)]
+
     def larvae_setting(self, larvae_list, attempts):
         for larva in larvae_list:
             attempts_left = attempts
@@ -122,8 +132,8 @@ class CoralPopulation:
             
             # Assign substrate to the setted coral
             if setted:
-                larva.set_substrate(self.substrates[idx%len(self.substrates)])
-                #larva.set_substrate(Substrate("Gauss", "2point"))
+                substrate_idx = self.substrate_list[idx]
+                larva.set_substrate(self.substrates[substrate_idx])
         
     
     def budding(self, proportion, attempts):
@@ -136,11 +146,11 @@ class CoralPopulation:
     
     def depredation(self, proportion, probability):
         # Calculate the number of affected corals
-        n_corals = int(self.size*proportion)
+        amount = int(self.size*proportion)
 
         # Extract the worse 'n_corals' in the grid
         fitness_values = np.array([coral.get_fitness() for coral in self.population])
-        affected_corals = list(np.argsort(fitness_values))[:min(n_corals, len(self.population))]
+        affected_corals = list(np.argsort(fitness_values))[:min(amount, len(self.population))]
 
         # Set a 'dead' flag in the affected corals with a small probability
         for i in affected_corals:
