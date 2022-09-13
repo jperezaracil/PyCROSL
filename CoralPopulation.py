@@ -49,6 +49,7 @@ class CoralPopulation:
         self.size = size
         self.objfunc = objfunc
         self.substrates = substrates
+        self.fitness_count = 0
 
         if population is None:
             self.population = []
@@ -64,7 +65,10 @@ class CoralPopulation:
         self.population = []
         for i in range(amount):
             substrate_idx = self.substrate_list[i]
-            self.population.append(Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx]))
+            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx])
+            new_coral.get_fitness()
+            self.fitness_count += 1
+            self.population.append(new_coral)
 
     def broadcast_spawning(self, proportion):
         # Calculate the number of affected corals
@@ -90,7 +94,14 @@ class CoralPopulation:
             parent2 = self.population[parent2_idx]
 
             # Generate a new larva crossing the parents
-            larvae.append(parent1.cross(parent2))
+            new_coral = parent1.cross(parent2)
+
+            # Evaluate it's fitness
+            new_coral.get_fitness()
+            self.fitness_count += 1
+
+            # Add larva to the list of larvae
+            larvae.append(new_coral)
 
         return larvae, corals_chosen_aux
     
@@ -101,7 +112,15 @@ class CoralPopulation:
         # Mutate the corals chosen and create larvae
         larvae = []
         for i in corals_chosen:
-            larvae.append(self.population[i].mutate(mut_strength))
+            # Generate new mutated coral
+            new_coral = self.population[i].mutate(mut_strength)
+
+            # Evaluate it's fitness
+            new_coral.get_fitness()
+            self.fitness_count += 1
+
+            # Add larva to the list of larvae
+            larvae.append(new_coral)
         
         return larvae
     
