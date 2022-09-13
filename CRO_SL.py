@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt 
 from CoralPopulation import CoralPopulation
-from ExampleObj import ExampleObj
+from TestFunctions import *
 from Substrate import *
 import time
 
@@ -12,6 +12,7 @@ Parameters:
     Ngen: number of generations
     ReefSize: maximum number of corals in the reef
     rho: percentage of initial ocupation of the reef
+    mut_str: strength of the mutations
     Fb: broadcast spawning proportion
     Fa: asexual reproduction proportion
     Fd: depredation probability
@@ -24,12 +25,16 @@ class CRO_SL:
         # Hyperparameters of the algorithm
         self.ReefSize = params["ReefSize"]
         self.rho = params["rho"]
+        self.mut_str = params["mut_str"]
         self.Fb = params["Fb"]
         self.Fa = params["Fa"]
         self.Fd = params["Fd"]
         self.k = params["k"]
         self.K = params["K"]
         self.Pd = params["Pd"]
+        
+        # Minimization or maximization
+        self.opt = params["opt"]
 
         # Stopping conditions
         self.stop_cond = params["stop_cond"]
@@ -41,12 +46,13 @@ class CRO_SL:
         # Data structures of the algorithm
         self.objfunc = objfunc
         self.substrates = substrates
-        self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates)
+        self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.opt)
         
         # Metrics
         self.history = []
         self.best_fitness = 0
         self.time_spent = 0
+        self.real_time_spent = 0
     
     def init_population(self):
         self.population.generate_random(self.rho)
@@ -55,7 +61,7 @@ class CRO_SL:
         return self.population.broadcast_spawning(self.Fb)
     
     def brooding(self, corals_chosen):
-        return self.population.brooding(corals_chosen, 1-self.Fb)
+        return self.population.brooding(corals_chosen, self.mut_str)
     
     def larvae_setting(self, larvae):
         self.population.larvae_setting(larvae, self.k)
@@ -82,6 +88,8 @@ class CRO_SL:
             self.depredation()
 
         _, best_fitness = self.population.best_solution()
+        if self.opt == "min":
+            best_fitness *= -1
         self.history.append(best_fitness)
     
     def stopping_condition(self, gen, time_start):
@@ -93,26 +101,35 @@ class CRO_SL:
         elif self.stop_cond == "time":
             stop = time.time()-time_start >= self.time_limit
         elif self.stop_cond == "fit_target":
-            stop = self.population.best_solution()[1] >= self.fit_target
-        
+            if self.opt == "max":
+                stop = self.population.best_solution()[1] >= self.fit_target
+            else:
+                stop = -self.population.best_solution()[1] <= self.fit_target
+
         return stop
 
     def optimize(self):
         self.init_population()
         self.step(depredate=False)
         gen = 0
-        time_start = time.time()
-        while not self.stopping_condition(gen, time_start):
+        time_start = time.process_time()
+        real_time_start = time.time()
+        while not self.stopping_condition(gen, real_time_start):
             self.step()
             gen += 1
-        self.time_spent = time.time() - time_start
+        self.real_time_spent = time.time() - real_time_start
+        self.time_spent = time.process_time() - time_start
         return self.population.best_solution()
     
     def display_report(self):
         print("Number of generations:", len(self.history))
-        print("Time spent: ", round(self.time_spent, 5), "s", sep="")
+        print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
+        print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", self.population.fitness_count)
-        print("Best fitness:", self.population.best_solution()[1])
+        best_fitness = self.population.best_solution()[1]
+        if self.opt == "min":
+            best_fitness *= -1
+        print("Best fitness:", best_fitness)
         plt.plot(self.history)
         plt.xlabel("generations")
         plt.ylabel("fitness")
@@ -120,12 +137,16 @@ class CRO_SL:
         plt.show()
         
 def main():
-    substrates = [SubstrateInt("Xor", "1point"), SubstrateInt("Xor", "2point"), SubstrateInt("Xor", "Multipoint"),
+    substrates_int = [SubstrateInt("AddOne", "1point"), SubstrateInt("DGauss", "2point"), SubstrateInt("AddOne", "Multipoint"),
      SubstrateInt("Perm", "1point"), SubstrateInt("Perm", "2point"), SubstrateInt("Perm", "Multipoint")]
+
+    substrates_real = [SubstrateReal("Gauss", "1point"), SubstrateReal("Gauss", "2point"), SubstrateReal("Gauss", "Multipoint"),
+     SubstrateReal("Perm", "1point"), SubstrateReal("Perm", "2point"), SubstrateReal("Perm", "Multipoint")]
     
     params = {
         "ReefSize": 500,
         "rho": 0.5,
+        "mut_str": 0.01,
         "Fb": 0.1,
         "Fa": 0.01,
         "Fd": 0.14,
@@ -134,12 +155,19 @@ def main():
         "K": 20,
 
         "stop_cond": "time",
-        "time_limit": 3.0,
-        "Ngen": 500,
-        "Neval":  4000,
-        "fit_target": 600
+        "time_limit": 60.0,
+        "Ngen": 100,
+        "Neval": 4000,
+        "fit_target": 750,
+
+        "opt": "min"
     }
-    c = CRO_SL(ExampleObj(1000), substrates, params)
+
+    #c = CRO_SL(DiophantineEq(1000, np.ones(1000), 39147), substrates_int, params)
+    #c = CRO_SL(MaxOnes(1000), substrates_int, params)
+    #c = CRO_SL(Sphere(1000), substrates_real, params)
+    #c = CRO_SL(MaxOnesReal(1000), substrates_real, params)
+    c = CRO_SL(Test1(1000), substrates_real, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()

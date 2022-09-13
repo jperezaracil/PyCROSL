@@ -76,6 +76,10 @@ class SubstrateInt(Substrate):
             result = permutationMutation(solution, strength)
         elif self.mutation_method == "Xor":
             result = xorMaskMutation(solution, strength)
+        elif self.mutation_method == "DGauss":
+            result = discreteGaussianMutation(solution, strength)
+        elif self.mutation_method == "AddOne":
+            result = addOneMutation(solution, strength)
         else:
             print("Error: mutation method not defined")
             exit(1)
@@ -86,6 +90,13 @@ class SubstrateInt(Substrate):
 ## Mutation methods
 def gaussianMutation(solution, strength):
     return solution + np.random.normal(0,strength,solution.shape)
+
+def discreteGaussianMutation(solution, strength):
+    return (solution + np.random.normal(0,100*strength,solution.shape)).astype(np.int32)
+
+def addOneMutation(solution, strength):
+    increase = (np.random.rand(solution.size) > strength).astype(np.int32)
+    return (solution + increase).astype(np.int32)
 
 def xorMaskMutation(solution, strength):
     mask = np.random.random(solution.shape) < strength

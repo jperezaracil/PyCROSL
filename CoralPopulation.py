@@ -10,7 +10,7 @@ class Coral:
     """
     Constructor
     """
-    def __init__(self, solution, objfunc, substrate=None):
+    def __init__(self, solution, objfunc, opt, substrate=None):
         self.solution = solution
         
         self.fitness_calculated = False
@@ -20,11 +20,15 @@ class Coral:
 
         self.objfunc = objfunc
 
+        self.opt = opt
+
         self.substrate = substrate
 
     def get_fitness(self):
         if not self.fitness_calculated:
             self.fitness = self.objfunc.fitness(self.solution)
+            if self.opt == "min":
+                self.fitness *= -1
             self.fitness_calculated = True
         return self.fitness
     
@@ -34,22 +38,23 @@ class Coral:
     def mutate(self, strength):
         mutated_solution = self.substrate.mutate(self.solution.copy(), strength)
         mutated_solution = self.objfunc.check_bounds(mutated_solution)
-        return Coral(mutated_solution, self.objfunc)
+        return Coral(mutated_solution, self.objfunc, self.opt)
     
     def cross(self, indiv):
         crossed_solution = self.substrate.cross(self.solution.copy(), indiv.solution.copy())
         crossed_solution = self.objfunc.check_bounds(crossed_solution)
-        return Coral(crossed_solution, self.objfunc)
+        return Coral(crossed_solution, self.objfunc, self.opt)
 
 """
 Population of corals
 """
 class CoralPopulation:    
-    def __init__(self, size, objfunc, substrates, population=None):
+    def __init__(self, size, objfunc, substrates, opt, population=None):
         self.size = size
         self.objfunc = objfunc
         self.substrates = substrates
         self.fitness_count = 0
+        self.opt = opt
 
         if population is None:
             self.population = []
@@ -65,7 +70,7 @@ class CoralPopulation:
         self.population = []
         for i in range(amount):
             substrate_idx = self.substrate_list[i]
-            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx])
+            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.opt, self.substrates[substrate_idx])
             new_coral.get_fitness()
             self.fitness_count += 1
             self.population.append(new_coral)
@@ -158,7 +163,7 @@ class CoralPopulation:
         n_corals = int(self.size*proportion)
 
         corals = self.population.copy()
-        duplicates = sorted(self.population, reverse=True, key = lambda c: c.get_fitness())[:min(n_corals, len(self.population))]
+        duplicates = sorted(self.population, reverse=True, key = lambda c: c.get_fitness())[:n_corals]
 
         self.larvae_setting(duplicates, attempts)
     
@@ -168,7 +173,7 @@ class CoralPopulation:
 
         # Extract the worse 'n_corals' in the grid
         fitness_values = np.array([coral.get_fitness() for coral in self.population])
-        affected_corals = list(np.argsort(fitness_values))[:min(amount, len(self.population))]
+        affected_corals = list(np.argsort(fitness_values))[:amount]
 
         # Set a 'dead' flag in the affected corals with a small probability
         for i in affected_corals:
