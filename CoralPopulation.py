@@ -35,15 +35,11 @@ class Coral:
     def set_substrate(self, substrate):
         self.substrate = substrate
     
-    def mutate(self, strength):
-        mutated_solution = self.substrate.mutate(self.solution.copy(), strength)
-        mutated_solution = self.objfunc.check_bounds(mutated_solution)
-        return Coral(mutated_solution, self.objfunc, self.opt)
-    
-    def cross(self, indiv):
-        crossed_solution = self.substrate.cross(self.solution.copy(), indiv.solution.copy())
-        crossed_solution = self.objfunc.check_bounds(crossed_solution)
-        return Coral(crossed_solution, self.objfunc, self.opt)
+    def reproduce(self, strength, population):
+        new_solution = self.substrate.evolve(self.solution.copy(), strength, [c.solution.copy() for c in population])
+        new_solution = self.objfunc.check_bounds(new_solution)
+        return Coral(new_solution, self.objfunc, self.opt)
+
 
 """
 Population of corals
@@ -74,60 +70,30 @@ class CoralPopulation:
             new_coral.get_fitness()
             self.fitness_count += 1
             self.population.append(new_coral)
-
-    def broadcast_spawning(self, proportion):
-        # Calculate the number of affected corals
-        n_corals = int(len(self.population)*proportion)
-
-        # Force n_corals to an even number
-        n_corals = (n_corals//2)*2
-
-        # Choose indices of the corals to be broadcast
-        corals_chosen = list(range(len(self.population)))
-        random.shuffle(corals_chosen)
-        corals_chosen = corals_chosen[:n_corals]
-        corals_chosen_aux = corals_chosen.copy()
-
-        # Generate larvae
-        larvae = []
-        while len(corals_chosen) > 1:
-            # Take 2 random parents and remove them from the pool
-            parent1_idx = corals_chosen.pop(random.randrange(0, len(corals_chosen)))
-            parent2_idx = corals_chosen.pop(random.randrange(0, len(corals_chosen)))
-
-            parent1 = self.population[parent1_idx]
-            parent2 = self.population[parent2_idx]
-
-            # Generate a new larva crossing the parents
-            new_coral = parent1.cross(parent2)
-
-            # Evaluate it's fitness
-            new_coral.get_fitness()
-            self.fitness_count += 1
-
-            # Add larva to the list of larvae
-            larvae.append(new_coral)
-
-        return larvae, corals_chosen_aux
     
-    def brooding(self, corals_chosen_prev, mut_strength):
-        # Choose the corals that weren't chosen in the previous step
-        corals_chosen = [i for i in range(len(self.population)) if i not in corals_chosen_prev]
+    def evolve_with_substrates(self, mut_strength):
+        # Divide the population based on their substrate type
+        substrate_groups = [[] for i in self.substrates]
+        for i, idx in enumerate(self.substrate_list):
+            if i < len(self.population):
+                substrate_groups[idx].append(self.population[i])
+        
+        # Reproduce the corals of each group
+        larvae = []        
+        for coral_group in substrate_groups:
+            for coral in coral_group:
+                # Generate new coral
+                new_coral = coral.reproduce(mut_strength, coral_group)
 
-        # Mutate the corals chosen and create larvae
-        larvae = []
-        for i in corals_chosen:
-            # Generate new mutated coral
-            new_coral = self.population[i].mutate(mut_strength)
+                # Evaluate it's fitness
+                new_coral.get_fitness()
+                self.fitness_count += 1
 
-            # Evaluate it's fitness
-            new_coral.get_fitness()
-            self.fitness_count += 1
-
-            # Add larva to the list of larvae
-            larvae.append(new_coral)
+                # Add larva to the list of larvae
+                larvae.append(new_coral)
         
         return larvae
+
     
     def generate_substrates(self):
         self.substrate_list = [random.randrange(0,len(self.substrates)) for i in range(self.size)]

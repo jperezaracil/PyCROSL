@@ -63,6 +63,9 @@ class CRO_SL:
     def brooding(self, corals_chosen):
         return self.population.brooding(corals_chosen, self.mut_str)
     
+    def evolve_with_substrates(self):
+        return self.population.evolve_with_substrates(self.mut_str)
+    
     def larvae_setting(self, larvae):
         self.population.larvae_setting(larvae, self.k)
     
@@ -74,16 +77,14 @@ class CRO_SL:
 
     def step(self, depredate=True):
         self.population.generate_substrates()
+        #larvae_broadcast, corals_chosen = self.broadcast_spawning()
+        #larvae_brooding = self.brooding(corals_chosen)
+        #larvae = larvae_broadcast + larvae_brooding
 
-        larvae_broadcast, corals_chosen = self.broadcast_spawning()
-
-        larvae_brooding = self.brooding(corals_chosen)
-
-        larvae = larvae_broadcast + larvae_brooding
+        larvae = self.evolve_with_substrates()
+        
         self.larvae_setting(larvae)
-
         self.budding()
-
         if depredate:
             self.depredation()
 
@@ -137,11 +138,11 @@ class CRO_SL:
         plt.show()
         
 def main():
-    substrates_int = [SubstrateInt("AddOne", "1point"), SubstrateInt("DGauss", "2point"), SubstrateInt("AddOne", "Multipoint"),
-     SubstrateInt("Perm", "1point"), SubstrateInt("Perm", "2point"), SubstrateInt("Perm", "Multipoint")]
+    substrates_int = [SubstrateInt("AddOne"), SubstrateInt("DGauss"), SubstrateInt("Perm"),
+    SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint")]
 
-    substrates_real = [SubstrateReal("Gauss", "1point"), SubstrateReal("Gauss", "2point"), SubstrateReal("Gauss", "Multipoint"),
-     SubstrateReal("Perm", "1point"), SubstrateReal("Perm", "2point"), SubstrateReal("Perm", "Multipoint")]
+    substrates_real = [SubstrateReal("Gauss"), SubstrateReal("Perm"), SubstrateReal("1point"),
+     SubstrateReal("2point"), SubstrateReal("Multipoint")]
     
     params = {
         "ReefSize": 500,
@@ -155,10 +156,10 @@ def main():
         "K": 20,
 
         "stop_cond": "time",
-        "time_limit": 60.0,
+        "time_limit": 30.0,
         "Ngen": 100,
         "Neval": 4000,
-        "fit_target": 750,
+        "fit_target": 100000,
 
         "opt": "min"
     }

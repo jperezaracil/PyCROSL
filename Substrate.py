@@ -5,52 +5,40 @@ import random
 Abstract Substrate class
 """
 class Substrate:
-    def __init__(self, mutation_method, cross_method):
-        self.mutation_method = mutation_method
-        self.cross_method = cross_method
+    def __init__(self, evolution_method):
+        self.evolution_method = evolution_method
     
     """
-    Applies a mutation method depending on the type of substrate
+    Evolves a solution with a different strategy depending on the type of substrate
     """
-    def mutate(self, solution, strength):
+    def evolve(self, solution, strength, population):
         pass
-    
-    """
-    Applies a crossing method depending on the type of substrate.
-
-    Methods common for real and discrete encoding.
-    """
-    def cross(self, solution1, solution2):
-        result = None
-        if self.cross_method == "1point":
-            result = cross1p(solution1, solution2)
-        elif self.cross_method == "2point":
-            result = cross2p(solution1, solution2)
-        elif self.cross_method == "Multipoint":
-            result = crossMp(solution1, solution2)
-        else:
-            print("Error: cross method not defined")
-            exit(1)
-        
-        return result
 
 """
 Substrate class that has continuous mutation and cross methods
 """
 class SubstrateReal(Substrate):
-    def __init__(self, mutation_method, cross_method):
-        self.mutation_method = mutation_method
-        self.cross_method = cross_method
-        super().__init__(self.mutation_method, self.cross_method)
+    def __init__(self, evolution_method):
+        self.evolution_method = evolution_method
+        super().__init__(self.evolution_method)
     
     """
-    Applies a mutation method depending on the type of substrate
+    Evolves a solution with a different strategy depending on the type of substrate
     """
-    def mutate(self, solution, strength):
+    def evolve(self, solution, strength, population):
         result = None
-        if self.mutation_method == "Gauss":
+        if self.evolution_method == "1point":
+            solution2 = random.choice(population)
+            result = cross1p(solution, solution2)
+        elif self.evolution_method == "2point":
+            solution2 = random.choice(population)
+            result = cross2p(solution, solution2)
+        elif self.evolution_method == "Multipoint":
+            solution2 = random.choice(population)
+            result = crossMp(solution, solution2)
+        elif self.evolution_method == "Gauss":
             result = gaussianMutation(solution, strength)
-        elif self.mutation_method == "Perm":
+        elif self.evolution_method == "Perm":
             result = permutationMutation(solution, strength)
         else:
             print("Error: mutation method not defined")
@@ -62,23 +50,31 @@ class SubstrateReal(Substrate):
 Substrate class that has discrete mutation and cross methods
 """
 class SubstrateInt(Substrate):
-    def __init__(self, mutation_method, cross_method):
-        self.mutation_method = mutation_method
-        self.cross_method = cross_method
-        super().__init__(self.mutation_method, self.cross_method)
+    def __init__(self, evolution_method):
+        self.evolution_method = evolution_method
+        super().__init__(self.evolution_method)
     
     """
     Applies a mutation method depending on the type of substrate
     """
-    def mutate(self, solution, strength):
+    def evolve(self, solution, strength, population):
         result = None
-        if self.mutation_method == "Perm":
+        if self.evolution_method == "1point":
+            solution2 = random.choice(population)
+            result = cross1p(solution, solution2)
+        elif self.evolution_method == "2point":
+            solution2 = random.choice(population)
+            result = cross2p(solution, solution2)
+        elif self.evolution_method == "Multipoint":
+            solution2 = random.choice(population)
+            result = crossMp(solution, solution2)
+        elif self.evolution_method == "Perm":
             result = permutationMutation(solution, strength)
-        elif self.mutation_method == "Xor":
+        elif self.evolution_method == "Xor":
             result = xorMaskMutation(solution, strength)
-        elif self.mutation_method == "DGauss":
+        elif self.evolution_method == "DGauss":
             result = discreteGaussianMutation(solution, strength)
-        elif self.mutation_method == "AddOne":
+        elif self.evolution_method == "AddOne":
             result = addOneMutation(solution, strength)
         else:
             print("Error: mutation method not defined")
