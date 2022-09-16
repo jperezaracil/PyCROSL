@@ -16,30 +16,28 @@ class SubstrateReal(Substrate):
     """
     def evolve(self, solution, strength, population):
         result = None
+        solution2 = random.choice([i for i in population if (i != solution).any()])
         if self.evolution_method == "1point":
-            solution2 = random.choice(population)
             result = cross1p(solution, solution2)
         elif self.evolution_method == "2point":
-            solution2 = random.choice(population)
             result = cross2p(solution, solution2)
         elif self.evolution_method == "Multipoint":
-            solution2 = random.choice(population)
             result = crossMp(solution, solution2)
         elif self.evolution_method == "Gauss":
-            result = gaussianMutation(solution, strength)
+            result = gaussian(solution, strength)
         elif self.evolution_method == "Perm":
-            result = permutationMutation(solution, strength)
+            result = permutation(solution, strength)
         else:
-            print("Error: mutation method not defined")
+            print("Error: evolution method not defined")
             exit(1)
         
         return result
 
 ## Mutation and recombination methods
-def gaussianMutation(solution, strength):
+def gaussian(solution, strength):
     return solution + np.random.normal(0,strength,solution.shape)
 
-def permutationMutation(solution, strength):
+def permutation(solution, strength):
     mask = np.random.random(solution.shape) < strength
     np.random.shuffle(solution[mask])
     return solution

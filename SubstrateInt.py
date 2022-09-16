@@ -15,8 +15,7 @@ class SubstrateInt(Substrate):
     """
     def evolve(self, solution, strength, population):
         result = None
-        population.remove(solution)
-        solution2 = random.choice(population)
+        solution2 = random.choice([i for i in population if (i != solution).any()])
         if self.evolution_method == "1point":
             result = cross1p(solution, solution2)
         elif self.evolution_method == "2point":
@@ -26,15 +25,15 @@ class SubstrateInt(Substrate):
         elif self.evolution_method == "BLXalpha":
             retult = bxalpha(solution1, solution2)
         elif self.evolution_method == "Perm":
-            result = permutationMutation(solution, strength)
+            result = permutation(solution, strength)
         elif self.evolution_method == "Xor":
-            result = xorMaskMutation(solution, strength)
+            result = xorMask(solution, strength)
         elif self.evolution_method == "DGauss":
-            result = discreteGaussianMutation(solution, strength)
+            result = discreteGaussian(solution, strength)
         elif self.evolution_method == "AddOne":
-            result = addOneMutation(solution, strength)
+            result = addOne(solution, strength)
         else:
-            print("Error: mutation method not defined")
+            print("Error: evolution method not defined")
             exit(1)
 
         return result
