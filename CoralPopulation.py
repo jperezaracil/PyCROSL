@@ -83,12 +83,12 @@ class CoralPopulation:
         for coral_group in substrate_groups:
             for coral in coral_group:
                 # Generate new coral
-                new_coral = coral.reproduce(mut_strength, coral_group)
-
+                new_coral = coral.reproduce(mut_strength, coral_group.copy())
+        
                 # Evaluate it's fitness
                 new_coral.get_fitness()
                 self.fitness_count += 1
-
+        
                 # Add larva to the list of larvae
                 larvae.append(new_coral)
         

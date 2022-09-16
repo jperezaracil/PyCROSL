@@ -13,13 +13,16 @@ class MaxOnes(AbsObjetiveFunc):
         super().__init__(self.size)
 
     def fitness(self, solution):
+        if solution.sum() < 0:
+            print("wtf")
         return solution.sum()
     
     def random_solution(self):
         return (np.random.random(self.size) < 0.5).astype(np.int32)
     
     def check_bounds(self, solution):
-        return np.equal(solution.copy(),0).astype(np.int32)
+        s = (solution.copy() == 0).astype(np.int32)
+        return (solution.copy() == 0).astype(np.int32)
 
 class DiophantineEq(AbsObjetiveFunc):
     def __init__(self, size, coeff, target):
@@ -80,3 +83,6 @@ class Test1(AbsObjetiveFunc):
     
     def check_bounds(self, solution):
         return np.clip(solution, -2, 2)
+
+class Rosenbrock:
+    pass

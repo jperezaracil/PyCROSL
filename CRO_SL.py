@@ -3,6 +3,8 @@ from matplotlib import pyplot as plt
 from CoralPopulation import CoralPopulation
 from TestFunctions import *
 from Substrate import *
+from SubstrateInt import *
+from SubstrateReal import *
 import time
 
 """
@@ -33,8 +35,12 @@ class CRO_SL:
         self.K = params["K"]
         self.Pd = params["Pd"]
         
-        # Minimization or maximization
+        # Maximization or Minimization
         self.opt = params["opt"]
+
+        # Verbose parameters
+        self.verbose = params["verbose"]
+        self.v_timer = params["v_timer"]
 
         # Stopping conditions
         self.stop_cond = params["stop_cond"]
@@ -77,9 +83,6 @@ class CRO_SL:
 
     def step(self, depredate=True):
         self.population.generate_substrates()
-        #larvae_broadcast, corals_chosen = self.broadcast_spawning()
-        #larvae_brooding = self.brooding(corals_chosen)
-        #larvae = larvae_broadcast + larvae_brooding
 
         larvae = self.evolve_with_substrates()
         
@@ -110,18 +113,33 @@ class CRO_SL:
         return stop
 
     def optimize(self):
-        self.init_population()
-        self.step(depredate=False)
         gen = 0
         time_start = time.process_time()
         real_time_start = time.time()
+        display_timer = time.time()
+
+        self.init_population()
+        self.step(depredate=False)
         while not self.stopping_condition(gen, real_time_start):
             self.step()
             gen += 1
+            if self.verbose and time.time() - display_timer > self.v_timer:
+                self.step_info(gen, display_timer)
+                display_timer = time.time()
+                
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
         return self.population.best_solution()
     
+    def step_info(self, gen, start_time):
+        print(f"Time Spent {round(time.time() - start_time,2)}s:")
+        print(f"\tGeneration: {gen}")
+        best_fitness = self.population.best_solution()[1]
+        if self.opt == "min":
+            best_fitness *= -1
+        print(f"\tBest fitness: {best_fitness}")
+        print(f"\tEvaluations of fitness: {self.population.fitness_count}\n")
+
     def display_report(self):
         print("Number of generations:", len(self.history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
@@ -139,7 +157,7 @@ class CRO_SL:
         
 def main():
     substrates_int = [SubstrateInt("AddOne"), SubstrateInt("DGauss"), SubstrateInt("Perm"),
-    SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint")]
+    SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint"), SubstrateInt("Xor")]
 
     substrates_real = [SubstrateReal("Gauss"), SubstrateReal("Perm"), SubstrateReal("1point"),
      SubstrateReal("2point"), SubstrateReal("Multipoint")]
@@ -147,28 +165,32 @@ def main():
     params = {
         "ReefSize": 500,
         "rho": 0.5,
-        "mut_str": 0.01,
+        "mut_str": 0.04,
         "Fb": 0.1,
         "Fa": 0.01,
         "Fd": 0.14,
-        "k": 3,
         "Pd": 0.6,
+        "k": 3,
         "K": 20,
+        "create_duplicates": True,
 
         "stop_cond": "time",
         "time_limit": 30.0,
         "Ngen": 100,
         "Neval": 4000,
-        "fit_target": 100000,
+        "fit_target": 1000,
 
-        "opt": "min"
+        "opt": "max",
+
+        "verbose": True,
+        "v_timer": 5
     }
 
-    #c = CRO_SL(DiophantineEq(1000, np.ones(1000), 39147), substrates_int, params)
-    #c = CRO_SL(MaxOnes(1000), substrates_int, params)
+    #c = CRO_SL(DiophantineEq(100000, np.random.randint(-100, 100, size=100000), -12), substrates_int, params)
+    c = CRO_SL(MaxOnes(1000), substrates_int, params)
     #c = CRO_SL(Sphere(1000), substrates_real, params)
     #c = CRO_SL(MaxOnesReal(1000), substrates_real, params)
-    c = CRO_SL(Test1(1000), substrates_real, params)
+    #c = CRO_SL(Test1(1000), substrates_real, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()
