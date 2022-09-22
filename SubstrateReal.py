@@ -14,26 +14,57 @@ class SubstrateReal(Substrate):
     """
     Evolves a solution with a different strategy depending on the type of substrate
     """
-    def evolve(self, solution, strength, population):
+    def evolve(self, solution, strength, population, objfunc):
         result = None
-        solution2 = random.choice([i for i in population if (i != solution).any()])
-        if self.evolution_method == "1point":
-            result = cross1p(solution, solution2)
-        elif self.evolution_method == "2point":
-            result = cross2p(solution, solution2)
-        elif self.evolution_method == "Multipoint":
-            result = crossMp(solution, solution2)
-        elif self.evolution_method == "Gauss":
-            result = gaussian(solution, strength)
-        elif self.evolution_method == "Perm":
-            result = permutation(solution, strength)
+        others = [i for i in population if i != solution]
+        if len(others) > 1:
+            solution2 = random.choice(others)
         else:
-            print("Error: evolution method not defined")
+            solution2 = solution
+        
+        if self.evolution_method == "1point":
+            result = cross1p(solution.solution.copy(), solution2.solution.copy())
+        elif self.evolution_method == "2point":
+            result = cross2p(solution.solution.copy(), solution2.solution.copy())
+        elif self.evolution_method == "Multipoint":
+            result = crossMp(solution.solution.copy(), solution2.solution.copy())
+        elif self.evolution_method == "Gauss":
+            result = gaussian(solution.solution.copy(), strength)
+        elif self.evolution_method == "BLXalpha":
+            result = blxalpha(solution.solution.copy(), solution2.solution.copy())
+        elif self.evolution_method == "SBX":
+            result = sbx(solution.solution.copy(), solution2.solution.copy(), strength)
+        elif self.evolution_method == "Perm":
+            result = permutation(solution.solution.copy(), strength)
+        elif self.evolution_method == "DE/rand/1":
+            result = DEBest1(solution.solution.copy(), others, 0.8, 0.8)
+        elif self.evolution_method == "DE/best/1":
+            result = DERand1(solution.solution.copy(), others, 0.8, 0.8)
+        elif self.evolution_method == "DE/rand/2":
+            result = DEBest2(solution.solution.copy(), others, 0.8, 0.8)
+        elif self.evolution_method == "DE/best/2":
+            result = DERand2(solution.solution.copy(), others, 0.8, 0.8)
+        elif self.evolution_method == "DE/current-to-rand/1":
+            result = DECurrentToBest1(solution.solution.copy(), others, 0.8, 0.8)
+        elif self.evolution_method == "DE/current-to-best/1":
+            result = DECurrentToRand1(solution.solution.copy(), others, 0.8, 0.8)
+        elif self.evolution_method == "SA":
+            result = sim_annealing(solution, strength, objfunc)
+        elif self.evolution_method == "HS":
+            result = harmony_search(solution.solution.copy(), population, strength)
+        elif self.evolution_method == "Rand":
+            result = random_replace(solution.solution.copy())
+        else:
+            print(f"Error: evolution method \"{self.evolution_method}\" not defined")
             exit(1)
+            
         
         return result
 
 ## Mutation and recombination methods
+def random_replace(solution):
+    return solution.max()*np.random.random(solution.shape)-2*solution.min()
+
 def gaussian(solution, strength):
     return solution + np.random.normal(0,strength,solution.shape)
 
@@ -57,24 +88,114 @@ def crossMp(solution1, solution2):
     aux[vector==1] = solution2[vector==1]
     return aux
 
-def bxalpha(self, solution1, solution2):
-    p = np.random.rand()
-    return (p*solution1 + (1-p)*solution2).astype(np.int32)
+def blxalpha(solution1, solution2, alpha=0.7):
+    return alpha*solution1 + (1-alpha)*solution2
 
-def sxb(self, solution):
-    pass
+def sbx(solution1, solution2, strength):
+    beta = np.zeros(solution1.shape)
+    u = np.random.random(solution1.shape)
+    for idx, val in enumerate(u):
+        if val <= 0.5:
+            beta[idx] = (2*val)**(1/(strength+1))
+        else:
+            beta[idx] = (0.5*(1-val))**(1/(strength+1))
+    
+    sign = random.choice([-1,1])
+    return 0.5*(solution1+solution2) + sign*0.5*beta*(solution1-solution2)
 
-def DERand1(self, solution):
-    pass
+def sim_annealing(solution, strength, objfunc, temp_changes=10, iter=5):
+    p0, pf = (0.1, 7)
 
-def DEBest1(self, solution):
-    pass
+    alpha = 0.99
+    best_fit = solution.get_fitness()
+    prev_solution = solution.solution
 
-def DERand2(self, solution):
-    pass
+    temp_init = temp = 100
+    temp_fin = alpha**temp_changes * temp_init
+    while temp >= temp_fin:
+        for j in range(iter):
+            solution_new = gaussian(solution.solution, strength)
+            new_fit = objfunc.fitness(solution_new)
+            y = ((pf-p0)/(temp_fin-temp_init))*(temp-temp_init) + p0 
 
-def DECurrentToBest1(self, solution):
-    pass
+            p = np.exp(-y)
+            if new_fit > best_fit or random.random() < p:
+                prev_solution = solution_new
+                best_fit = new_fit
+        temp = temp*alpha
+    return solution_new
 
-def DECurrentToRand1(self, solution):
-    pass
+def harmony_search(solution, population, strength, HMCR=0.8, PAR=0.3):
+    new_solution = np.zeros(solution.shape)
+    popul_matrix = np.vstack([i.solution for i in population])
+    popul_mean = popul_matrix.mean(axis=0)
+    popul_std = popul_matrix.std(axis=0)
+    for i in range(solution.size):
+        if random.random() < HMCR:
+            new_solution[i] = random.choice(population).solution[i]
+            if random.random() <= PAR:
+                new_solution[i] += np.random.normal(0,strength)
+        else:
+            new_solution[i] = np.random.normal(popul_mean[i], popul_std[i])
+    return new_solution
+
+
+def DERand1(solution, population, F=0.8, CR=0.8):
+    if len(population) > 3:
+        r1, r2, r3 = random.sample(population, 3)
+
+        v = r1.solution + F*(r2.solution-r3.solution)
+        mask = np.random.random() <= CR
+        solution[mask] = v
+    return solution
+
+def DEBest1(solution, population, F=0.8, CR=0.8):
+    if len(population) > 3:
+        fitness = [i.fitness for i in population]
+        best = population[fitness.index(max(fitness))]
+        r1, r2 = random.sample(population, 2)
+
+        v = best.solution + F*(r1.solution-r2.solution)
+        mask = np.random.random() <= CR
+        solution[mask] = v
+    return solution
+
+def DERand2(solution, population, F=0.8, CR=0.8):
+    if len(population) > 5:
+        r1, r2, r3, r4, r5 = random.sample(population, 5)
+
+        v = r1.solution + F*(r2.solution-r3.solution) + F*(r4.solution-r5.solution)
+        mask = np.random.random() <= CR
+        solution[mask] = v
+    return solution
+
+def DEBest2(solution, population, F=0.8, CR=0.8):
+    if len(population) > 5:
+        fitness = [i.fitness for i in population]
+        best = population[fitness.index(max(fitness))]
+        r1, r2, r3, r4 = random.sample(population, 4)
+
+        v = best.solution + F*(r1.solution-r2.solution) + F*(r3.solution-r4.solution)
+        mask = np.random.random() <= CR
+        solution[mask] = v
+    return solution
+
+def DECurrentToBest1(solution, population, F=0.8, CR=0.8):
+    if len(population) > 3:
+        fitness = [i.fitness for i in population]
+        best = population[fitness.index(max(fitness))]
+        r1, r2 = random.sample(population, 2)
+
+        v = solution + F*(best.solution-solution) + F*(r1.solution-r2.solution)
+        mask = np.random.random() <= CR
+        solution[mask] = v
+    return solution
+
+def DECurrentToRand1(solution, population, F=0.8, CR=0.8):
+    if len(population) > 3:
+        r1, r2, r3 = random.sample(population, 3)
+
+        v = solution + np.random.random()*(r1.solution-solution) + F*(r2.solution-r3.solution)
+        mask = np.random.random() <= CR
+        solution[mask] = v
+    return solution

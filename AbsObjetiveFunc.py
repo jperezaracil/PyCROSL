@@ -6,11 +6,16 @@ and implement the fitness function, random solution generation,
 mutation function and crossing of solutions.
 """
 class AbsObjetiveFunc:
-    def __init__(self, input_size):
+    def __init__(self, input_size, opt):
+        self.counter = 0
         self.input_size = input_size
+        self.factor = 1
+        self.opt = opt
+        if self.opt == "min":
+            self.factor = -1
     
     def fitness(self, solution):
-        pass
+        self.counter += 1
     
     def random_solution(self):
         pass

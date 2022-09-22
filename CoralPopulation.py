@@ -27,8 +27,6 @@ class Coral:
     def get_fitness(self):
         if not self.fitness_calculated:
             self.fitness = self.objfunc.fitness(self.solution)
-            if self.opt == "min":
-                self.fitness *= -1
             self.fitness_calculated = True
         return self.fitness
     
@@ -36,7 +34,7 @@ class Coral:
         self.substrate = substrate
     
     def reproduce(self, strength, population):
-        new_solution = self.substrate.evolve(self.solution.copy(), strength, [c.solution.copy() for c in population])
+        new_solution = self.substrate.evolve(self, strength, population, self.objfunc)
         new_solution = self.objfunc.check_bounds(new_solution)
         return Coral(new_solution, self.objfunc, self.opt)
 
@@ -49,7 +47,10 @@ class CoralPopulation:
         self.size = size
         self.objfunc = objfunc
         self.substrates = substrates
-        self.fitness_count = 0
+        self.fit_improvement = [0]*len(substrates)
+        self.substrate_history = []
+        self.substrate_weight = [1]*len(substrates)
+
         self.opt = opt
 
         if population is None:
@@ -67,8 +68,6 @@ class CoralPopulation:
         for i in range(amount):
             substrate_idx = self.substrate_list[i]
             new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.opt, self.substrates[substrate_idx])
-            new_coral.get_fitness()
-            self.fitness_count += 1
             self.population.append(new_coral)
     
     def evolve_with_substrates(self, mut_strength):
@@ -78,25 +77,58 @@ class CoralPopulation:
             if i < len(self.population):
                 substrate_groups[idx].append(self.population[i])
         
+        
         # Reproduce the corals of each group
         larvae = []        
-        for coral_group in substrate_groups:
+        for i, coral_group in enumerate(substrate_groups):
             for coral in coral_group:
                 # Generate new coral
-                new_coral = coral.reproduce(mut_strength, coral_group.copy())
-        
-                # Evaluate it's fitness
-                new_coral.get_fitness()
-                self.fitness_count += 1
-        
+                new_coral = coral.reproduce(mut_strength, coral_group)
+                
+                # Update the fitness improvement record
+                self.fit_improvement[i] += new_coral.get_fitness()/len(coral_group)
+
                 # Add larva to the list of larvae
                 larvae.append(new_coral)
-        
         return larvae
 
-    
+    def amplify_probability(self, values):
+        weight = np.array(self.fit_improvement)
+        weight = weight/weight.sum()
+        weight = np.exp(weight)
+
+        if self.opt == "min":
+            weight = 1/weight
+
+        weight -= 9*min(weight)/10
+        for i in range(7):
+            weight = np.log(1-weight)/np.log(1-weight).sum()
+        return weight
+
     def generate_substrates(self):
-        self.substrate_list = [random.randrange(0,len(self.substrates)) for i in range(self.size)]
+        n_substrates = len(self.substrates)
+
+        # Assign the probability of each substrate
+        weight = np.ones(n_substrates)/n_substrates
+        if sum(self.fit_improvement) != 0:
+            # Normalize the fitness record of each substrate
+            weight = self.amplify_probability(weight)
+           
+            print(weight)
+
+        self.substrate_weight = weight
+        
+        # Choose each substrate with the weights chosen
+        self.substrate_list = random.choices(range(n_substrates), weights=weight, k=self.size)
+
+        # Assign the substrate to each coral
+        for idx, coral in enumerate(self.population):
+            substrate_idx = self.substrate_list[idx]
+            coral.set_substrate(self.substrates[substrate_idx])
+
+        self.substrate_history.append(np.array(self.fit_improvement))
+        # Reset fitness improvement record
+        self.fit_improvement = [0]*n_substrates
 
     def larvae_setting(self, larvae_list, attempts):
         for larva in larvae_list:
@@ -104,7 +136,7 @@ class CoralPopulation:
             setted = False
             idx = -1
 
-            # Try to settle 'attempts' times
+            # Try to settle 'attempts times
             while attempts_left > 0 and not setted:
                 # Choose a random position
                 idx = random.randrange(0, self.size)
@@ -126,12 +158,13 @@ class CoralPopulation:
         
     
     def budding(self, proportion, attempts):
-        n_corals = int(self.size*proportion)
+        if len(self.population) <= self.size*0.2:
+            n_corals = int(self.size*proportion)
 
-        corals = self.population.copy()
-        duplicates = sorted(self.population, reverse=True, key = lambda c: c.get_fitness())[:n_corals]
+            corals = self.population.copy()
+            duplicates = sorted(self.population, reverse=True, key = lambda c: c.get_fitness())[:n_corals]
 
-        self.larvae_setting(duplicates, attempts)
+            self.larvae_setting(duplicates, attempts)
     
     def depredation(self, proportion, probability):
         # Calculate the number of affected corals
@@ -142,8 +175,14 @@ class CoralPopulation:
         affected_corals = list(np.argsort(fitness_values))[:amount]
 
         # Set a 'dead' flag in the affected corals with a small probability
+        alive_count = len(self.population)
         for i in affected_corals:
-            self.population[i].is_dead = random.random() <= probability
+            if alive_count <= 2:
+                break
+            dies = random.random() <= probability
+            self.population[i].is_dead = dies
+            if dies:
+                alive_count -= 1
 
         # Remove the dead corals from the population
         self.population = list(filter(lambda c: not c.is_dead, self.population))

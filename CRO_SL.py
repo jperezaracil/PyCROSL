@@ -36,7 +36,7 @@ class CRO_SL:
         self.Pd = params["Pd"]
         
         # Maximization or Minimization
-        self.opt = params["opt"]
+        self.opt = objfunc.opt
 
         # Verbose parameters
         self.verbose = params["verbose"]
@@ -86,8 +86,10 @@ class CRO_SL:
 
         larvae = self.evolve_with_substrates()
         
+        
         self.larvae_setting(larvae)
-        self.budding()
+        
+        #self.budding()
         if depredate:
             self.depredation()
 
@@ -99,7 +101,7 @@ class CRO_SL:
     def stopping_condition(self, gen, time_start):
         stop = True
         if self.stop_cond == "neval":
-            stop = self.population.fitness_count >= self.fitness_count
+            stop = self.objfunc.counter >= self.fitness_count
         elif self.stop_cond == "ngen":
             stop = gen >= self.Ngen
         elif self.stop_cond == "time":
@@ -124,7 +126,7 @@ class CRO_SL:
             self.step()
             gen += 1
             if self.verbose and time.time() - display_timer > self.v_timer:
-                self.step_info(gen, display_timer)
+                self.step_info(gen, real_time_start)
                 display_timer = time.time()
                 
         self.real_time_spent = time.time() - real_time_start
@@ -138,59 +140,87 @@ class CRO_SL:
         if self.opt == "min":
             best_fitness *= -1
         print(f"\tBest fitness: {best_fitness}")
-        print(f"\tEvaluations of fitness: {self.population.fitness_count}\n")
+        print(f"\tEvaluations of fitness: {self.objfunc.counter}\n")
+        print(f"\tSubstrate probability: {self.population.substrate_weight}")
 
     def display_report(self):
+        factor = 1
+        if self.opt == "min":
+            factor = -1
+
+        # Print Info
         print("Number of generations:", len(self.history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
-        print("Number of fitness evaluations:", self.population.fitness_count)
-        best_fitness = self.population.best_solution()[1]
-        if self.opt == "min":
-            best_fitness *= -1
+        print("Substrate probability: ", self.population.substrate_weight)
+        print("Number of fitness evaluations:", self.objfunc.counter)
+        best_fitness = factor * self.population.best_solution()[1]
+        
         print("Best fitness:", best_fitness)
-        plt.plot(self.history)
-        plt.xlabel("generations")
-        plt.ylabel("fitness")
-        plt.title("CRO_SL")
+
+        # Plot fitness history
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10,5))
+        fig.suptitle("CRO_SL")
+
+        ax1.plot(self.history, "blue")
+        ax1.set_xlabel("generations")
+        ax1.set_ylabel("fitness")
+        ax1.set_title("CRO_SL fitness")
+
+        m = np.array(self.population.substrate_history)[1:].T
+        for i in m:
+            ax2.plot(factor * i)
+        ax2.legend([i.evolution_method for i in self.substrates])
+        ax2.set_xlabel("generations")
+        ax2.set_ylabel("fitness")
+        ax2.set_title("Fitness of each substrate")
         plt.show()
         
 def main():
-    substrates_int = [SubstrateInt("AddOne"), SubstrateInt("DGauss"), SubstrateInt("Perm"),
-    SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint"), SubstrateInt("Xor")]
+    substrates_int = [SubstrateInt("SBX"), SubstrateInt("DGauss"), SubstrateInt("Perm"),
+     SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint"), SubstrateInt("Xor")]
+    #substrates_int = [SubstrateInt("DE/best/1"), SubstrateInt("DE/rand/1"), SubstrateInt("DE/rand/2"),
+    # SubstrateInt("DE/best/2"), SubstrateInt("DE/current-to-best/1"), SubstrateInt("DE/current-to-rand/1"),
+    # SubstrateInt("AddOne"), SubstrateInt("DGauss"), SubstrateInt("Perm"),
+    # SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint"), SubstrateInt("Xor")]
 
-    substrates_real = [SubstrateReal("Gauss"), SubstrateReal("Perm"), SubstrateReal("1point"),
-     SubstrateReal("2point"), SubstrateReal("Multipoint")]
+    substrates_real = [SubstrateReal("SBX"), SubstrateReal("Perm"), SubstrateReal("1point"),
+     SubstrateReal("2point"), SubstrateReal("Multipoint"), SubstrateReal("BLXalpha"), SubstrateReal("DE/current-to-best/1")]
+    #substrates_real = [SubstrateReal("SA")]
+    #substrates_real = [SubstrateReal("DE/best/1"), SubstrateReal("DE/rand/1"), SubstrateReal("DE/rand/2"),
+    # SubstrateReal("DE/best/2"), SubstrateReal("DE/current-to-best/1"), SubstrateReal("DE/current-to-rand/1")]
+
     
     params = {
-        "ReefSize": 500,
+        "ReefSize": 100,
         "rho": 0.5,
         "mut_str": 0.04,
         "Fb": 0.1,
         "Fa": 0.01,
-        "Fd": 0.14,
-        "Pd": 0.6,
-        "k": 3,
+        "Fd": 0.2,
+        "Pd": 0.4,
+        "k": 5,
         "K": 20,
         "create_duplicates": True,
 
         "stop_cond": "time",
-        "time_limit": 30.0,
+        "time_limit": 10.0,
         "Ngen": 100,
         "Neval": 4000,
         "fit_target": 1000,
-
-        "opt": "max",
 
         "verbose": True,
         "v_timer": 5
     }
 
-    #c = CRO_SL(DiophantineEq(100000, np.random.randint(-100, 100, size=100000), -12), substrates_int, params)
-    c = CRO_SL(MaxOnes(1000), substrates_int, params)
-    #c = CRO_SL(Sphere(1000), substrates_real, params)
-    #c = CRO_SL(MaxOnesReal(1000), substrates_real, params)
-    #c = CRO_SL(Test1(1000), substrates_real, params)
+    #objfunc = MaxOnes(1000)
+    #objfunc = Test1(1000, "min")
+
+    c = CRO_SL(DiophantineEq(100000, np.random.randint(-100, 100, size=100000), -12), substrates_int, params)
+    #c = CRO_SL(MaxOnes(1000), substrates_int, params)
+    #c = CRO_SL(MaxOnesReal(1000, "min"), substrates_real, params)
+    #c = CRO_SL(objfunc, substrates_int, params)
+    #c = CRO_SL(objfunc, substrates_real, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()
