@@ -33,8 +33,8 @@ class Coral:
     def set_substrate(self, substrate):
         self.substrate = substrate
     
-    def reproduce(self, strength, population):
-        new_solution = self.substrate.evolve(self, strength, population, self.objfunc)
+    def reproduce(self, population):
+        new_solution = self.substrate.evolve(self, population, self.objfunc)
         new_solution = self.objfunc.check_bounds(new_solution)
         return Coral(new_solution, self.objfunc, self.opt)
 
@@ -70,7 +70,7 @@ class CoralPopulation:
             new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.opt, self.substrates[substrate_idx])
             self.population.append(new_coral)
     
-    def evolve_with_substrates(self, mut_strength):
+    def evolve_with_substrates(self):
         # Divide the population based on their substrate type
         substrate_groups = [[] for i in self.substrates]
         for i, idx in enumerate(self.substrate_list):
@@ -83,7 +83,7 @@ class CoralPopulation:
         for i, coral_group in enumerate(substrate_groups):
             for coral in coral_group:
                 # Generate new coral
-                new_coral = coral.reproduce(mut_strength, coral_group)
+                new_coral = coral.reproduce(coral_group)
                 
                 # Update the fitness improvement record
                 self.fit_improvement[i] += new_coral.get_fitness()/len(coral_group)
@@ -97,11 +97,12 @@ class CoralPopulation:
         weight = weight/weight.sum()
         weight = np.exp(weight)
 
-        if self.opt == "min":
-            weight = 1/weight
+        #if self.opt == "min":
+        #    weight = 1/weight
 
         weight -= 9*min(weight)/10
-        for i in range(7):
+        weight = weight/weight.sum()
+        for i in range(3):
             weight = np.log(1-weight)/np.log(1-weight).sum()
         return weight
 
@@ -112,9 +113,7 @@ class CoralPopulation:
         weight = np.ones(n_substrates)/n_substrates
         if sum(self.fit_improvement) != 0:
             # Normalize the fitness record of each substrate
-            weight = self.amplify_probability(weight)
-           
-            print(weight)
+            pass#weight = self.amplify_probability(weight)
 
         self.substrate_weight = weight
         

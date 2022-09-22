@@ -6,9 +6,9 @@ from Substrate import *
 Substrate class that has discrete mutation and cross methods
 """
 class SubstrateInt(Substrate):
-    def __init__(self, evolution_method):
+    def __init__(self, evolution_method, params = None):
         self.evolution_method = evolution_method
-        super().__init__(self.evolution_method)
+        super().__init__(self.evolution_method, params)
     
     """
     Applies a mutation method depending on the type of substrate
@@ -30,15 +30,15 @@ class SubstrateInt(Substrate):
         elif self.evolution_method == "BLXalpha":
             result = bxalpha(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "SBX":
-            result = sbx(solution.solution.copy(), solution2.solution.copy(), strength)
+            result = sbx(solution.solution.copy(), solution2.solution.copy(), self.params["F"])
         elif self.evolution_method == "Perm":
-            result = permutation(solution.solution.copy(), strength)
+            result = permutation(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Xor":
-            result = xorMask(solution.solution.copy(), strength)
+            result = xorMask(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "DGauss":
-            result = discreteGaussian(solution.solution.copy(), strength)
+            result = discreteGaussian(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "AddOne":
-            result = addOne(solution.solution.copy(), strength)
+            result = addOne(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "DE/rand/1":
             result = DEBest1(solution.solution, others, 2, 0.8)
         elif self.evolution_method == "DE/best/1":
@@ -52,9 +52,9 @@ class SubstrateInt(Substrate):
         elif self.evolution_method == "DE/current-to-best/1":
             result = DECurrentToRand1(solution.solution, others, 2, 0.8)
         elif self.evolution_method == "SA":
-            result = sim_annealing(solution, strength, objfunc)
+            result = sim_annealing(solution, self.params["F"], objfunc)
         elif self.evolution_method == "HS":
-            result = harmony_search(solution.solution.copy(), population, strength)
+            result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"])
         elif self.evolution_method == "Rand":
             result = random_replace(solution.solution.copy())
         else:
