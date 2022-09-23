@@ -31,6 +31,7 @@ class CRO_SL:
         self.k = params["k"]
         self.K = params["K"]
         self.Pd = params["Pd"]
+        self.dynamic = params["dynamic"]
         
         # Maximization or Minimization
         self.opt = objfunc.opt
@@ -72,8 +73,9 @@ class CRO_SL:
     def depredation(self):
         self.population.depredation(self.Pd, self.Fd)
 
-    def step(self, depredate=True):
-        self.population.generate_substrates()
+    def step(self, depredate=True, dynamic=True):
+        if dynamic:
+            self.population.generate_substrates()
 
         larvae = self.evolve_with_substrates()
         
@@ -110,9 +112,9 @@ class CRO_SL:
         display_timer = time.time()
 
         self.init_population()
-        self.step(depredate=False)
+        self.step(depredate=False, dynamic=True)
         while not self.stopping_condition(gen, real_time_start):
-            self.step()
+            self.step(dynamic=self.dynamic)
             gen += 1
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
@@ -132,7 +134,7 @@ class CRO_SL:
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
         print(f"\tSubstrate probability:")
         subs_names = [i.evolution_method for i in self.substrates]
-        weights = [round(i, 3) for i in self.population.substrate_weight]
+        weights = [round(i, 6) for i in self.population.substrate_weight]
         adjust = max([len(i) for i in subs_names])
         for idx, val in enumerate(subs_names):
             print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
@@ -150,7 +152,7 @@ class CRO_SL:
         print("Number of fitness evaluations:", self.objfunc.counter)
         print(f"\tSubstrate probability:")
         subs_names = [i.evolution_method for i in self.substrates]
-        weights = [round(i, 3) for i in self.population.substrate_weight]
+        weights = [round(i, 6) for i in self.population.substrate_weight]
         adjust = max([len(i) for i in subs_names])
         for idx, val in enumerate(subs_names):
             print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
@@ -159,21 +161,31 @@ class CRO_SL:
         print("Best fitness:", best_fitness)
 
         # Plot fitness history
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10,5))
-        fig.suptitle("CRO_SL")
+        #fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10,5))
+        #fig.suptitle("CRO_SL")
 
-        ax1.plot(self.history, "blue")
-        ax1.set_xlabel("generations")
-        ax1.set_ylabel("fitness")
-        ax1.set_title("CRO_SL fitness")
+        plt.subplot(2, 2, 1)
+        plt.plot(self.history, "blue")
+        plt.xlabel("generations")
+        plt.ylabel("fitness")
+        plt.title("CRO_SL fitness")
 
+        plt.subplot(2, 2, 2)
         m = np.array(self.population.substrate_history)[1:].T
         for i in m:
-            ax2.plot(factor * i)
-        ax2.legend([i.evolution_method for i in self.substrates])
-        ax2.set_xlabel("generations")
-        ax2.set_ylabel("fitness")
-        ax2.set_title("Fitness of each substrate")
+            plt.plot(factor * i)
+        plt.legend([i.evolution_method for i in self.substrates])
+        plt.xlabel("generations")
+        plt.ylabel("fitness")
+        plt.title("Fitness of each substrate")
+
+        plt.subplot(2, 2, 3)
+        prob_data = np.array(self.population.substrate_w_history).T
+        plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
+        plt.legend()
+        plt.xlabel("generations")
+        plt.ylabel("probability")
+        plt.title("Probability of each substrate")
         plt.show()
         
 def main():
@@ -192,13 +204,13 @@ def main():
         SubstrateReal("Multipoint"),
         SubstrateReal("BLXalpha", {"F":0.8}),
         #SubstrateReal("Rand"),
-        SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/rand/1", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/best/2", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/current-to-best/1", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/current-to-rand/1", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("DE/rand/1", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("DE/best/2", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("DE/current-to-best/1", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("DE/current-to-rand/1", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
         SubstrateReal("Gauss", {"F":0.07})]
     
     params = {
@@ -209,14 +221,16 @@ def main():
         "k": 5,
         "K": 20,
 
-        "stop_cond": "time",
-        "time_limit": 120.0,
-        "Ngen": 100,
+        "stop_cond": "ngen",
+        "time_limit": 10.0,
+        "Ngen": 200,
         "Neval": 4000,
         "fit_target": 1000,
 
         "verbose": True,
-        "v_timer": 5
+        "v_timer": 1,
+
+        "dynamic": True
     }
 
     #objfunc = MaxOnes(1000)

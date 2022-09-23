@@ -50,6 +50,7 @@ class CoralPopulation:
         self.fit_improvement = [0]*len(substrates)
         self.substrate_history = []
         self.substrate_weight = [1]*len(substrates)
+        self.substrate_w_history = [[1/len(substrates)]*len(substrates)]
 
         self.opt = opt
 
@@ -92,33 +93,31 @@ class CoralPopulation:
                 larvae.append(new_coral)
         return larvae
 
-    def amplify_probability(self, values):
-        weight = np.array(self.fit_improvement)
-        weight = weight/weight.sum()
-        weight = np.exp(weight)
+    def amplify_probability(self, values, factor):
+        # Normalization
+        weight = np.array(values)
+        if weight.sum() != 0:
+            weight = weight/weight.sum()
+        #print(weight)
+        
+        # softmax to convert to a probability distribution
+        prob = np.exp(weight/factor)/np.exp(weight/factor).sum()
+        if (prob <= 0.00001).any():
+            prob += 0.00003
+            prob = prob/prob.sum()
 
-        #if self.opt == "min":
-        #    weight = 1/weight
-
-        weight -= 9*min(weight)/10
-        weight = weight/weight.sum()
-        for i in range(3):
-            weight = np.log(1-weight)/np.log(1-weight).sum()
-        return weight
+        return prob
 
     def generate_substrates(self):
         n_substrates = len(self.substrates)
 
         # Assign the probability of each substrate
-        weight = np.ones(n_substrates)/n_substrates
-        if sum(self.fit_improvement) != 0:
-            # Normalize the fitness record of each substrate
-            pass#weight = self.amplify_probability(weight)
-
-        self.substrate_weight = weight
+        self.substrate_weight = self.amplify_probability(self.fit_improvement, 0.001)
+        self.substrate_w_history.append(self.substrate_weight)
         
         # Choose each substrate with the weights chosen
-        self.substrate_list = random.choices(range(n_substrates), weights=weight, k=self.size)
+        self.substrate_list = random.choices(range(n_substrates), 
+                                             weights=self.substrate_weight, k=self.size)
 
         # Assign the substrate to each coral
         for idx, coral in enumerate(self.population):
