@@ -67,7 +67,7 @@ class Sphere(AbsObjetiveFunc):
         return self.factor * (solution**2).sum()
     
     def random_solution(self):
-        return np.random.random(self.size)*200 - 100
+        return 200*np.random.random(self.size)-100
     
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
@@ -85,10 +85,10 @@ class Rosenbrock(AbsObjetiveFunc):
         return self.factor * result.sum()
     
     def random_solution(self):
-        return 10*np.random.random(self.size)-20
+        return 200*np.random.random(self.size)-100
     
     def check_bounds(self, solution):
-        return np.clip(solution, -10, 10)
+        return np.clip(solution, -100, 100)
 
 class Rastrigin(AbsObjetiveFunc):
     def __init__(self, size, opt="min"):
@@ -98,10 +98,11 @@ class Rastrigin(AbsObjetiveFunc):
     def fitness(self, solution):
         super().fitness(solution)
         A = 10
-        return self.factor * A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum()
+        #print(A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
+        return self.factor * (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
     
     def random_solution(self):
-        return 5.12*np.random.random(self.size)-10.24
+        return 10.24*np.random.random(self.size)-5.12
     
     def check_bounds(self, solution):
         return np.clip(solution, -5.12, 5.12)
@@ -116,7 +117,7 @@ class Test1(AbsObjetiveFunc):
         return self.factor * sum([(2*solution[i-1] + solution[i]**2*solution[i+1]-solution[i-1])**2 for i in range(1, solution.size-1)])
     
     def random_solution(self):
-        return np.random.random(self.size)*2
+        return 4*np.random.random(self.size)-2
     
     def check_bounds(self, solution):
         return np.clip(solution, -2, 2)

@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import warnings
 from Substrate import *
 
 """
@@ -43,16 +44,20 @@ class Coral:
 Population of corals
 """
 class CoralPopulation:    
-    def __init__(self, size, objfunc, substrates, opt, population=None):
+    def __init__(self, size, objfunc, substrates, dyn_metric, prob_amp, population=None):
         self.size = size
         self.objfunc = objfunc
         self.substrates = substrates
-        self.fit_improvement = [0]*len(substrates)
+        self.dyn_metric = dyn_metric
+        self.prob_amp = prob_amp
+        self.substrate_metric = [0]*len(substrates)
         self.substrate_history = []
         self.substrate_weight = [1]*len(substrates)
         self.substrate_w_history = [[1/len(substrates)]*len(substrates)]
 
-        self.opt = opt
+        self.prob_amp_warned = False
+
+        self.opt = objfunc.opt
 
         if population is None:
             self.population = []
@@ -71,6 +76,24 @@ class CoralPopulation:
             new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.opt, self.substrates[substrate_idx])
             self.population.append(new_coral)
     
+    def evaluate_substrate(self, idx, fit_list):
+        if len(fit_list) > 0:
+            if self.dyn_metric == "max":
+                self.substrate_metric[idx] = max(fit_list)
+            elif self.dyn_metric == "avg":
+                self.substrate_metric[idx] = sum(fit_list)/len(fit_list)
+            elif self.dyn_metric == "med":
+                if len(fit_list) % 2 == 0:
+                    self.substrate_metric[idx] = fit_list[len(fit_list)//2-1]+fit_list[len(fit_list)//2]
+                else:
+                    self.substrate_metric[idx] = fit_list[len(fit_list)//2]
+            elif self.dyn_metric == "min":
+                self.substrate_metric[idx] = min(fit_list)
+        else:
+            self.substrate_metric[idx] = 0
+
+
+
     def evolve_with_substrates(self):
         # Divide the population based on their substrate type
         substrate_groups = [[] for i in self.substrates]
@@ -82,28 +105,50 @@ class CoralPopulation:
         # Reproduce the corals of each group
         larvae = []        
         for i, coral_group in enumerate(substrate_groups):
+            # Restart fitness record if there are corals in this substrate
+            #if len(coral_group) != 0:
+            #    self.substrate_metric[i] = 0
+
+            substrate_fitness_list = []
+
             for coral in coral_group:
                 # Generate new coral
                 new_coral = coral.reproduce(coral_group)
                 
                 # Update the fitness improvement record
-                self.fit_improvement[i] += new_coral.get_fitness()/len(coral_group)
+                #self.substrate_metric[i] += new_coral.get_fitness()/len(coral_group)
+                substrate_fitness_list.append(new_coral.get_fitness())
 
                 # Add larva to the list of larvae
                 larvae.append(new_coral)
+            
+            self.evaluate_substrate(i, substrate_fitness_list)
+            
         return larvae
 
-    def amplify_probability(self, values, factor):
+    def amplify_probability(self, values):
         # Normalization
         weight = np.array(values)
         if weight.sum() != 0:
-            weight = weight/weight.sum()
+            weight = weight/np.abs(weight.sum())
         #print(weight)
         
         # softmax to convert to a probability distribution
-        prob = np.exp(weight/factor)/np.exp(weight/factor).sum()
+        exp_vec = np.exp(weight)
+        amplified_vec = exp_vec**(1/self.prob_amp)
+        
+
+        if (amplified_vec == 0).any():
+            if not self.prob_amp_warned:
+                print("Warning: the probability amplification parameter is too small, defaulting to prob_amp = 1")
+                self.prob_amp_warned = True
+            prob = exp_vec/exp_vec.sum()
+        else:
+            prob = amplified_vec/amplified_vec.sum()
+            
+        
         if (prob <= 0.00001).any():
-            prob += 0.00003
+            prob += 0.02/len(values)
             prob = prob/prob.sum()
 
         return prob
@@ -112,7 +157,7 @@ class CoralPopulation:
         n_substrates = len(self.substrates)
 
         # Assign the probability of each substrate
-        self.substrate_weight = self.amplify_probability(self.fit_improvement, 0.001)
+        self.substrate_weight = self.amplify_probability(self.substrate_metric)
         self.substrate_w_history.append(self.substrate_weight)
         
         # Choose each substrate with the weights chosen
@@ -124,9 +169,7 @@ class CoralPopulation:
             substrate_idx = self.substrate_list[idx]
             coral.set_substrate(self.substrates[substrate_idx])
 
-        self.substrate_history.append(np.array(self.fit_improvement))
-        # Reset fitness improvement record
-        self.fit_improvement = [0]*n_substrates
+        self.substrate_history.append(np.array(self.substrate_metric))
 
     def larvae_setting(self, larvae_list, attempts):
         for larva in larvae_list:
@@ -185,6 +228,13 @@ class CoralPopulation:
         # Remove the dead corals from the population
         self.population = list(filter(lambda c: not c.is_dead, self.population))
 
-    def extreme_depredation(self):
-        pass    
+    def extreme_depredation(self, tol=0):
+        solutions = [i.solution for i in self.population]
+
+        repeated_idx = []
+        for idx, val in enumerate(solutions):
+            if any([(np.abs(i-val) < tol).all() for i in solutions[:idx]]):
+                repeated_idx.append(idx)
+
+        self.population = [val for idx, val in enumerate(self.population) if idx not in repeated_idx]
 

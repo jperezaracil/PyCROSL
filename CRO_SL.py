@@ -31,10 +31,14 @@ class CRO_SL:
         self.k = params["k"]
         self.K = params["K"]
         self.Pd = params["Pd"]
+
+        # Dynamic parameters
         self.dynamic = params["dynamic"]
+        self.dyn_metric = params["dyn_metric"]
+        self.prob_amp = params["prob_amp"]
         
         # Maximization or Minimization
-        self.opt = objfunc.opt
+        #self.opt = objfunc.opt
 
         # Verbose parameters
         self.verbose = params["verbose"]
@@ -50,7 +54,7 @@ class CRO_SL:
         # Data structures of the algorithm
         self.objfunc = objfunc
         self.substrates = substrates
-        self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.opt)
+        self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.dyn_metric, self.prob_amp)
         
         # Metrics
         self.history = []
@@ -73,6 +77,9 @@ class CRO_SL:
     def depredation(self):
         self.population.depredation(self.Pd, self.Fd)
 
+    def extreme_depredation(self):
+        self.population.extreme_depredation()
+
     def step(self, depredate=True, dynamic=True):
         if dynamic:
             self.population.generate_substrates()
@@ -82,23 +89,26 @@ class CRO_SL:
         self.larvae_setting(larvae)
         
         if depredate:
+            self.extreme_depredation()
             self.depredation()
+        
 
         _, best_fitness = self.population.best_solution()
-        if self.opt == "min":
+        if self.objfunc.opt == "min":
             best_fitness *= -1
+            
         self.history.append(best_fitness)
     
     def stopping_condition(self, gen, time_start):
         stop = True
         if self.stop_cond == "neval":
-            stop = self.objfunc.counter >= self.fitness_count
+            stop = self.objfunc.counter >= self.Neval
         elif self.stop_cond == "ngen":
             stop = gen >= self.Ngen
         elif self.stop_cond == "time":
             stop = time.time()-time_start >= self.time_limit
         elif self.stop_cond == "fit_target":
-            if self.opt == "max":
+            if self.objfunc.opt == "max":
                 stop = self.population.best_solution()[1] >= self.fit_target
             else:
                 stop = -self.population.best_solution()[1] <= self.fit_target
@@ -128,7 +138,7 @@ class CRO_SL:
         print(f"Time Spent {round(time.time() - start_time,2)}s:")
         print(f"\tGeneration: {gen}")
         best_fitness = self.population.best_solution()[1]
-        if self.opt == "min":
+        if self.objfunc.opt == "min":
             best_fitness *= -1
         print(f"\tBest fitness: {best_fitness}")
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
@@ -142,7 +152,7 @@ class CRO_SL:
 
     def display_report(self):
         factor = 1
-        if self.opt == "min":
+        if self.objfunc.opt == "min":
             factor = -1
 
         # Print Info
@@ -161,8 +171,8 @@ class CRO_SL:
         print("Best fitness:", best_fitness)
 
         # Plot fitness history
-        #fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10,5))
-        #fig.suptitle("CRO_SL")
+        fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10,10))
+        fig.suptitle("CRO_SL")
 
         plt.subplot(2, 2, 1)
         plt.plot(self.history, "blue")
@@ -197,46 +207,52 @@ def main():
     # SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint"), SubstrateInt("Xor")]
 
     substrates_real = [
-        SubstrateReal("SBX", {"F":0.5}),
-        SubstrateReal("Perm", {"F":0.3}),
-        SubstrateReal("1point"),
-        SubstrateReal("2point"),
-        SubstrateReal("Multipoint"),
-        SubstrateReal("BLXalpha", {"F":0.8}),
+        #SubstrateReal("SBX", {"F":0.5}),
+        #SubstrateReal("Perm", {"F":0.3}),
+        #SubstrateReal("1point"),
+        #SubstrateReal("2point"),
+        #SubstrateReal("Multipoint"),
+        #SubstrateReal("BLXalpha", {"F":0.8}),
         #SubstrateReal("Rand"),
         #SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
-        #SubstrateReal("DE/rand/1", {"F":0.5, "Pr":0.8}),
-        #SubstrateReal("DE/best/2", {"F":0.5, "Pr":0.8}),
+        SubstrateReal("DE/rand/1", {"F":0.4, "Pr":0.8}),
+        #SubstrateReal("DE/best/2", {"F":0.4, "Pr":0.8}),
         #SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
-        #SubstrateReal("DE/current-to-best/1", {"F":0.5, "Pr":0.8}),
-        #SubstrateReal("DE/current-to-rand/1", {"F":0.5, "Pr":0.8}),
+        SubstrateReal("DE/current-to-best/1", {"F":0.4, "Pr":0.8}),
+        #SubstrateReal("DE/current-to-rand/1", {"F":0.4, "Pr":0.8}),
         #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("Gauss", {"F":0.07})]
+        #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
+        #SubstrateReal("Gauss", {"F":0.14})
+    ]
     
     params = {
-        "ReefSize": 500,
-        "rho": 0.6,
+        "ReefSize": 100,
+        "rho": 0.8,
         "Fd": 0.3,
-        "Pd": 0.4,
-        "k": 5,
+        "Pd": 0.1,
+        "k": 3,
         "K": 20,
 
-        "stop_cond": "ngen",
-        "time_limit": 10.0,
+        "stop_cond": "neval",
+        "time_limit": 120.0,
         "Ngen": 200,
-        "Neval": 4000,
+        "Neval": 1e5,
         "fit_target": 1000,
 
         "verbose": True,
-        "v_timer": 1,
+        "v_timer": 5,
 
-        "dynamic": True
+        "dynamic": True,
+        "dyn_metric": "med",
+        "prob_amp": 0.1
     }
 
     #objfunc = MaxOnes(1000)
+    #objfunc = MaxOnesReal(1000)
+    #objfunc = Sphere(1000)
     #objfunc = Test1(30)
-    objfunc = Rosenbrock(1000)
-    #objfunc = Rastrigin(30)
+    #objfunc = Rosenbrock(30)
+    objfunc = Rastrigin(30)
 
     #c = CRO_SL(DiophantineEq(100000, np.random.randint(-100, 100, size=100000), -12), substrates_int, params)
     #c = CRO_SL(MaxOnes(1000), substrates_int, params)

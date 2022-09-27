@@ -49,7 +49,7 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "DE/current-to-best/1":
             result = DECurrentToRand1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
         elif self.evolution_method == "SA":
-            result = sim_annealing(solution, self.params["F"], objfunc)
+            result = sim_annealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.evolution_method == "HS":
             result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], 0.4)
         elif self.evolution_method == "Rand":
@@ -70,6 +70,8 @@ def gaussian(solution, strength):
 
 def permutation(solution, strength):
     mask = np.random.random(solution.shape) < strength
+    if np.count_nonzero(mask==1) < 2:
+        mask[random.sample(range(mask.size), 2)] = 1 
     np.random.shuffle(solution[mask])
     return solution
 
