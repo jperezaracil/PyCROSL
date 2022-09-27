@@ -36,9 +36,6 @@ class CRO_SL:
         self.dynamic = params["dynamic"]
         self.dyn_metric = params["dyn_metric"]
         self.prob_amp = params["prob_amp"]
-        
-        # Maximization or Minimization
-        #self.opt = objfunc.opt
 
         # Verbose parameters
         self.verbose = params["verbose"]
@@ -58,6 +55,7 @@ class CRO_SL:
         
         # Metrics
         self.history = []
+        self.pop_size = []
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
@@ -71,28 +69,24 @@ class CRO_SL:
     def larvae_setting(self, larvae):
         self.population.larvae_setting(larvae, self.k)
     
-    #def budding(self):
-        #self.population.budding(self.Fa, self.k)
-    
     def depredation(self):
         self.population.depredation(self.Pd, self.Fd)
 
     def extreme_depredation(self):
-        self.population.extreme_depredation()
+        self.population.extreme_depredation(self.K)
 
-    def step(self, depredate=True, dynamic=True):
+    def step(self, depredate=True, dynamic=True):        
         if dynamic:
             self.population.generate_substrates()
 
         larvae = self.evolve_with_substrates()
         
         self.larvae_setting(larvae)
-        
+
         if depredate:
             self.extreme_depredation()
             self.depredation()
         
-
         _, best_fitness = self.population.best_solution()
         if self.objfunc.opt == "min":
             best_fitness *= -1
@@ -124,7 +118,7 @@ class CRO_SL:
         self.init_population()
         self.step(depredate=False, dynamic=True)
         while not self.stopping_condition(gen, real_time_start):
-            self.step(dynamic=self.dynamic)
+            self.step(depredate=True, dynamic=self.dynamic)
             gen += 1
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
@@ -197,72 +191,3 @@ class CRO_SL:
         plt.ylabel("probability")
         plt.title("Probability of each substrate")
         plt.show()
-        
-def main():
-    substrates_int = [SubstrateInt("SBX"), SubstrateInt("DGauss"), SubstrateInt("Perm"),
-     SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint"), SubstrateInt("Xor")]
-    #substrates_int = [SubstrateInt("DE/best/1"), SubstrateInt("DE/rand/1"), SubstrateInt("DE/rand/2"),
-    # SubstrateInt("DE/best/2"), SubstrateInt("DE/current-to-best/1"), SubstrateInt("DE/current-to-rand/1"),
-    # SubstrateInt("AddOne"), SubstrateInt("DGauss"), SubstrateInt("Perm"),
-    # SubstrateInt("1point"), SubstrateInt("2point"), SubstrateInt("Multipoint"), SubstrateInt("Xor")]
-
-    substrates_real = [
-        #SubstrateReal("SBX", {"F":0.5}),
-        #SubstrateReal("Perm", {"F":0.3}),
-        #SubstrateReal("1point"),
-        #SubstrateReal("2point"),
-        #SubstrateReal("Multipoint"),
-        #SubstrateReal("BLXalpha", {"F":0.8}),
-        #SubstrateReal("Rand"),
-        #SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/rand/1", {"F":0.4, "Pr":0.8}),
-        #SubstrateReal("DE/best/2", {"F":0.4, "Pr":0.8}),
-        #SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/current-to-best/1", {"F":0.4, "Pr":0.8}),
-        #SubstrateReal("DE/current-to-rand/1", {"F":0.4, "Pr":0.8}),
-        #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
-        #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
-        #SubstrateReal("Gauss", {"F":0.14})
-    ]
-    
-    params = {
-        "ReefSize": 100,
-        "rho": 0.8,
-        "Fd": 0.3,
-        "Pd": 0.1,
-        "k": 3,
-        "K": 20,
-
-        "stop_cond": "neval",
-        "time_limit": 120.0,
-        "Ngen": 200,
-        "Neval": 1e5,
-        "fit_target": 1000,
-
-        "verbose": True,
-        "v_timer": 5,
-
-        "dynamic": True,
-        "dyn_metric": "med",
-        "prob_amp": 0.1
-    }
-
-    #objfunc = MaxOnes(1000)
-    #objfunc = MaxOnesReal(1000)
-    #objfunc = Sphere(1000)
-    #objfunc = Test1(30)
-    #objfunc = Rosenbrock(30)
-    objfunc = Rastrigin(30)
-
-    #c = CRO_SL(DiophantineEq(100000, np.random.randint(-100, 100, size=100000), -12), substrates_int, params)
-    #c = CRO_SL(MaxOnes(1000), substrates_int, params)
-    #c = CRO_SL(MaxOnesReal(1000, "min"), substrates_real, params)
-    #c = CRO_SL(objfunc, substrates_int, params)
-    c = CRO_SL(objfunc, substrates_real, params)
-    ind, fit = c.optimize()
-    print(ind)
-    c.display_report()
-    
-
-if __name__ == "__main__":
-    main()

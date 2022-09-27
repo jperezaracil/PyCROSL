@@ -11,7 +11,7 @@ class Coral:
     """
     Constructor
     """
-    def __init__(self, solution, objfunc, opt, substrate=None):
+    def __init__(self, solution, objfunc, substrate=None):
         self.solution = solution
         
         self.fitness_calculated = False
@@ -20,8 +20,6 @@ class Coral:
         self.is_dead = False
 
         self.objfunc = objfunc
-
-        self.opt = opt
 
         self.substrate = substrate
 
@@ -37,7 +35,7 @@ class Coral:
     def reproduce(self, population):
         new_solution = self.substrate.evolve(self, population, self.objfunc)
         new_solution = self.objfunc.check_bounds(new_solution)
-        return Coral(new_solution, self.objfunc, self.opt)
+        return Coral(new_solution, self.objfunc)
 
 
 """
@@ -57,8 +55,6 @@ class CoralPopulation:
 
         self.prob_amp_warned = False
 
-        self.opt = objfunc.opt
-
         if population is None:
             self.population = []
         
@@ -73,7 +69,7 @@ class CoralPopulation:
         self.population = []
         for i in range(amount):
             substrate_idx = self.substrate_list[i]
-            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.opt, self.substrates[substrate_idx])
+            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx])
             self.population.append(new_coral)
     
     def evaluate_substrate(self, idx, fit_list):
@@ -103,12 +99,9 @@ class CoralPopulation:
         
         
         # Reproduce the corals of each group
-        larvae = []        
+        larvae = []
         for i, coral_group in enumerate(substrate_groups):
             # Restart fitness record if there are corals in this substrate
-            #if len(coral_group) != 0:
-            #    self.substrate_metric[i] = 0
-
             substrate_fitness_list = []
 
             for coral in coral_group:
@@ -116,7 +109,6 @@ class CoralPopulation:
                 new_coral = coral.reproduce(coral_group)
                 
                 # Update the fitness improvement record
-                #self.substrate_metric[i] += new_coral.get_fitness()/len(coral_group)
                 substrate_fitness_list.append(new_coral.get_fitness())
 
                 # Add larva to the list of larvae
@@ -228,12 +220,16 @@ class CoralPopulation:
         # Remove the dead corals from the population
         self.population = list(filter(lambda c: not c.is_dead, self.population))
 
-    def extreme_depredation(self, tol=0):
+    def extreme_depredation(self, K, tol=0):
+        #solution_mat = np.array([i.solution for i in self.population])
+        #print(solution_mat.shape)
         solutions = [i.solution for i in self.population]
+        
 
         repeated_idx = []
+        #u, index, counts = np.unique(solution_mat, axis=0, return_index=True, return_counts=True)
         for idx, val in enumerate(solutions):
-            if any([(np.abs(i-val) < tol).all() for i in solutions[:idx]]):
+            if np.count_nonzero((val == x).all() for x in solutions[:idx]) > K:
                 repeated_idx.append(idx)
 
         self.population = [val for idx, val in enumerate(self.population) if idx not in repeated_idx]
