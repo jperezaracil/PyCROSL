@@ -1,3 +1,4 @@
+import enum
 import random
 import numpy as np
 import warnings
@@ -42,12 +43,17 @@ class Coral:
 Population of corals
 """
 class CoralPopulation:    
-    def __init__(self, size, objfunc, substrates, dyn_metric, prob_amp, population=None):
+    def __init__(self, size, objfunc, substrates, dyn_metric, prob_amp, group_subs, population=None):
         self.size = size
         self.objfunc = objfunc
         self.substrates = substrates
         self.dyn_metric = dyn_metric
         self.prob_amp = prob_amp
+        self.group_subs = group_subs
+
+        self.updated = False
+        self.identifier_list = []
+
         self.substrate_metric = [0]*len(substrates)
         self.substrate_history = []
         self.substrate_weight = [1]*len(substrates)
@@ -62,7 +68,10 @@ class CoralPopulation:
 
     def best_solution(self):
         best_solution = sorted(self.population, reverse=True, key = lambda c: c.get_fitness())[0]
-        return (best_solution.solution, best_solution.get_fitness())
+        best_fitness = best_solution.get_fitness()
+        if self.objfunc.opt == "min":
+            best_fitness *= -1
+        return (best_solution.solution, best_fitness)
 
     def generate_random(self, proportion):
         amount = int(self.size*proportion)
@@ -74,7 +83,7 @@ class CoralPopulation:
     
     def evaluate_substrate(self, idx, fit_list):
         if len(fit_list) > 0:
-            if self.dyn_metric == "max":
+            if self.dyn_metric == "best":
                 self.substrate_metric[idx] = max(fit_list)
             elif self.dyn_metric == "avg":
                 self.substrate_metric[idx] = sum(fit_list)/len(fit_list)
@@ -83,39 +92,64 @@ class CoralPopulation:
                     self.substrate_metric[idx] = fit_list[len(fit_list)//2-1]+fit_list[len(fit_list)//2]
                 else:
                     self.substrate_metric[idx] = fit_list[len(fit_list)//2]
-            elif self.dyn_metric == "min":
+            elif self.dyn_metric == "worse":
                 self.substrate_metric[idx] = min(fit_list)
         else:
             self.substrate_metric[idx] = 0
 
-
-
-    def evolve_with_substrates(self):
-        # Divide the population based on their substrate type
-        substrate_groups = [[] for i in self.substrates]
-        for i, idx in enumerate(self.substrate_list):
-            if i < len(self.population):
-                substrate_groups[idx].append(self.population[i])
-        
-        
-        # Reproduce the corals of each group
+    def evolve_with_substrates(self, Fb):
         larvae = []
-        for i, coral_group in enumerate(substrate_groups):
-            # Restart fitness record if there are corals in this substrate
-            substrate_fitness_list = []
+        if self.group_subs:
+            # Divide the population based on their substrate type
+            substrate_groups = [[] for i in self.substrates]
+            for i, idx in enumerate(self.substrate_list):
+                if i < len(self.population):
+                    substrate_groups[idx].append(self.population[i])
+            
+            
+            # Reproduce the corals of each group
+            for i, coral_group in enumerate(substrate_groups):
+                # Restart fitness record if there are corals in this substrate
+                substrate_fitness_list = []
 
-            for coral in coral_group:
-                # Generate new coral
-                new_coral = coral.reproduce(coral_group)
+                for coral in coral_group:
+                    # Generate new coral
+                    if random.random() <= Fb:
+                        new_coral = coral.reproduce(coral_group)
+                        
+                        # Update the fitness improvement record
+                        substrate_fitness_list.append(new_coral.get_fitness())
+                    else:
+                        new_coral = Coral(self.objfunc.random_solution(), self.objfunc)
+                    
+                    
+
+                    # Add larva to the list of larvae
+                    larvae.append(new_coral)
                 
-                # Update the fitness improvement record
-                substrate_fitness_list.append(new_coral.get_fitness())
+                self.evaluate_substrate(i, substrate_fitness_list)
+        else:
+            substrate_fitness_list = [[] for _ in self.substrates]
+            for idx, coral in enumerate(self.population):
+                # Generate new coral
+                if random.random() <= Fb:
+                    new_coral = coral.reproduce(self.population)
+                    
+                    # Get substrate index
+                    s_names = [i.evolution_method for i in self.substrates]
+                    s_idx = s_names.index(coral.substrate.evolution_method)
+
+                    # Update the fitness improvement record
+                    substrate_fitness_list[s_idx].append(new_coral.get_fitness())
+                else:
+                    new_coral = Coral(self.objfunc.random_solution(), self.objfunc)
 
                 # Add larva to the list of larvae
                 larvae.append(new_coral)
             
-            self.evaluate_substrate(i, substrate_fitness_list)
-            
+            for idx, val in enumerate(substrate_fitness_list):
+                self.evaluate_substrate(idx, val)
+
         return larvae
 
     def amplify_probability(self, values):
@@ -169,7 +203,7 @@ class CoralPopulation:
             setted = False
             idx = -1
 
-            # Try to settle 'attempts times
+            # Try to settle 
             while attempts_left > 0 and not setted:
                 # Choose a random position
                 idx = random.randrange(0, self.size)
@@ -220,16 +254,20 @@ class CoralPopulation:
         # Remove the dead corals from the population
         self.population = list(filter(lambda c: not c.is_dead, self.population))
 
+    def update_identifier_list(self):
+        if not self.updated:
+            self.identifier_list = [i.solution for i in self.population]
+            self.updated = True
+
     def extreme_depredation(self, K, tol=0):
-        #solution_mat = np.array([i.solution for i in self.population])
-        #print(solution_mat.shape)
-        solutions = [i.solution for i in self.population]
-        
+        #solutions = [i.solution for i in self.population]
+        self.update_identifier_list()
 
         repeated_idx = []
         #u, index, counts = np.unique(solution_mat, axis=0, return_index=True, return_counts=True)
-        for idx, val in enumerate(solutions):
-            if np.count_nonzero((val == x).all() for x in solutions[:idx]) > K:
+        for idx, val in enumerate(self.identifier_list):
+            if np.count_nonzero((np.isclose(val,x,tol)).all() for x in self.identifier_list[:idx]) > K:
+            #if self.amount_of_repeats(val) > K:
                 repeated_idx.append(idx)
 
         self.population = [val for idx, val in enumerate(self.population) if idx not in repeated_idx]

@@ -85,10 +85,10 @@ class Rosenbrock(AbsObjetiveFunc):
         return self.factor * result.sum()
     
     def random_solution(self):
-        return 20*np.random.random(self.size)-10
+        return 200*np.random.random(self.size)-100
     
     def check_bounds(self, solution):
-        return np.clip(solution, -10, 10)
+        return np.clip(solution, -100, 100)
 
 class Rastrigin(AbsObjetiveFunc):
     def __init__(self, size, opt="min"):

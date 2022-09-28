@@ -27,10 +27,12 @@ class CRO_SL:
         # Hyperparameters of the algorithm
         self.ReefSize = params["ReefSize"]
         self.rho = params["rho"]
+        self.Fb = params["Fb"]
         self.Fd = params["Fd"]
         self.k = params["k"]
         self.K = params["K"]
         self.Pd = params["Pd"]
+        self.group_subs = params["group_subs"]
 
         # Dynamic parameters
         self.dynamic = params["dynamic"]
@@ -51,7 +53,7 @@ class CRO_SL:
         # Data structures of the algorithm
         self.objfunc = objfunc
         self.substrates = substrates
-        self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.dyn_metric, self.prob_amp)
+        self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.dyn_metric, self.prob_amp, self.group_subs)
         
         # Metrics
         self.history = []
@@ -59,38 +61,20 @@ class CRO_SL:
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
-    
-    def init_population(self):
-        self.population.generate_random(self.rho)
-    
-    def evolve_with_substrates(self):
-        return self.population.evolve_with_substrates()
-    
-    def larvae_setting(self, larvae):
-        self.population.larvae_setting(larvae, self.k)
-    
-    def depredation(self):
-        self.population.depredation(self.Pd, self.Fd)
-
-    def extreme_depredation(self):
-        self.population.extreme_depredation(self.K)
 
     def step(self, depredate=True, dynamic=True):        
         if dynamic:
             self.population.generate_substrates()
 
-        larvae = self.evolve_with_substrates()
+        larvae = self.population.evolve_with_substrates(self.Fb)
         
-        self.larvae_setting(larvae)
+        self.population.larvae_setting(larvae, self.k)
 
         if depredate:
-            self.extreme_depredation()
-            self.depredation()
+            self.population.extreme_depredation(self.K)
+            self.population.depredation(self.Pd, self.Fd)
         
         _, best_fitness = self.population.best_solution()
-        if self.objfunc.opt == "min":
-            best_fitness *= -1
-            
         self.history.append(best_fitness)
     
     def stopping_condition(self, gen, time_start):
@@ -105,7 +89,7 @@ class CRO_SL:
             if self.objfunc.opt == "max":
                 stop = self.population.best_solution()[1] >= self.fit_target
             else:
-                stop = -self.population.best_solution()[1] <= self.fit_target
+                stop = self.population.best_solution()[1] <= self.fit_target
 
         return stop
 
@@ -115,7 +99,7 @@ class CRO_SL:
         real_time_start = time.time()
         display_timer = time.time()
 
-        self.init_population()
+        self.population.generate_random(self.rho)
         self.step(depredate=False, dynamic=True)
         while not self.stopping_condition(gen, real_time_start):
             self.step(depredate=True, dynamic=self.dynamic)
@@ -132,8 +116,6 @@ class CRO_SL:
         print(f"Time Spent {round(time.time() - start_time,2)}s:")
         print(f"\tGeneration: {gen}")
         best_fitness = self.population.best_solution()[1]
-        if self.objfunc.opt == "min":
-            best_fitness *= -1
         print(f"\tBest fitness: {best_fitness}")
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
         print(f"\tSubstrate probability:")
@@ -144,7 +126,7 @@ class CRO_SL:
             print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
         print()
 
-    def display_report(self):
+    def display_report(self, show_plots=True):
         factor = 1
         if self.objfunc.opt == "min":
             factor = -1
@@ -161,33 +143,34 @@ class CRO_SL:
         for idx, val in enumerate(subs_names):
             print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
         
-        best_fitness = factor * self.population.best_solution()[1]
+        best_fitness = self.population.best_solution()[1]
         print("Best fitness:", best_fitness)
 
-        # Plot fitness history
-        fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10,10))
-        fig.suptitle("CRO_SL")
+        if show_plots:
+            # Plot fitness history
+            fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10,10))
+            fig.suptitle("CRO_SL")
 
-        plt.subplot(2, 2, 1)
-        plt.plot(self.history, "blue")
-        plt.xlabel("generations")
-        plt.ylabel("fitness")
-        plt.title("CRO_SL fitness")
+            plt.subplot(2, 2, 1)
+            plt.plot(self.history, "blue")
+            plt.xlabel("generations")
+            plt.ylabel("fitness")
+            plt.title("CRO_SL fitness")
 
-        plt.subplot(2, 2, 2)
-        m = np.array(self.population.substrate_history)[1:].T
-        for i in m:
-            plt.plot(factor * i)
-        plt.legend([i.evolution_method for i in self.substrates])
-        plt.xlabel("generations")
-        plt.ylabel("fitness")
-        plt.title("Fitness of each substrate")
+            plt.subplot(2, 2, 2)
+            m = np.array(self.population.substrate_history)[1:].T
+            for i in m:
+                plt.plot(factor * i)
+            plt.legend([i.evolution_method for i in self.substrates])
+            plt.xlabel("generations")
+            plt.ylabel("fitness")
+            plt.title("Fitness of each substrate")
 
-        plt.subplot(2, 2, 3)
-        prob_data = np.array(self.population.substrate_w_history).T
-        plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
-        plt.legend()
-        plt.xlabel("generations")
-        plt.ylabel("probability")
-        plt.title("Probability of each substrate")
-        plt.show()
+            plt.subplot(2, 2, 3)
+            prob_data = np.array(self.population.substrate_w_history).T
+            plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
+            plt.legend()
+            plt.xlabel("generations")
+            plt.ylabel("probability")
+            plt.title("Probability of each substrate")
+            plt.show()

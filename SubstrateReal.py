@@ -147,7 +147,7 @@ def DERand1(solution, population, F, CR):
         r1, r2, r3 = random.sample(population, 3)
 
         v = r1.solution + F*(r2.solution-r3.solution)
-        mask = np.random.random() <= CR
+        mask = np.random.random(solution.shape) <= CR
         solution[mask] = v[mask]
     return solution
 
@@ -158,7 +158,7 @@ def DEBest1(solution, population, F, CR):
         r1, r2 = random.sample(population, 2)
 
         v = best.solution + F*(r1.solution-r2.solution)
-        mask = np.random.random() <= CR
+        mask = np.random.random(solution.shape) <= CR
         solution[mask] = v[mask]
     return solution
 
@@ -167,7 +167,7 @@ def DERand2(solution, population, F, CR):
         r1, r2, r3, r4, r5 = random.sample(population, 5)
 
         v = r1.solution + F*(r2.solution-r3.solution) + F*(r4.solution-r5.solution)
-        mask = np.random.random() <= CR
+        mask = np.random.random(solution.shape) <= CR
         solution[mask] = v[mask]
     return solution
 
@@ -178,7 +178,7 @@ def DEBest2(solution, population, F, CR):
         r1, r2, r3, r4 = random.sample(population, 4)
 
         v = best.solution + F*(r1.solution-r2.solution) + F*(r3.solution-r4.solution)
-        mask = np.random.random() <= CR
+        mask = np.random.random(solution.shape) <= CR
         solution[mask] = v[mask]
     return solution
 
@@ -189,7 +189,7 @@ def DECurrentToBest1(solution, population, F, CR):
         r1, r2 = random.sample(population, 2)
 
         v = solution + F*(best.solution-solution) + F*(r1.solution-r2.solution)
-        mask = np.random.random() <= CR
+        mask = np.random.random(solution.shape) <= CR
         solution[mask] = v[mask]
     return solution
 
@@ -198,6 +198,6 @@ def DECurrentToRand1(solution, population, F, CR):
         r1, r2, r3 = random.sample(population, 3)
 
         v = solution + np.random.random()*(r1.solution-solution) + F*(r2.solution-r3.solution)
-        mask = np.random.random() <= CR
+        mask = np.random.random(solution.shape) <= CR
         solution[mask] = v[mask]
     return solution

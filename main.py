@@ -26,27 +26,29 @@ def test_cro():
         #SubstrateReal("BLXalpha", {"F":0.8}),
         #SubstrateReal("Rand"),
         #SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/rand/1", {"F":0.8, "Pr":0.7}),
-        SubstrateReal("DE/best/2", {"F":0.8, "Pr":0.8}),
+        SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.8}),
+        SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.8}),
         #SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/current-to-best/1", {"F":0.8, "Pr":0.8}),
-        SubstrateReal("DE/current-to-rand/1", {"F":0.8, "Pr":0.7}),
+        SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.8}),
+        SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.8}),
         #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
         #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
         #SubstrateReal("Gauss", {"F":0.04})
     ]
     
     params = {
-        "ReefSize": 300,
+        "ReefSize": 100,
         "rho": 0.6,
-        "Fd": 0.2,
+        "Fb": 0.98,
+        "Fd": 1,
         "Pd": 0.1,
         "k": 3,
-        "K": 13,
+        "K": 20,
+        "group_subs": False,
 
         "stop_cond": "neval",
-        "time_limit": 120.0,
-        "Ngen": 200,
+        "time_limit": 4000.0,
+        "Ngen": 3500,
         "Neval": 3e5,
         "fit_target": 1000,
 
@@ -54,8 +56,9 @@ def test_cro():
         "v_timer": 1,
 
         "dynamic": False,
-        "dyn_metric": "avg",
-        "prob_amp": 0.1
+        "method": "fitness",
+        "dyn_metric": "best",
+        "prob_amp": 0.05
     }
 
     #objfunc = MaxOnes(1000)
@@ -66,7 +69,6 @@ def test_cro():
     #objfunc = Rastrigin(30)
 
     #c = CRO_SL(objfunc, substrates_int, params)
-    
     c = CRO_SL(objfunc, substrates_real, params)
     ind, fit = c.optimize()
     print(ind)
@@ -74,48 +76,53 @@ def test_cro():
 
 def thity_runs():
     substrates_real = [
-        SubstrateReal("DE/rand/1", {"F":0.6, "Pr":0.7}),
-        SubstrateReal("DE/best/2", {"F":0.8, "Pr":0.8}),
-        SubstrateReal("DE/current-to-best/1", {"F":0.8, "Pr":0.8}),
-        SubstrateReal("DE/current-to-rand/1", {"F":0.6, "Pr":0.7})
+        SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.8}),
+        SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.8}),
+        SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.8}),
+        SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.8})
     ]
 
     params = {
         "ReefSize": 100,
-        "rho": 0.8,
-        "Fd": 0.1,
+        "rho": 0.6,
+        "Fb": 0.98,
+        "Fd": 1,
         "Pd": 0.1,
         "k": 3,
-        "K": 5,
+        "K": 20,
+        "group_subs": False,
 
         "stop_cond": "neval",
-        "time_limit": 120.0,
-        "Ngen": 200,
-        "Neval": 3e4,
+        "time_limit": 4000.0,
+        "Ngen": 3500,
+        "Neval": 3e5,
         "fit_target": 1000,
 
         "verbose": False,
-        "v_timer": 3,
+        "v_timer": 10,
 
         "dynamic": True,
-        "dyn_metric": "max",
-        "prob_amp": 0.01
+        "method": "fitness",
+        "dyn_metric": "best",
+        "prob_amp": 0.05
     }
 
     n_coord = 30
+    n_runs = 30
     fit_list = []
-    for i in range(30):
+    for i in range(n_runs):
         c = CRO_SL(Rosenbrock(n_coord), substrates_real, params)
         _, fit = c.optimize()
-        fit_list.append(-fit)
-        print(-fit)
-        print(f"Run {i+1} done")
+        fit_list.append(fit)
+        print(f"\nRun {i+1} ended\n")
+        c.display_report(show_plots=False)
     fit_list = np.array(fit_list)
-    print(fit_list.min(), fit_list.mean(), fit_list.std())
+    print("\nRESULTS:")
+    print(f"min: {round(fit_list.min(), 5)}; mean: {round(fit_list.mean(),5)}; std: {round(fit_list.std(), 5)}")
 
 def main():
-    #thity_runs()
-    test_cro()
+    thity_runs()
+    #test_cro()
 
 if __name__ == "__main__":
     main()
