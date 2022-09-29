@@ -25,10 +25,10 @@ def test_cro():
         #SubstrateReal("Multipoint"),
         #SubstrateReal("BLXalpha", {"F":0.8}),
         #SubstrateReal("Rand"),
-        #SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
+        SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
         SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.8}),
         SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.8}),
-        #SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
+        SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
         SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.8}),
         SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.8}),
         #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
@@ -44,21 +44,21 @@ def test_cro():
         "Pd": 0.1,
         "k": 3,
         "K": 20,
-        "group_subs": False,
+        "group_subs": True,
 
         "stop_cond": "neval",
         "time_limit": 4000.0,
         "Ngen": 3500,
-        "Neval": 3e5,
+        "Neval": 6e5,
         "fit_target": 1000,
 
         "verbose": True,
-        "v_timer": 1,
+        "v_timer": 5,
 
-        "dynamic": False,
+        "dynamic": True,
         "method": "fitness",
         "dyn_metric": "best",
-        "prob_amp": 0.05
+        "prob_amp": 0.07
     }
 
     #objfunc = MaxOnes(1000)
@@ -90,7 +90,7 @@ def thity_runs():
         "Pd": 0.1,
         "k": 3,
         "K": 20,
-        "group_subs": False,
+        "group_subs": True,
 
         "stop_cond": "neval",
         "time_limit": 4000.0,
@@ -101,28 +101,49 @@ def thity_runs():
         "verbose": False,
         "v_timer": 10,
 
-        "dynamic": True,
+        "dynamic": False,
         "method": "fitness",
         "dyn_metric": "best",
         "prob_amp": 0.05
     }
 
     n_coord = 30
-    n_runs = 30
-    fit_list = []
-    for i in range(n_runs):
-        c = CRO_SL(Rosenbrock(n_coord), substrates_real, params)
-        _, fit = c.optimize()
-        fit_list.append(fit)
-        print(f"\nRun {i+1} ended\n")
-        c.display_report(show_plots=False)
-    fit_list = np.array(fit_list)
-    print("\nRESULTS:")
-    print(f"min: {round(fit_list.min(), 5)}; mean: {round(fit_list.mean(),5)}; std: {round(fit_list.std(), 5)}")
+    n_runs = 10
+    
+    combination_DE = [
+        [0,1,2,3],
+        [0,1,2],
+        [0,1,3],
+        [0,2,3],
+        [1,2,3],
+        [0,1],
+        [0,2],
+        [0,3],
+        [1,2],
+        [1,3],
+        [2,3],
+        [0],
+        [1],
+        [2],
+        [3]
+    ]
+
+    for comb in combination_DE:
+        substrates_filtered = [substrates_real[i] for i in range(4) if i in comb]
+        fit_list = []
+        for i in range(n_runs):
+            c = CRO_SL(Rosenbrock(n_coord), substrates_filtered, params)
+            _, fit = c.optimize()
+            fit_list.append(fit)
+            #print(f"Run {i+1} {comb} ended")
+            #c.display_report(show_plots=False)
+        fit_list = np.array(fit_list)
+        print(f"\nRESULTS {comb}:")
+        print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
 
 def main():
-    thity_runs()
-    #test_cro()
+    #thity_runs()
+    test_cro()
 
 if __name__ == "__main__":
     main()

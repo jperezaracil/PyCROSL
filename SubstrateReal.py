@@ -37,17 +37,17 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "Perm":
             result = permutation(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "DE/rand/1":
-            result = DEBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
-        elif self.evolution_method == "DE/best/1":
             result = DERand1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+        elif self.evolution_method == "DE/best/1":
+            result = DEBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
         elif self.evolution_method == "DE/rand/2":
-            result = DEBest2(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
-        elif self.evolution_method == "DE/best/2":
             result = DERand2(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+        elif self.evolution_method == "DE/best/2":
+            result = DEBest2(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
         elif self.evolution_method == "DE/current-to-rand/1":
-            result = DECurrentToBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
-        elif self.evolution_method == "DE/current-to-best/1":
             result = DECurrentToRand1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+        elif self.evolution_method == "DE/current-to-best/1":
+            result = DECurrentToBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
         elif self.evolution_method == "SA":
             result = sim_annealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.evolution_method == "HS":
