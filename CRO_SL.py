@@ -66,8 +66,7 @@ class CRO_SL:
         self.population.larvae_setting(larvae)
 
         if depredate:
-            #self.population.extreme_depredation()
-            self.population.full_depredation()
+            self.population.extreme_depredation()
             self.population.depredation()
         
         _, best_fitness = self.population.best_solution()

@@ -15,12 +15,15 @@ The hyperparameters will be the following:
 - Dynamic variant hyperparameters:
     - dynamic: use or not the dynamic variant of the algotithm
     - method: value that is used to determine the probability of choosing each substrate
-        - "fitness": uses the fitness of the individuals of each substrate 
+        - "fitness": uses the fitness of the individuals of each substrate.
+        - "diff": uses the difference between the fitness of the previous generation and the current one.
+        - "success": uses the ratio of successful larvae in each generation.
     - dyn_metric: how to agregate the values of each substrate to get the metric of each of them
         - "best": takes the best fitness
         - "avg": takes the average fitness
         - "med": takes the median fitness
-        - "worse": takes the worse fitness 
+        - "worse": takes the worse fitness
+    - "dyn_steps": specifies the number of times the substrates will be evaluated, -1 for every generation
     - prob_amp: how differences between de metric affect the probability of each one, lower means more amplification
 - Stopping conditions:
     - stop_cond: stopping condition, there are various options
