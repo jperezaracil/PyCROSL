@@ -23,21 +23,13 @@ Parameters:
     K: maximum amount of equal corals
 """
 class CRO_SL:
+    """
+    Constructor of the CRO algorithm
+    """
     def __init__(self, objfunc, substrates, params):
-        # Hyperparameters of the algorithm
-        self.ReefSize = params["ReefSize"]
-        self.rho = params["rho"]
-        self.Fb = params["Fb"]
-        self.Fd = params["Fd"]
-        self.k = params["k"]
-        self.K = params["K"]
-        self.Pd = params["Pd"]
-        self.group_subs = params["group_subs"]
-
         # Dynamic parameters
         self.dynamic = params["dynamic"]
-        self.dyn_metric = params["dyn_metric"]
-        self.prob_amp = params["prob_amp"]
+        self.dyn_method = params["dyn_method"]
 
         # Verbose parameters
         self.verbose = params["verbose"]
@@ -53,7 +45,8 @@ class CRO_SL:
         # Data structures of the algorithm
         self.objfunc = objfunc
         self.substrates = substrates
-        self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.dyn_metric, self.prob_amp, self.group_subs)
+        #self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.dyn_metric, self.prob_amp, self.group_subs)
+        self.population = CoralPopulation(objfunc, substrates, params)
         
         # Metrics
         self.history = []
@@ -62,21 +55,27 @@ class CRO_SL:
         self.time_spent = 0
         self.real_time_spent = 0
 
-    def step(self, depredate=True, dynamic=True):        
-        if dynamic:
-            self.population.generate_substrates()
+    """
+    One step of the algorithm
+    """
+    def step(self, progress, depredate=True):        
+        self.population.generate_substrates(progress)
 
-        larvae = self.population.evolve_with_substrates(self.Fb)
+        larvae = self.population.evolve_with_substrates()
         
-        self.population.larvae_setting(larvae, self.k)
+        self.population.larvae_setting(larvae)
 
         if depredate:
-            self.population.extreme_depredation(self.K)
-            self.population.depredation(self.Pd, self.Fd)
+            #self.population.extreme_depredation()
+            self.population.full_depredation()
+            self.population.depredation()
         
         _, best_fitness = self.population.best_solution()
         self.history.append(best_fitness)
     
+    """
+    Stopping conditions given by a parameter
+    """
     def stopping_condition(self, gen, time_start):
         stop = True
         if self.stop_cond == "neval":
@@ -93,16 +92,38 @@ class CRO_SL:
 
         return stop
 
+    """
+    Progress of the algorithm as a number between 0 and 1, 0 at the begining, 1 at the end
+    """
+    def progress(self, gen, time_start):
+        prog = 0
+        if self.stop_cond == "neval":
+            prog = self.objfunc.counter/self.Neval
+        elif self.stop_cond == "ngen":
+            prog = gen/self.Ngen 
+        elif self.stop_cond == "time":
+            stop = (time.time()-time_start)/self.time_limit
+        elif self.stop_cond == "fit_target":
+            if self.objfunc.opt == "max":
+                stop = self.population.best_solution()[1]/self.fit_target
+            else:
+                stop = self.fit_target/self.population.best_solution()[1]
+
+        return prog
+
+    """
+    Execute the algorithm to get the best solution possible along with it's evaluation
+    """
     def optimize(self):
         gen = 0
         time_start = time.process_time()
         real_time_start = time.time()
         display_timer = time.time()
 
-        self.population.generate_random(self.rho)
-        self.step(depredate=False, dynamic=True)
+        self.population.generate_random()
+        self.step(0, depredate=False)
         while not self.stopping_condition(gen, real_time_start):
-            self.step(depredate=True, dynamic=self.dynamic)
+            self.step(self.progress(gen, real_time_start), depredate=True)
             gen += 1
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
@@ -112,21 +133,94 @@ class CRO_SL:
         self.time_spent = time.process_time() - time_start
         return self.population.best_solution()
     
+
+    """
+    Displays information about the current state of the algotithm
+    """
     def step_info(self, gen, start_time):
         print(f"Time Spent {round(time.time() - start_time,2)}s:")
         print(f"\tGeneration: {gen}")
         best_fitness = self.population.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
+
+        if self.dynamic:
+            print(f"\tSubstrate probability:")
+            subs_names = [i.evolution_method for i in self.substrates]
+            weights = [round(i, 6) for i in self.population.substrate_weight]
+            adjust = max([len(i) for i in subs_names])
+            for idx, val in enumerate(subs_names):
+                print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
+        print()
+    
+    """
+    Shows a summary of the execution of the algorithm
+    """
+    def display_report(self, show_plots=True):
+        if self.dynamic:
+            self.display_report_dyn(show_plots)
+        else:
+            self.display_report_nodyn(show_plots)
+
+    """
+    Version of the summary for the dynamic variant
+    """
+    def display_report_dyn(self, show_plots=True):
+        factor = 1
+        if self.objfunc.opt == "min" and self.dyn_method != "success":
+            factor = -1
+
+        # Print Info
+        print("Number of generations:", len(self.history))
+        print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
+        print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
+        print("Number of fitness evaluations:", self.objfunc.counter)
         print(f"\tSubstrate probability:")
         subs_names = [i.evolution_method for i in self.substrates]
         weights = [round(i, 6) for i in self.population.substrate_weight]
         adjust = max([len(i) for i in subs_names])
         for idx, val in enumerate(subs_names):
             print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
-        print()
+        
+        best_fitness = self.population.best_solution()[1]
+        print("Best fitness:", best_fitness)
 
-    def display_report(self, show_plots=True):
+        if show_plots:
+            # Plot fitness history
+            
+            
+            fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10,10))
+            fig.suptitle("CRO_SL")
+            plt.subplot(2, 2, 1)
+            
+            plt.plot(self.history, "blue")
+            plt.xlabel("generations")
+            plt.ylabel("fitness")
+            plt.title("CRO_SL fitness")
+
+            
+            plt.subplot(2, 2, 2)
+            m = np.array(self.population.substrate_history)[1:].T
+            for i in m:
+                plt.plot(factor * i)
+            plt.legend([i.evolution_method for i in self.substrates])
+            plt.xlabel("generations")
+            plt.ylabel("fitness")
+            plt.title("Fitness of each substrate")
+
+            plt.subplot(2, 1, 2)
+            prob_data = np.array(self.population.substrate_w_history).T
+            plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
+            plt.legend()
+            plt.xlabel("generations")
+            plt.ylabel("probability")
+            plt.title("Probability of each substrate")
+            plt.show()
+
+    """
+    Version of the summary for the dynamic variant
+    """
+    def display_report_nodyn(self, show_plots=True):
         factor = 1
         if self.objfunc.opt == "min":
             factor = -1
@@ -148,16 +242,16 @@ class CRO_SL:
 
         if show_plots:
             # Plot fitness history
-            fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(10,10))
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10,5))
             fig.suptitle("CRO_SL")
-
-            plt.subplot(2, 2, 1)
+            plt.subplot(1, 2, 1)
+            
             plt.plot(self.history, "blue")
             plt.xlabel("generations")
             plt.ylabel("fitness")
             plt.title("CRO_SL fitness")
 
-            plt.subplot(2, 2, 2)
+            plt.subplot(1, 2, 2)
             m = np.array(self.population.substrate_history)[1:].T
             for i in m:
                 plt.plot(factor * i)
@@ -165,12 +259,4 @@ class CRO_SL:
             plt.xlabel("generations")
             plt.ylabel("fitness")
             plt.title("Fitness of each substrate")
-
-            plt.subplot(2, 2, 3)
-            prob_data = np.array(self.population.substrate_w_history).T
-            plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
-            plt.legend()
-            plt.xlabel("generations")
-            plt.ylabel("probability")
-            plt.title("Probability of each substrate")
             plt.show()

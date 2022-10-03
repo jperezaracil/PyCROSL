@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from numba import jit
 from AbsObjetiveFunc import AbsObjetiveFunc
 
 """
@@ -79,10 +80,11 @@ class Rosenbrock(AbsObjetiveFunc):
 
     def fitness(self, solution):
         super().fitness(solution)
-        term1 = solution[1:] - solution[:-1]**2
-        term2 = 1 - solution[:-1]
-        result = 100*term1**2 + term2**2
-        return self.factor * result.sum()
+        #term1 = solution[1:] - solution[:-1]**2
+        #term2 = 1 - solution[:-1]
+        #result = 100*term1**2 + term2**2
+        #return self.factor * result.sum()
+        return rosenbrock(solution, self.factor)
     
     def random_solution(self):
         return 200*np.random.random(self.size)-100
@@ -97,9 +99,10 @@ class Rastrigin(AbsObjetiveFunc):
 
     def fitness(self, solution):
         super().fitness(solution)
-        A = 10
+        #A = 10
         #print(A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
-        return self.factor * (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
+        #return self.factor * (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
+        return rastrigin(solution, self.factor)
     
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
@@ -121,3 +124,15 @@ class Test1(AbsObjetiveFunc):
     
     def check_bounds(self, solution):
         return np.clip(solution, -2, 2)
+
+
+@jit(nopython=True)
+def rosenbrock(solution, factor):
+    term1 = solution[1:] - solution[:-1]**2
+    term2 = 1 - solution[:-1]
+    result = 100*term1**2 + term2**2
+    return factor * result.sum()
+
+@jit(nopython=True)
+def rastrigin(solution, factor, A=10):
+    return factor * (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())

@@ -1,3 +1,4 @@
+from pickle import TRUE
 from CRO_SL import *
 
 def test_cro():
@@ -17,6 +18,7 @@ def test_cro():
         SubstrateInt("Xor")
     ]
 
+    DEparams = {"F":0.8, "Pr":0.8}
     substrates_real = [
         #SubstrateReal("SBX", {"F":0.5}),
         #SubstrateReal("Perm", {"F":0.3}),
@@ -25,15 +27,20 @@ def test_cro():
         #SubstrateReal("Multipoint"),
         #SubstrateReal("BLXalpha", {"F":0.8}),
         #SubstrateReal("Rand"),
-        SubstrateReal("DE/best/1", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.8}),
-        SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.8}),
-        SubstrateReal("DE/rand/2", {"F":0.5, "Pr":0.8}),
-        SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.8}),
-        SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.8}),
+        #SubstrateReal("DE/best/1", {"F":0.6, "Pr":0.06}),
+        #SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.25}),
+        #SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.25}),
+        #SubstrateReal("DE/rand/2", {"F":0.6, "Pr":0.06}),
+        #SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.25}),
+        #SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.25}),
         #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
         #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
-        #SubstrateReal("Gauss", {"F":0.04})
+        #SubstrateReal("Gauss", {"F":0.04}),
+
+        SubstrateReal("DE/rand/1", DEparams),
+        SubstrateReal("DE/best/2", DEparams),
+        SubstrateReal("DE/current-to-best/1", DEparams),
+        SubstrateReal("DE/current-to-rand/1", DEparams)
     ]
     
     params = {
@@ -49,21 +56,22 @@ def test_cro():
         "stop_cond": "neval",
         "time_limit": 4000.0,
         "Ngen": 3500,
-        "Neval": 6e5,
+        "Neval": 1e5,
         "fit_target": 1000,
 
         "verbose": True,
-        "v_timer": 5,
+        "v_timer": 1,
 
         "dynamic": True,
-        "method": "fitness",
+        "dyn_method": "fitness",
         "dyn_metric": "best",
-        "prob_amp": 0.07
+        "dyn_steps": 100,
+        "prob_amp": 0.1
     }
 
     #objfunc = MaxOnes(1000)
     #objfunc = MaxOnesReal(1000)
-    #objfunc = Sphere(1000)
+    #objfunc = Sphere(30, "min")
     #objfunc = Test1(30)
     objfunc = Rosenbrock(30)
     #objfunc = Rastrigin(30)
@@ -75,11 +83,12 @@ def test_cro():
     c.display_report()
 
 def thity_runs():
+    DEparams = {"F":0.5, "Pr":0.8}
     substrates_real = [
-        SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.8}),
-        SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.8}),
-        SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.8}),
-        SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.8})
+        SubstrateReal("DE/rand/1", DEparams),
+        SubstrateReal("DE/best/2", DEparams),
+        SubstrateReal("DE/current-to-best/1", DEparams),
+        SubstrateReal("DE/current-to-rand/1", DEparams)
     ]
 
     params = {
@@ -95,33 +104,34 @@ def thity_runs():
         "stop_cond": "neval",
         "time_limit": 4000.0,
         "Ngen": 3500,
-        "Neval": 3e5,
+        "Neval": 1e5,
         "fit_target": 1000,
 
         "verbose": False,
-        "v_timer": 10,
+        "v_timer": 1,
 
-        "dynamic": False,
-        "method": "fitness",
+        "dynamic": True,
+        "dyn_method": "fitness",
         "dyn_metric": "best",
-        "prob_amp": 0.05
+        "dyn_steps": 100,
+        "prob_amp": 0.1
     }
 
     n_coord = 30
     n_runs = 10
     
     combination_DE = [
-        [0,1,2,3],
-        [0,1,2],
-        [0,1,3],
-        [0,2,3],
-        [1,2,3],
-        [0,1],
-        [0,2],
-        [0,3],
-        [1,2],
-        [1,3],
-        [2,3],
+        #[0,1,2,3],
+        #[0,1,2],
+        #[0,1,3],
+        #[0,2,3],
+        #[1,2,3],
+        #[0,1],
+        #[0,2],
+        #[0,3],
+        #[1,2],
+        #[1,3],
+        #[2,3],
         [0],
         [1],
         [2],
@@ -142,8 +152,8 @@ def thity_runs():
         print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
 
 def main():
-    #thity_runs()
-    test_cro()
+    thity_runs()
+    #test_cro()
 
 if __name__ == "__main__":
     main()
