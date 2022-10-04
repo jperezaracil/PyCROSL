@@ -230,6 +230,7 @@ class CRO_SL:
 
             plt.subplot(2, 1, 2)
             prob_data = np.array(self.population.substrate_w_history).T
+            print(prob_data.shape)
             plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
             plt.legend()
             plt.xlabel("generations")

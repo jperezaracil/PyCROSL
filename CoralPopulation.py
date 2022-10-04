@@ -249,29 +249,26 @@ class CoralPopulation:
     Generates the assignment of the substrates
     """
     def generate_substrates(self, progress=0):
-        if len(self.substrates) == 1:
-            self.substrate_list = [0] * self.size
-        else:
-            if progress > (1/self.dyn_steps)*self.subs_steps:
-                self.subs_steps += 1
+        if progress > (1/self.dyn_steps)*self.subs_steps:
+            self.subs_steps += 1
 
-                n_substrates = len(self.substrates)
-                self.evaluate_substrates()
-                if self.dynamic:
-                    # Assign the probability of each substrate
-                    self.substrate_weight = self.substrate_probability(self.substrate_metric)
-                    self.substrate_w_history.append(self.substrate_weight)
-                
-                # Choose each substrate with the weights chosen
-                self.substrate_list = random.choices(range(n_substrates), 
-                                                    weights=self.substrate_weight, k=self.size)
+            n_substrates = len(self.substrates)
+            self.evaluate_substrates()
+            if self.dynamic:
+                # Assign the probability of each substrate
+                self.substrate_weight = self.substrate_probability(self.substrate_metric)
+                self.substrate_w_history.append(self.substrate_weight)
+            
+            # Choose each substrate with the weights chosen
+            self.substrate_list = random.choices(range(n_substrates), 
+                                                weights=self.substrate_weight, k=self.size)
 
-                # Assign the substrate to each coral
-                for idx, coral in enumerate(self.population):
-                    substrate_idx = self.substrate_list[idx]
-                    coral.set_substrate(self.substrates[substrate_idx])
+            # Assign the substrate to each coral
+            for idx, coral in enumerate(self.population):
+                substrate_idx = self.substrate_list[idx]
+                coral.set_substrate(self.substrates[substrate_idx])
 
-                self.substrate_history.append(np.array(self.substrate_metric))
+            self.substrate_history.append(np.array(self.substrate_metric))
 
     """
     Inserts solutions into our reef with some conditions

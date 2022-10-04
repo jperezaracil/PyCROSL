@@ -37,8 +37,8 @@ def test_cro():
         #SubstrateReal("Gauss", {"F":0.04}),
 
         #SubstrateReal("DE/rand/1", DEparams),
-        #SubstrateReal("DE/best/2", DEparams),
-        SubstrateReal("DE/current-to-best/1", DEparams)#,
+        SubstrateReal("DE/best/2", DEparams),
+        #SubstrateReal("DE/current-to-best/1", DEparams),
         #SubstrateReal("DE/current-to-rand/1", DEparams)
     ]
     
@@ -68,15 +68,15 @@ def test_cro():
         "prob_amp": 0.001
     }
 
-    objfunc = MaxOnes(1000)
+    #objfunc = MaxOnes(1000)
     #objfunc = MaxOnesReal(1000)
-    #objfunc = Sphere(30, "min")
+    objfunc = Sphere(30)
     #objfunc = Test1(30)
     #objfunc = Rosenbrock(30)
     #objfunc = Rastrigin(30)
 
-    c = CRO_SL(objfunc, substrates_int, params)
-    #c = CRO_SL(objfunc, substrates_real, params)
+    #c = CRO_SL(objfunc, substrates_int, params)
+    c = CRO_SL(objfunc, substrates_real, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()

@@ -13,9 +13,8 @@ class MaxOnes(AbsObjetiveFunc):
         self.size = size
         super().__init__(self.size, opt)
 
-    def fitness(self, solution):
-        super().fitness(solution)
-        return self.factor * solution.sum()
+    def objetive(self, solution):
+        return solution.sum()
     
     def random_solution(self):
         return (np.random.random(self.size) < 0.5).astype(np.int32)
@@ -30,10 +29,9 @@ class DiophantineEq(AbsObjetiveFunc):
         self.coeff = coeff
         self.target = target
         super().__init__(self.size, opt)
-
-    def fitness(self, solution):
-        super().fitness(solution)
-        return self.factor * abs((solution*self.coeff).sum() - self.target)
+    
+    def objetive(self, solution):
+        return abs((solution*self.coeff).sum() - self.target)
     
     def random_solution(self):
         return (np.random.randint(-100, 100, size=self.size)).astype(np.int32)
@@ -46,9 +44,8 @@ class MaxOnesReal(AbsObjetiveFunc):
         self.size = size
         super().__init__(self.size, opt)
 
-    def fitness(self, solution):
-        super().fitness(solution)
-        return self.factor * solution.sum()
+    def objetive(self, solution):
+        return solution.sum()
     
     def random_solution(self):
         return np.random.random(self.size)
@@ -63,9 +60,8 @@ class Sphere(AbsObjetiveFunc):
         self.size = size
         super().__init__(self.size, opt)
 
-    def fitness(self, solution):
-        super().fitness(solution)
-        return self.factor * (solution**2).sum()
+    def objetive(self, solution):
+        return (solution**2).sum()
     
     def random_solution(self):
         return 200*np.random.random(self.size)-100
@@ -78,13 +74,8 @@ class Rosenbrock(AbsObjetiveFunc):
         self.size = size
         super().__init__(self.size, opt)
 
-    def fitness(self, solution):
-        super().fitness(solution)
-        #term1 = solution[1:] - solution[:-1]**2
-        #term2 = 1 - solution[:-1]
-        #result = 100*term1**2 + term2**2
-        #return self.factor * result.sum()
-        return rosenbrock(solution, self.factor)
+    def objetive(self, solution):
+        return rosenbrock(solution)
     
     def random_solution(self):
         return 200*np.random.random(self.size)-100
@@ -97,12 +88,8 @@ class Rastrigin(AbsObjetiveFunc):
         self.size = size
         super().__init__(self.size, opt)
 
-    def fitness(self, solution):
-        super().fitness(solution)
-        #A = 10
-        #print(A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
-        #return self.factor * (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
-        return rastrigin(solution, self.factor)
+    def objetive(self, solution):
+        return rastrigin(solution)
     
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
@@ -115,9 +102,8 @@ class Test1(AbsObjetiveFunc):
         self.size = size
         super().__init__(self.size, opt)
 
-    def fitness(self, solution):
-        super().fitness(solution)
-        return self.factor * sum([(2*solution[i-1] + solution[i]**2*solution[i+1]-solution[i-1])**2 for i in range(1, solution.size-1)])
+    def objetive(self, solution):
+        return sum([(2*solution[i-1] + solution[i]**2*solution[i+1]-solution[i-1])**2 for i in range(1, solution.size-1)])
     
     def random_solution(self):
         return 4*np.random.random(self.size)-2
@@ -127,12 +113,12 @@ class Test1(AbsObjetiveFunc):
 
 
 @jit(nopython=True)
-def rosenbrock(solution, factor):
+def rosenbrock(solution):
     term1 = solution[1:] - solution[:-1]**2
     term2 = 1 - solution[:-1]
     result = 100*term1**2 + term2**2
-    return factor * result.sum()
+    return result.sum()
 
 @jit(nopython=True)
-def rastrigin(solution, factor, A=10):
-    return factor * (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
+def rastrigin(solution, A=10):
+    return (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
