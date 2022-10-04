@@ -1,24 +1,23 @@
-from pickle import TRUE
 from CRO_SL import *
 
 def test_cro():
     substrates_int = [
-        SubstrateInt("DE/best/1"),
-        SubstrateInt("DE/rand/1"),
-        SubstrateInt("DE/rand/2"),
-        SubstrateInt("DE/best/2"), 
-        SubstrateInt("DE/current-to-best/1"),
-        SubstrateInt("DE/current-to-rand/1"),
-        SubstrateInt("AddOne"),
-        SubstrateInt("DGauss"),
-        SubstrateInt("Perm"),
+        #SubstrateInt("DE/best/1", {"F":0.8, "Pr":0.8}),
+        #SubstrateInt("DE/rand/1", {"F":0.8, "Pr":0.8}),
+        #SubstrateInt("DE/rand/2", {"F":0.8, "Pr":0.8}),
+        #SubstrateInt("DE/best/2", {"F":0.8, "Pr":0.8}), 
+        #SubstrateInt("DE/current-to-best/1", {"F":0.8, "Pr":0.8}),
+        #SubstrateInt("DE/current-to-rand/1", {"F":0.8, "Pr":0.8}),
+        #SubstrateInt("AddOne", {"F":0.1}),
+        #SubstrateInt("DGauss", {"F":12}),
+        SubstrateInt("Perm", {"F":0.1}),
         SubstrateInt("1point"),
         SubstrateInt("2point"),
         SubstrateInt("Multipoint"),
-        SubstrateInt("Xor")
+        SubstrateInt("Xor", {"F":0.002})
     ]
 
-    DEparams = {"F":0.8, "Pr":0.8}
+    DEparams = {"F":0.5, "Pr":0.8}
     substrates_real = [
         #SubstrateReal("SBX", {"F":0.5}),
         #SubstrateReal("Perm", {"F":0.3}),
@@ -37,10 +36,10 @@ def test_cro():
         #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
         #SubstrateReal("Gauss", {"F":0.04}),
 
-        SubstrateReal("DE/rand/1", DEparams),
-        SubstrateReal("DE/best/2", DEparams),
-        SubstrateReal("DE/current-to-best/1", DEparams),
-        SubstrateReal("DE/current-to-rand/1", DEparams)
+        #SubstrateReal("DE/rand/1", DEparams),
+        #SubstrateReal("DE/best/2", DEparams),
+        SubstrateReal("DE/current-to-best/1", DEparams)#,
+        #SubstrateReal("DE/current-to-rand/1", DEparams)
     ]
     
     params = {
@@ -51,7 +50,7 @@ def test_cro():
         "Pd": 0.1,
         "k": 3,
         "K": 20,
-        "group_subs": True,
+        "group_subs": False,
 
         "stop_cond": "neval",
         "time_limit": 4000.0,
@@ -66,24 +65,24 @@ def test_cro():
         "dyn_method": "fitness",
         "dyn_metric": "best",
         "dyn_steps": 100,
-        "prob_amp": 0.1
+        "prob_amp": 0.001
     }
 
-    #objfunc = MaxOnes(1000)
+    objfunc = MaxOnes(1000)
     #objfunc = MaxOnesReal(1000)
     #objfunc = Sphere(30, "min")
     #objfunc = Test1(30)
-    objfunc = Rosenbrock(30)
+    #objfunc = Rosenbrock(30)
     #objfunc = Rastrigin(30)
 
-    #c = CRO_SL(objfunc, substrates_int, params)
-    c = CRO_SL(objfunc, substrates_real, params)
+    c = CRO_SL(objfunc, substrates_int, params)
+    #c = CRO_SL(objfunc, substrates_real, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()
 
 def thity_runs():
-    DEparams = {"F":0.5, "Pr":0.8}
+    DEparams = {"F":0.7, "Pr":0.8}
     substrates_real = [
         SubstrateReal("DE/rand/1", DEparams),
         SubstrateReal("DE/best/2", DEparams),
@@ -99,18 +98,18 @@ def thity_runs():
         "Pd": 0.1,
         "k": 3,
         "K": 20,
-        "group_subs": True,
+        "group_subs": False,
 
         "stop_cond": "neval",
         "time_limit": 4000.0,
         "Ngen": 3500,
-        "Neval": 1e5,
+        "Neval": 3e5,
         "fit_target": 1000,
 
         "verbose": False,
         "v_timer": 1,
 
-        "dynamic": True,
+        "dynamic": False,
         "dyn_method": "fitness",
         "dyn_metric": "best",
         "dyn_steps": 100,
@@ -121,17 +120,17 @@ def thity_runs():
     n_runs = 10
     
     combination_DE = [
-        #[0,1,2,3],
-        #[0,1,2],
-        #[0,1,3],
-        #[0,2,3],
-        #[1,2,3],
-        #[0,1],
-        #[0,2],
-        #[0,3],
-        #[1,2],
-        #[1,3],
-        #[2,3],
+        [0,1,2,3],
+        [0,1,2],
+        [0,1,3],
+        [0,2,3],
+        [1,2,3],
+        [0,1],
+        [0,2],
+        [0,3],
+        [1,2],
+        [1,3],
+        [2,3],
         [0],
         [1],
         [2],
@@ -143,7 +142,7 @@ def thity_runs():
         fit_list = []
         for i in range(n_runs):
             c = CRO_SL(Rosenbrock(n_coord), substrates_filtered, params)
-            _, fit = c.optimize()
+            _, fit = c.optimize_classic()
             fit_list.append(fit)
             #print(f"Run {i+1} {comb} ended")
             #c.display_report(show_plots=False)
@@ -152,8 +151,8 @@ def thity_runs():
         print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
 
 def main():
-    thity_runs()
-    #test_cro()
+    #thity_runs()
+    test_cro()
 
 if __name__ == "__main__":
     main()

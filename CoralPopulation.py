@@ -1,3 +1,4 @@
+from cmath import isnan
 import random
 import numpy as np
 from numba import jit
@@ -228,15 +229,14 @@ class CoralPopulation:
         exp_vec = np.exp(weight)
         amplified_vec = exp_vec**(1/self.prob_amp)
         
-
-        if (amplified_vec == 0).any():
+        if (amplified_vec == 0).any() or not np.isfinite(amplified_vec).all():
             if not self.prob_amp_warned:
                 print("Warning: the probability amplification parameter is too small, defaulting to prob_amp = 1")
                 self.prob_amp_warned = True
             prob = exp_vec/exp_vec.sum()
         else:
             prob = amplified_vec/amplified_vec.sum()
-            
+
         # If probabilities get too low, equalize them
         if (prob <= 0.02/len(values)).any():
             prob += 0.02/len(values)
@@ -249,26 +249,29 @@ class CoralPopulation:
     Generates the assignment of the substrates
     """
     def generate_substrates(self, progress=0):
-        if progress > (1/self.dyn_steps)*self.subs_steps:
-            self.subs_steps += 1
+        if len(self.substrates) == 1:
+            self.substrate_list = [0] * self.size
+        else:
+            if progress > (1/self.dyn_steps)*self.subs_steps:
+                self.subs_steps += 1
 
-            n_substrates = len(self.substrates)
-            self.evaluate_substrates()
-            if self.dynamic:
-                # Assign the probability of each substrate
-                self.substrate_weight = self.substrate_probability(self.substrate_metric)
-                self.substrate_w_history.append(self.substrate_weight)
-            
-            # Choose each substrate with the weights chosen
-            self.substrate_list = random.choices(range(n_substrates), 
-                                                weights=self.substrate_weight, k=self.size)
+                n_substrates = len(self.substrates)
+                self.evaluate_substrates()
+                if self.dynamic:
+                    # Assign the probability of each substrate
+                    self.substrate_weight = self.substrate_probability(self.substrate_metric)
+                    self.substrate_w_history.append(self.substrate_weight)
+                
+                # Choose each substrate with the weights chosen
+                self.substrate_list = random.choices(range(n_substrates), 
+                                                    weights=self.substrate_weight, k=self.size)
 
-            # Assign the substrate to each coral
-            for idx, coral in enumerate(self.population):
-                substrate_idx = self.substrate_list[idx]
-                coral.set_substrate(self.substrates[substrate_idx])
+                # Assign the substrate to each coral
+                for idx, coral in enumerate(self.population):
+                    substrate_idx = self.substrate_list[idx]
+                    coral.set_substrate(self.substrates[substrate_idx])
 
-            self.substrate_history.append(np.array(self.substrate_metric))
+                self.substrate_history.append(np.array(self.substrate_metric))
 
     """
     Inserts solutions into our reef with some conditions

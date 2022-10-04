@@ -58,8 +58,9 @@ class CRO_SL:
     """
     One step of the algorithm
     """
-    def step(self, progress, depredate=True):        
-        self.population.generate_substrates(progress)
+    def step(self, progress, depredate=True, classic=False):        
+        if not classic:
+            self.population.generate_substrates(progress)
 
         larvae = self.population.evolve_with_substrates()
         
@@ -122,7 +123,8 @@ class CRO_SL:
         self.population.generate_random()
         self.step(0, depredate=False)
         while not self.stopping_condition(gen, real_time_start):
-            self.step(self.progress(gen, real_time_start), depredate=True)
+            prog = self.progress(gen, real_time_start)
+            self.step(prog, depredate=True)
             gen += 1
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
@@ -132,6 +134,25 @@ class CRO_SL:
         self.time_spent = time.process_time() - time_start
         return self.population.best_solution()
     
+    def optimize_classic(self):
+        gen = 0
+        time_start = time.process_time()
+        real_time_start = time.time()
+        display_timer = time.time()
+
+        self.population.generate_random()
+        self.step(0, depredate=False)
+        while not self.stopping_condition(gen, real_time_start):
+            prog = self.progress(gen, real_time_start)
+            self.step(prog, depredate=True, classic=True)
+            gen += 1
+            if self.verbose and time.time() - display_timer > self.v_timer:
+                self.step_info(gen, real_time_start)
+                display_timer = time.time()
+                
+        self.real_time_spent = time.time() - real_time_start
+        self.time_spent = time.process_time() - time_start
+        return self.population.best_solution()
 
     """
     Displays information about the current state of the algotithm
