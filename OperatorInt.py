@@ -1,17 +1,17 @@
 import numpy as np
 import random
-from Substrate import *
+from Operator import *
 
 """
-Substrate class that has discrete mutation and cross methods
+Operator class that has discrete mutation and cross methods
 """
-class SubstrateInt(Substrate):
+class OperatorInt(Operator):
     def __init__(self, evolution_method, params = None):
         self.evolution_method = evolution_method
         super().__init__(self.evolution_method, params)
     
     """
-    Applies a mutation method depending on the type of substrate
+    Applies a mutation method depending on the type of operator
     """
     def evolve(self, solution, population, objfunc):
         result = None
@@ -27,8 +27,8 @@ class SubstrateInt(Substrate):
             result = cross2p(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "Multipoint":
             result = crossMp(solution.solution.copy(), solution2.solution.copy())
-        elif self.evolution_method == "BLXalpha":
-            result = bxalpha(solution.solution.copy(), solution2.solution.copy())
+        #elif self.evolution_method == "BLXalpha":
+        #    result = bxalpha(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "SBX":
             result = sbx(solution.solution.copy(), solution2.solution.copy(), self.params["F"])
         elif self.evolution_method == "Perm":

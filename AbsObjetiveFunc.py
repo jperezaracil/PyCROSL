@@ -16,6 +16,10 @@ class AbsObjetiveFunc:
     
     def fitness(self, solution):
         self.counter += 1
+        return self.factor * self.objetive(solution)
+    
+    def objetive(self, solution):
+        pass
     
     def random_solution(self):
         pass

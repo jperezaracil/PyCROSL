@@ -1,14 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt 
-from CoralPopulation import CoralPopulation
-from TestFunctions import *
-from Substrate import *
-from SubstrateInt import *
-from SubstrateReal import *
+from .CoralPopulation import *
 import time
 
 """
-Coral reef optimization with substrate layers
+Coral reef optimization with operator layers
 
 Parameters:
     Ngen: number of generations
@@ -26,7 +22,7 @@ class CRO_SL:
     """
     Constructor of the CRO algorithm
     """
-    def __init__(self, objfunc, substrates, params):
+    def __init__(self, objfunc, operators, params):
         # Dynamic parameters
         self.dynamic = params["dynamic"]
         self.dyn_method = params["dyn_method"]
@@ -44,9 +40,9 @@ class CRO_SL:
 
         # Data structures of the algorithm
         self.objfunc = objfunc
-        self.substrates = substrates
-        #self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.dyn_metric, self.prob_amp, self.group_subs)
-        self.population = CoralPopulation(objfunc, substrates, params)
+        self.operators = operators
+        #self.population = CoralPopulation(self.ReefSize, self.objfunc, self.operators, self.dyn_metric, self.prob_amp, self.group_subs)
+        self.population = CoralPopulation(objfunc, operators, params)
         
         # Metrics
         self.history = []
@@ -60,9 +56,9 @@ class CRO_SL:
     """
     def step(self, progress, depredate=True, classic=False):        
         if not classic:
-            self.population.generate_substrates(progress)
+            self.population.generate_operators(progress)
 
-        larvae = self.population.evolve_with_substrates()
+        larvae = self.population.evolve_with_operators()
         
         self.population.larvae_setting(larvae)
 
@@ -165,9 +161,9 @@ class CRO_SL:
         print(f"\tEvaluations of fitness: {self.objfunc.counter}")
 
         if self.dynamic:
-            print(f"\tSubstrate probability:")
-            subs_names = [i.evolution_method for i in self.substrates]
-            weights = [round(i, 6) for i in self.population.substrate_weight]
+            print(f"\tOperator probability:")
+            subs_names = [i.evolution_method for i in self.operators]
+            weights = [round(i, 6) for i in self.population.operator_weight]
             adjust = max([len(i) for i in subs_names])
             for idx, val in enumerate(subs_names):
                 print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
@@ -195,9 +191,9 @@ class CRO_SL:
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", self.objfunc.counter)
-        print(f"\tSubstrate probability:")
-        subs_names = [i.evolution_method for i in self.substrates]
-        weights = [round(i, 6) for i in self.population.substrate_weight]
+        print(f"\tOperator probability:")
+        subs_names = [i.evolution_method for i in self.operators]
+        weights = [round(i, 6) for i in self.population.operator_weight]
         adjust = max([len(i) for i in subs_names])
         for idx, val in enumerate(subs_names):
             print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
@@ -220,21 +216,21 @@ class CRO_SL:
 
             
             plt.subplot(2, 2, 2)
-            m = np.array(self.population.substrate_history)[1:].T
+            m = np.array(self.population.operator_history)[1:].T
             for i in m:
                 plt.plot(factor * i)
-            plt.legend([i.evolution_method for i in self.substrates])
+            plt.legend([i.evolution_method for i in self.operators])
             plt.xlabel("generations")
             plt.ylabel("fitness")
-            plt.title("Fitness of each substrate")
+            plt.title("Fitness of each operator")
 
             plt.subplot(2, 1, 2)
-            prob_data = np.array(self.population.substrate_w_history).T
-            plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
+            prob_data = np.array(self.population.operator_w_history).T
+            plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.operators])
             plt.legend()
             plt.xlabel("generations")
             plt.ylabel("probability")
-            plt.title("Probability of each substrate")
+            plt.title("Probability of each operator")
             plt.show()
 
     """
@@ -250,9 +246,9 @@ class CRO_SL:
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
         print("Number of fitness evaluations:", self.objfunc.counter)
-        print(f"\tSubstrate probability:")
-        subs_names = [i.evolution_method for i in self.substrates]
-        weights = [round(i, 6) for i in self.population.substrate_weight]
+        print(f"\tOperator probability:")
+        subs_names = [i.evolution_method for i in self.operators]
+        weights = [round(i, 6) for i in self.population.operator_weight]
         adjust = max([len(i) for i in subs_names])
         for idx, val in enumerate(subs_names):
             print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
@@ -272,11 +268,11 @@ class CRO_SL:
             plt.title("CRO_SL fitness")
 
             plt.subplot(1, 2, 2)
-            m = np.array(self.population.substrate_history)[1:].T
+            m = np.array(self.population.operator_history)[1:].T
             for i in m:
                 plt.plot(factor * i)
-            plt.legend([i.evolution_method for i in self.substrates])
+            plt.legend([i.evolution_method for i in self.operators])
             plt.xlabel("generations")
             plt.ylabel("fitness")
-            plt.title("Fitness of each substrate")
+            plt.title("Fitness of each operator")
             plt.show()

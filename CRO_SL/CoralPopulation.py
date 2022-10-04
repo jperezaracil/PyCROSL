@@ -1,9 +1,7 @@
-from cmath import isnan
 import random
 import numpy as np
 from numba import jit
 import math
-from Substrate import *
 
 """
 Individual that holds a tentative solution with 
@@ -13,7 +11,7 @@ class Coral:
     """
     Constructor
     """
-    def __init__(self, solution, objfunc, substrate=None):
+    def __init__(self, solution, objfunc, operator=None):
         self.solution = solution
         
         self.fitness_calculated = False
@@ -23,7 +21,7 @@ class Coral:
 
         self.objfunc = objfunc
 
-        self.substrate = substrate
+        self.operator = operator
 
     def get_fitness(self):
         if not self.fitness_calculated:
@@ -31,13 +29,13 @@ class Coral:
             self.fitness_calculated = True
         return self.fitness
     
-    def set_substrate(self, substrate):
-        self.substrate = substrate
+    def set_operator(self, operator):
+        self.operator = operator
     
     def reproduce(self, population):
-        new_solution = self.substrate.evolve(self, population, self.objfunc)
+        new_solution = self.operator.evolve(self, population, self.objfunc)
         new_solution = self.objfunc.check_bounds(new_solution)
-        return Coral(new_solution, self.objfunc, self.substrate)
+        return Coral(new_solution, self.objfunc, self.operator)
 
 
 """
@@ -47,7 +45,7 @@ class CoralPopulation:
     """
     Constructor of the Coral Population class
     """
-    def __init__(self, objfunc, substrates, params, population=None):
+    def __init__(self, objfunc, operators, params, population=None):
         # Hyperparameters of the algorithm
         self.size = params["ReefSize"]
         self.rho = params["rho"]
@@ -71,28 +69,28 @@ class CoralPopulation:
 
         # Data structures of the algorithm
         self.objfunc = objfunc
-        self.substrates = substrates
+        self.operators = operators
 
         # Population initialization
         if population is None:
                 self.population = []
 
-        # Substrate data structures
-        self.substrate_list = [i%len(substrates) for i in range(self.size)]
-        self.substrate_weight = [1]*len(substrates)
+        # Operator data structures
+        self.operator_list = [i%len(operators) for i in range(self.size)]
+        self.operator_weight = [1]*len(operators)
 
         # Dynamic data structures
-        self.substrate_data = [[] for i in substrates]
+        self.operator_data = [[] for i in operators]
         if self.dyn_method == "success":
-            for idx, _ in enumerate(self.substrate_data):
-                self.substrate_data[idx].append(0)
-            self.larva_count = [0 for i in substrates]
+            for idx, _ in enumerate(self.operator_data):
+                self.operator_data[idx].append(0)
+            self.larva_count = [0 for i in operators]
         elif self.dyn_method == "diff":
-            self.substrate_metric_prev = [0]*len(substrates)
-        self.substrate_w_history = []
+            self.operator_metric_prev = [0]*len(operators)
+        self.operator_w_history = []
         self.subs_steps = 0
-        self.substrate_metric = [0]*len(substrates)
-        self.substrate_history = []
+        self.operator_metric = [0]*len(operators)
+        self.operator_history = []
         
 
 
@@ -119,78 +117,78 @@ class CoralPopulation:
         amount = int(self.size*self.rho)
         self.population = []
         for i in range(amount):
-            substrate_idx = self.substrate_list[i]
-            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx])
+            operator_idx = self.operator_list[i]
+            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.operators[operator_idx])
             self.population.append(new_coral)
     
     """
-    Evaluates the substrates using a given metric
+    Evaluates the operators using a given metric
     """
-    def evaluate_substrates(self):
-        for idx, s_data in enumerate(self.substrate_data):
+    def evaluate_operators(self):
+        for idx, s_data in enumerate(self.operator_data):
             #if self.dyn_method:
-            #    self.substrate_data = self.substrate_data.copy()
+            #    self.operator_data = self.operator_data.copy()
 
             if self.dyn_method == "success":
                 if self.larva_count[idx] > 0:
-                    self.substrate_metric[idx] = s_data[0]/self.larva_count[idx]
+                    self.operator_metric[idx] = s_data[0]/self.larva_count[idx]
                 else:
-                    self.substrate_metric[idx] = 0
+                    self.operator_metric[idx] = 0
 
                 # Reset data for nex iteration
-                self.substrate_data[idx] = [0]
+                self.operator_data[idx] = [0]
                 self.larva_count[idx] = 0
             elif self.dyn_method == "fitness" or self.dyn_method == "diff":
                 if len(s_data) > 0:
                     if self.dyn_metric == "best":
-                        self.substrate_metric[idx] = max(s_data)
+                        self.operator_metric[idx] = max(s_data)
                     elif self.dyn_metric == "avg":
-                        self.substrate_metric[idx] = sum(s_data)/len(s_data)
+                        self.operator_metric[idx] = sum(s_data)/len(s_data)
                     elif self.dyn_metric == "med":
                         if len(s_data) % 2 == 0:
-                            self.substrate_metric[idx] = s_data[len(s_data)//2-1]+s_data[len(s_data)//2]
+                            self.operator_metric[idx] = s_data[len(s_data)//2-1]+s_data[len(s_data)//2]
                         else:
-                            self.substrate_metric[idx] = s_data[len(s_data)//2]
+                            self.operator_metric[idx] = s_data[len(s_data)//2]
                     elif self.dyn_metric == "worse":
-                        self.substrate_metric[idx] = min(s_data)
+                        self.operator_metric[idx] = min(s_data)
                 else:
-                    self.substrate_metric[idx] = 0
+                    self.operator_metric[idx] = 0
                 
                 # Reset data for nex iteration
-                self.substrate_data[idx] = []
+                self.operator_data[idx] = []
             
             if self.dyn_method == "diff":
-                aux = self.substrate_metric[idx]
-                self.substrate_metric[idx] = self.substrate_metric[idx] - self.substrate_metric_prev[idx]
-                self.substrate_metric_prev[idx] = aux
+                aux = self.operator_metric[idx]
+                self.operator_metric[idx] = self.operator_metric[idx] - self.operator_metric_prev[idx]
+                self.operator_metric_prev[idx] = aux
         
         
 
     """
-    Evolves the population using the corresponding substrates
+    Evolves the population using the corresponding operators
     """
-    def evolve_with_substrates(self):
+    def evolve_with_operators(self):
         larvae = []
         if self.group_subs:
-            # Divide the population based on their substrate type
-            substrate_groups = [[] for i in self.substrates]
-            for i, idx in enumerate(self.substrate_list):
+            # Divide the population based on their operator type
+            operator_groups = [[] for i in self.operators]
+            for i, idx in enumerate(self.operator_list):
                 if i < len(self.population):
-                    substrate_groups[idx].append(self.population[i])
+                    operator_groups[idx].append(self.population[i])
             
             
             # Reproduce the corals of each group
-            for i, coral_group in enumerate(substrate_groups):
-                # Restart fitness record if there are corals in this substrate
+            for i, coral_group in enumerate(operator_groups):
+                # Restart fitness record if there are corals in this operator
 
                 for coral in coral_group:
                     # Generate new coral
                     if random.random() <= self.Fb:
                         new_coral = coral.reproduce(coral_group)
                         
-                        # Get data of the current substrate
+                        # Get data of the current operator
                         if self.dyn_method == "fitness" or self.dyn_method == "diff":
-                            self.substrate_data[i].append(new_coral.get_fitness())
+                            self.operator_data[i].append(new_coral.get_fitness())
                     else:
                         new_coral = Coral(self.objfunc.random_solution(), self.objfunc)
 
@@ -202,13 +200,13 @@ class CoralPopulation:
                 if random.random() <= self.Fb:
                     new_coral = coral.reproduce(self.population)
                     
-                    # Get substrate index
-                    s_names = [i.evolution_method for i in self.substrates]
-                    s_idx = s_names.index(coral.substrate.evolution_method)
+                    # Get operator index
+                    s_names = [i.evolution_method for i in self.operators]
+                    s_idx = s_names.index(coral.operator.evolution_method)
 
-                    # Get data of the current substrate
+                    # Get data of the current operator
                     if self.dyn_method == "fitness" or self.dyn_method == "diff":
-                        self.substrate_data[s_idx].append(new_coral.get_fitness())
+                        self.operator_data[s_idx].append(new_coral.get_fitness())
                 else:
                     new_coral = Coral(self.objfunc.random_solution(), self.objfunc)
 
@@ -217,9 +215,9 @@ class CoralPopulation:
         return larvae
 
     """
-    Converts the evaluation values of the substrates to a probability distribution
+    Converts the evaluation values of the operators to a probability distribution
     """
-    def substrate_probability(self, values):
+    def operator_probability(self, values):
         # Normalization
         weight = np.array(values)
         if weight.sum() != 0:
@@ -246,38 +244,38 @@ class CoralPopulation:
 
 
     """
-    Generates the assignment of the substrates
+    Generates the assignment of the operators
     """
-    def generate_substrates(self, progress=0):
-        if len(self.substrates) == 1:
-            self.substrate_list = [0] * self.size
+    def generate_operators(self, progress=0):
+        if len(self.operators) == 1:
+            self.operator_list = [0] * self.size
         else:
             if progress > (1/self.dyn_steps)*self.subs_steps:
                 self.subs_steps += 1
 
-                n_substrates = len(self.substrates)
-                self.evaluate_substrates()
+                n_operators = len(self.operators)
+                self.evaluate_operators()
                 if self.dynamic:
-                    # Assign the probability of each substrate
-                    self.substrate_weight = self.substrate_probability(self.substrate_metric)
-                    self.substrate_w_history.append(self.substrate_weight)
+                    # Assign the probability of each operator
+                    self.operator_weight = self.operator_probability(self.operator_metric)
+                    self.operator_w_history.append(self.operator_weight)
                 
-                # Choose each substrate with the weights chosen
-                self.substrate_list = random.choices(range(n_substrates), 
-                                                    weights=self.substrate_weight, k=self.size)
+                # Choose each operator with the weights chosen
+                self.operator_list = random.choices(range(n_operators), 
+                                                    weights=self.operator_weight, k=self.size)
 
-                # Assign the substrate to each coral
+                # Assign the operator to each coral
                 for idx, coral in enumerate(self.population):
-                    substrate_idx = self.substrate_list[idx]
-                    coral.set_substrate(self.substrates[substrate_idx])
+                    operator_idx = self.operator_list[idx]
+                    coral.set_operator(self.operators[operator_idx])
 
-                self.substrate_history.append(np.array(self.substrate_metric))
+                self.operator_history.append(np.array(self.operator_metric))
 
     """
     Inserts solutions into our reef with some conditions
     """
     def larvae_setting(self, larvae_list):
-        s_names = [i.evolution_method for i in self.substrates]
+        s_names = [i.evolution_method for i in self.operators]
         for larva in larvae_list:
             attempts_left = self.k
             setted = False
@@ -298,19 +296,19 @@ class CoralPopulation:
 
                 attempts_left -= 1
             
-            if larva.substrate is not None:
-                s_idx = s_names.index(larva.substrate.evolution_method)
+            if larva.operator is not None:
+                s_idx = s_names.index(larva.operator.evolution_method)
                 if self.dyn_method == "success":
                     self.larva_count[s_idx] += 1
 
-            # Assign substrate to the setted coral
+            # Assign operator to the setted coral
             if setted:
-                # Get substrate index
-                if self.dyn_method == "success" and larva.substrate is not None:
-                    self.substrate_data[s_idx][0] += 1
+                # Get operator index
+                if self.dyn_method == "success" and larva.operator is not None:
+                    self.operator_data[s_idx][0] += 1
 
-                substrate_idx = self.substrate_list[idx]
-                larva.set_substrate(self.substrates[substrate_idx])
+                operator_idx = self.operator_list[idx]
+                larva.set_operator(self.operators[operator_idx])
                 
         
     """

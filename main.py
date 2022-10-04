@@ -1,45 +1,49 @@
-from CRO_SL import *
+from CRO_SL.CRO_SL import *
+from Operator import *
+from OperatorInt import *
+from OperatorReal import *
+from TestFunctions import *
 
 def test_cro():
-    substrates_int = [
-        #SubstrateInt("DE/best/1", {"F":0.8, "Pr":0.8}),
-        #SubstrateInt("DE/rand/1", {"F":0.8, "Pr":0.8}),
-        #SubstrateInt("DE/rand/2", {"F":0.8, "Pr":0.8}),
-        #SubstrateInt("DE/best/2", {"F":0.8, "Pr":0.8}), 
-        #SubstrateInt("DE/current-to-best/1", {"F":0.8, "Pr":0.8}),
-        #SubstrateInt("DE/current-to-rand/1", {"F":0.8, "Pr":0.8}),
-        #SubstrateInt("AddOne", {"F":0.1}),
-        #SubstrateInt("DGauss", {"F":12}),
-        SubstrateInt("Perm", {"F":0.1}),
-        SubstrateInt("1point"),
-        SubstrateInt("2point"),
-        SubstrateInt("Multipoint"),
-        SubstrateInt("Xor", {"F":0.002})
+    operators_int = [
+        #OperatorInt("DE/best/1", {"F":0.8, "Pr":0.8}),
+        #OperatorInt("DE/rand/1", {"F":0.8, "Pr":0.8}),
+        #OperatorInt("DE/rand/2", {"F":0.8, "Pr":0.8}),
+        #OperatorInt("DE/best/2", {"F":0.8, "Pr":0.8}), 
+        #OperatorInt("DE/current-to-best/1", {"F":0.8, "Pr":0.8}),
+        #OperatorInt("DE/current-to-rand/1", {"F":0.8, "Pr":0.8}),
+        #OperatorInt("AddOne", {"F":0.1}),
+        #OperatorInt("DGauss", {"F":12}),
+        OperatorInt("Perm", {"F":0.1}),
+        OperatorInt("1point"),
+        OperatorInt("2point"),
+        OperatorInt("Multipoint"),
+        OperatorInt("Xor", {"F":0.002})
     ]
 
     DEparams = {"F":0.5, "Pr":0.8}
-    substrates_real = [
-        #SubstrateReal("SBX", {"F":0.5}),
-        #SubstrateReal("Perm", {"F":0.3}),
-        #SubstrateReal("1point"),
-        #SubstrateReal("2point"),
-        #SubstrateReal("Multipoint"),
-        #SubstrateReal("BLXalpha", {"F":0.8}),
-        #SubstrateReal("Rand"),
-        #SubstrateReal("DE/best/1", {"F":0.6, "Pr":0.06}),
-        #SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.25}),
-        #SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.25}),
-        #SubstrateReal("DE/rand/2", {"F":0.6, "Pr":0.06}),
-        #SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.25}),
-        #SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.25}),
-        #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
-        #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
-        #SubstrateReal("Gauss", {"F":0.04}),
+    operators_real = [
+        #OperatorReal("SBX", {"F":0.5}),
+        #OperatorReal("Perm", {"F":0.3}),
+        #OperatorReal("1point"),
+        #OperatorReal("2point"),
+        #OperatorReal("Multipoint"),
+        #OperatorReal("BLXalpha", {"F":0.8}),
+        #OperatorReal("Rand"),
+        #OperatorReal("DE/best/1", {"F":0.6, "Pr":0.06}),
+        #OperatorReal("DE/rand/1", {"F":0.7, "Pr":0.25}),
+        #OperatorReal("DE/best/2", {"F":0.7, "Pr":0.25}),
+        #OperatorReal("DE/rand/2", {"F":0.6, "Pr":0.06}),
+        #OperatorReal("DE/current-to-best/1", {"F":0.7, "Pr":0.25}),
+        #OperatorReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.25}),
+        #OperatorReal("HS", {"F":0.5, "Pr":0.8}),
+        #OperatorReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
+        #OperatorReal("Gauss", {"F":0.04}),
 
-        #SubstrateReal("DE/rand/1", DEparams),
-        #SubstrateReal("DE/best/2", DEparams),
-        SubstrateReal("DE/current-to-best/1", DEparams)#,
-        #SubstrateReal("DE/current-to-rand/1", DEparams)
+        #OperatorReal("DE/rand/1", DEparams),
+        #OperatorReal("DE/best/2", DEparams),
+        OperatorReal("DE/current-to-best/1", DEparams)#,
+        #OperatorReal("DE/current-to-rand/1", DEparams)
     ]
     
     params = {
@@ -75,19 +79,19 @@ def test_cro():
     #objfunc = Rosenbrock(30)
     #objfunc = Rastrigin(30)
 
-    c = CRO_SL(objfunc, substrates_int, params)
-    #c = CRO_SL(objfunc, substrates_real, params)
+    c = CRO_SL(objfunc, operators_int, params)
+    #c = CRO_SL(objfunc, operators_real, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()
 
 def thity_runs():
     DEparams = {"F":0.7, "Pr":0.8}
-    substrates_real = [
-        SubstrateReal("DE/rand/1", DEparams),
-        SubstrateReal("DE/best/2", DEparams),
-        SubstrateReal("DE/current-to-best/1", DEparams),
-        SubstrateReal("DE/current-to-rand/1", DEparams)
+    operators_real = [
+        OperatorReal("DE/rand/1", DEparams),
+        OperatorReal("DE/best/2", DEparams),
+        OperatorReal("DE/current-to-best/1", DEparams),
+        OperatorReal("DE/current-to-rand/1", DEparams)
     ]
 
     params = {
@@ -138,10 +142,10 @@ def thity_runs():
     ]
 
     for comb in combination_DE:
-        substrates_filtered = [substrates_real[i] for i in range(4) if i in comb]
+        operators_filtered = [operators_real[i] for i in range(4) if i in comb]
         fit_list = []
         for i in range(n_runs):
-            c = CRO_SL(Rosenbrock(n_coord), substrates_filtered, params)
+            c = CRO_SL(Rosenbrock(n_coord), operators_filtered, params)
             _, fit = c.optimize_classic()
             fit_list.append(fit)
             #print(f"Run {i+1} {comb} ended")
