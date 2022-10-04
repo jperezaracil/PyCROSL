@@ -4,7 +4,7 @@ from .CoralPopulation import *
 import time
 
 """
-Coral reef optimization with operator layers
+Coral reef optimization with substrate layers
 
 Parameters:
     Ngen: number of generations

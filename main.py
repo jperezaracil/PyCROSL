@@ -1,4 +1,5 @@
 from CRO_SL.CRO_SL import *
+from Genetic.Genetic import *
 from Operator import *
 from OperatorInt import *
 from OperatorReal import *
@@ -85,6 +86,29 @@ def test_cro():
     print(ind)
     c.display_report()
 
+def test_genetic():
+    params = {
+        "PopSize": 100,
+        "Pmut": 0.3,
+
+        "stop_cond": "neval",
+        "time_limit": 4000.0,
+        "Ngen": 3500,
+        "Neval": 1e5,
+        "fit_target": 1000,
+
+        "verbose": True,
+        "v_timer": 1
+    }
+
+    objfunc = MaxOnes(1000, "min")
+
+    c = Genetic(objfunc, OperatorInt("Xor", {"F":0.005}), OperatorInt("Multipoint"), params)
+    #c = CRO_SL(objfunc, operators_real, params)
+    ind, fit = c.optimize()
+    print(ind)
+    c.display_report()
+
 def thity_runs():
     DEparams = {"F":0.7, "Pr":0.8}
     operators_real = [
@@ -156,7 +180,8 @@ def thity_runs():
 
 def main():
     #thity_runs()
-    test_cro()
+    #test_cro()
+    test_genetic()
 
 if __name__ == "__main__":
     main()
