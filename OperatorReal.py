@@ -14,7 +14,7 @@ class OperatorReal(Operator):
     """
     Evolves a solution with a different strategy depending on the type of operator
     """
-    def evolve(self, solution, population, objfunc):
+    def evolve(self, solution, population, objfunc, calc_mean=False):
         result = None
         others = [i for i in population if i != solution]
         if len(others) > 1:
@@ -30,6 +30,12 @@ class OperatorReal(Operator):
             result = crossMp(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "Gauss":
             result = gaussian(solution.solution.copy(), self.params["F"])
+        elif self.evolution_method == "GaussWM":
+            if calc_mean:
+                popul_matrix = np.vstack([i.solution for i in population])
+                result = gaussian(solution.solution.copy(), self.params["F"], popul_matrix.mean(axis=0))
+            else:
+                result = gaussian(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "BLXalpha":
             result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["F"])
         elif self.evolution_method == "SBX":
@@ -65,8 +71,8 @@ class OperatorReal(Operator):
 def random_replace(solution):
     return solution.max()*np.random.random(solution.shape)-2*solution.min()
 
-def gaussian(solution, strength):
-    return solution + np.random.normal(0,strength,solution.shape)
+def gaussian(solution, strength, mean=0):
+    return solution + np.random.normal(mean,strength,solution.shape)
 
 def permutation(solution, strength):
     mask = np.random.random(solution.shape) < strength

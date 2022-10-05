@@ -130,7 +130,7 @@ def test_hs():
 
     objfunc = MaxOnes(1000, "max")
 
-    c = HS(objfunc, OperatorReal("Gauss", {"F":0.04}), params)
+    c = HS(objfunc, OperatorReal("Gauss", {"F":params["BN"]}), params)
     #c = CRO_SL(objfunc, operators_real, params)
     ind, fit = c.optimize()
     print(ind)

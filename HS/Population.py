@@ -76,14 +76,17 @@ class Population:
         # popul_matrix = HM
         popul_matrix = np.vstack([i.solution for i in self.population])
         new_solution = np.zeros(popul_matrix.shape[1])
+        mask1 = np.zeros(popul_matrix.shape[1])
+        mask2 = np.ones(popul_matrix.shape[1])
         popul_mean = popul_matrix.mean(axis=0)
         for i in range(new_solution.size):
             if random.random() < self.hmcr:
                 new_solution[i] = random.choice(self.population).solution[i]
+                mask2[i] = 0
                 if random.random() <= self.par:
-                    new_solution[i] += np.random.normal(0, self.bn)
-            else:
-                new_solution[i] = np.random.normal(popul_mean[i], self.bn)
+                    mask1[i] = 1
+        new_solution[mask1] = self.mutation_op.evolve(new_solution[mask1], self.population, self.objfunc)
+        new_solution[mask2] = self.mutation_op.evolve(new_solution[mask2], self.population, self.objfunc, calc_mean=True)
         new_solution = self.objfunc.check_bounds(new_solution)
         self.population.append(Indiv(new_solution, self.objfunc))
     
