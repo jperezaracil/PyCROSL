@@ -1,5 +1,5 @@
-import random
 import numpy as np
+import random
 from numba import jit
 from AbsObjetiveFunc import AbsObjetiveFunc
 

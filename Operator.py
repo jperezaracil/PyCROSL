@@ -1,6 +1,3 @@
-import numpy as np
-import random
-
 """
 Abstract Operator class
 """

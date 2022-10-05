@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from Operator import *
+from .Operator import Operator
 
 """
 Operator class that has discrete mutation and cross methods

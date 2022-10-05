@@ -1,10 +1,11 @@
-from CRO_SL.CRO_SL import *
-from Genetic.Genetic import *
+from CRO_SL import *
+from Genetic import *
+from HS import *
 from Operator import *
 from OperatorInt import *
 from OperatorReal import *
 from TestFunctions import *
-from HS.HS import *
+
 
 def test_cro():
     operators_int = [
