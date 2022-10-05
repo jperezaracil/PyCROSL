@@ -10,7 +10,7 @@ class Indiv:
     """
     Constructor
     """
-    def __init__(self, solution, objfunc, operator=None):
+    def __init__(self, solution, objfunc):
         self.solution = solution
         
         self.fitness_calculated = False
@@ -32,12 +32,13 @@ class Population:
     """
     Constructor of the Population class
     """
-    def __init__(self, objfunc, mutation_op, cross_op, params, population=None):
+    def __init__(self, objfunc, mutation_op, params, population=None):
         # Hyperparameters of the algorithm
         self.size = params["PopSize"]
-        self.pmut = params["Pmut"]
+        self.hmcr = params["HMCR"]
+        self.par = params["PAR"]
+        self.bn = params["BN"]
         self.mutation_op = mutation_op
-        self.cross_op = cross_op
 
         # Data structures of the algorithm
         self.objfunc = objfunc
@@ -69,6 +70,23 @@ class Population:
             self.population.append(new_ind)
     
     """
+    Applies the HS operation to the populatoin
+    """
+    def evolve(self):
+        # popul_matrix = HM
+        popul_matrix = np.vstack([i.solution for i in self.population])
+        new_solution = np.zeros(popul_matrix.shape[1])
+        popul_mean = popul_matrix.mean(axis=0)
+        for i in range(new_solution.size):
+            if random.random() < self.hmcr:
+                new_solution[i] = random.choice(self.population).solution[i]
+                if random.random() <= self.par:
+                    new_solution[i] += np.random.normal(0, self.bn)
+            else:
+                new_solution[i] = np.random.normal(popul_mean[i], self.bn)
+        self.population.append(Indiv(new_solution, self.objfunc))
+
+    """
     Applies a random mutation to a small portion of individuals
     """
     def mutate(self):
@@ -94,7 +112,7 @@ class Population:
     """
     def selection(self):
         fitness_values = np.array([ind.get_fitness() for ind in self.population])
-        affected_ind = list(np.argsort(fitness_values))[self.size:]
+        kept_ind = list(np.argsort(fitness_values))[self.size:]
 
-        self.population = [self.population[i] for i in range(len(self.population)) if i in affected_ind] 
+        self.population = [self.population[i] for i in range(len(self.population)) if i in kept_ind] 
 
