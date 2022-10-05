@@ -136,6 +136,37 @@ def test_hs():
     print(ind)
     c.display_report()
 
+def test_i_hs():
+    params = {
+        "PopSize": 100,
+        "HMCR": 0.9,
+        "PAR" : 0.3,
+        "BN" : 1,
+
+        "stop_cond": "time",
+        "time_limit": 20.0,
+        "Ngen": 3500,
+        "Neval": 1e5,
+        "fit_target": 1000,
+
+        "verbose": True,
+        "v_timer": 1
+    }
+    
+    operators_i_hs = [
+        OperatorReal("Gauss", {"F":params["BN"]}),
+        OperatorReal("Laplace", {"F":params["BN"]}),
+        OperatorReal("Cauchy", {"F":params["BN"]}),
+    ]
+
+    objfunc = MaxOnes(1000, "max")
+
+    c = I_HS(objfunc, operators_i_hs, params)
+    #c = CRO_SL(objfunc, operators_real, params)
+    ind, fit = c.optimize()
+    print(ind)
+    c.display_report()
+
 def thity_runs():
     DEparams = {"F":0.7, "Pr":0.8}
     operators_real = [

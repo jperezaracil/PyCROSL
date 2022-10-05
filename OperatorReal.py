@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from .Operator import Operator
+import scipy as sp
 
 
 """
@@ -29,13 +30,23 @@ class OperatorReal(Operator):
         elif self.evolution_method == "Multipoint":
             result = crossMp(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "Gauss":
-            result = gaussian(solution.solution.copy(), self.params["F"])
-        elif self.evolution_method == "GaussWM":
             if calc_mean:
                 popul_matrix = np.vstack([i.solution for i in population])
                 result = gaussian(solution.solution.copy(), self.params["F"], popul_matrix.mean(axis=0))
             else:
                 result = gaussian(solution.solution.copy(), self.params["F"])
+        elif self.evolution_method == "Laplace":
+            if calc_mean:
+                popul_matrix = np.vstack([i.solution for i in population])
+                result = laplace(solution.solution.copy(), self.params["F"], popul_matrix.mean(axis=0))
+            else:
+                result = laplace(solution.solution.copy(), self.params["F"])
+        elif self.evolution_method == "Cauchy":
+            if calc_mean:
+                popul_matrix = np.vstack([i.solution for i in population])
+                result = cauchy(solution.solution.copy(), self.params["F"], popul_matrix.mean(axis=0))
+            else:
+                result = cauchy(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "BLXalpha":
             result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["F"])
         elif self.evolution_method == "SBX":
@@ -70,6 +81,12 @@ class OperatorReal(Operator):
 ## Mutation and recombination methods
 def random_replace(solution):
     return solution.max()*np.random.random(solution.shape)-2*solution.min()
+
+def laplace(solution, strength, mean=0):
+    return solution + sp.stats.laplace.rvs(mean,strength,solution.shape)
+
+def cauchy(solution, strength, mean=0):
+    return solution + sp.stats.cauchy.rvs(mean,strength,solution.shape)
 
 def gaussian(solution, strength, mean=0):
     return solution + np.random.normal(mean,strength,solution.shape)
