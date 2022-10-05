@@ -1,3 +1,4 @@
+from fileinput import filename
 import numpy as np
 from matplotlib import pyplot as plt 
 from CoralPopulation import CoralPopulation
@@ -153,6 +154,14 @@ class CRO_SL:
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
         return self.population.best_solution()
+
+    def save_solution(self, file_name="solution.csv"):
+        ind, fit = self.population.best_solution()
+        np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
+        with open(file_name, "a") as file:
+            file.write(str(fit))
+
+
 
     """
     Displays information about the current state of the algotithm

@@ -1,3 +1,4 @@
+from doctest import testfile
 from CRO_SL import *
 
 def test_cro():
@@ -81,6 +82,37 @@ def test_cro():
     print(ind)
     c.display_report()
 
+def test_files():
+    params = {
+        "ReefSize": 100,
+        "rho": 0.6,
+        "Fb": 0.98,
+        "Fd": 1,
+        "Pd": 0.1,
+        "k": 3,
+        "K": 20,
+        "group_subs": False,
+
+        "stop_cond": "neval",
+        "time_limit": 4000.0,
+        "Ngen": 3500,
+        "Neval": 1e5,
+        "fit_target": 1000,
+
+        "verbose": True,
+        "v_timer": 1,
+
+        "dynamic": True,
+        "dyn_method": "fitness",
+        "dyn_metric": "best",
+        "dyn_steps": 100,
+        "prob_amp": 0.001
+    }
+
+    c = CRO_SL(Sphere(100), [SubstrateReal("Gauss")], params)
+    c.population.generate_random()
+    c.save_solution()
+
 def thity_runs():
     DEparams = {"F":0.7, "Pr":0.8}
     substrates_real = [
@@ -152,7 +184,8 @@ def thity_runs():
 
 def main():
     #thity_runs()
-    test_cro()
+    #test_cro()
+    test_files()
 
 if __name__ == "__main__":
     main()
