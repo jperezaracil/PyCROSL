@@ -4,6 +4,7 @@ from Operator import *
 from OperatorInt import *
 from OperatorReal import *
 from TestFunctions import *
+from HS.HS import *
 
 def test_cro():
     operators_int = [
@@ -39,11 +40,11 @@ def test_cro():
         #OperatorReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.25}),
         #OperatorReal("HS", {"F":0.5, "Pr":0.8}),
         #OperatorReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
-        #OperatorReal("Gauss", {"F":0.04}),
+        OperatorReal("Gauss", {"F":0.04}),
 
         #OperatorReal("DE/rand/1", DEparams),
         #OperatorReal("DE/best/2", DEparams),
-        OperatorReal("DE/current-to-best/1", DEparams)#,
+        #OperatorReal("DE/current-to-best/1", DEparams)#,
         #OperatorReal("DE/current-to-rand/1", DEparams)
     ]
     
@@ -104,6 +105,31 @@ def test_genetic():
     objfunc = MaxOnes(1000, "min")
 
     c = Genetic(objfunc, OperatorInt("Xor", {"F":0.005}), OperatorInt("Multipoint"), params)
+    #c = CRO_SL(objfunc, operators_real, params)
+    ind, fit = c.optimize()
+    print(ind)
+    c.display_report()
+
+def test_hs():
+    params = {
+        "PopSize": 100,
+        "HMCR": 0.9,
+        "PAR" : 0.3,
+        "BN" : 1,
+
+        "stop_cond": "time",
+        "time_limit": 20.0,
+        "Ngen": 3500,
+        "Neval": 1e5,
+        "fit_target": 1000,
+
+        "verbose": True,
+        "v_timer": 1
+    }
+
+    objfunc = MaxOnes(1000, "max")
+
+    c = HS(objfunc, OperatorReal("Gauss", {"F":0.04}), params)
     #c = CRO_SL(objfunc, operators_real, params)
     ind, fit = c.optimize()
     print(ind)
@@ -181,7 +207,8 @@ def thity_runs():
 def main():
     #thity_runs()
     #test_cro()
-    test_genetic()
+    #test_genetic()
+    test_hs()
 
 if __name__ == "__main__":
     main()

@@ -93,8 +93,9 @@ class Population:
     Removes the worse solutions of the population
     """
     def selection(self):
+        actual_size_pop = len(self.population)
         fitness_values = np.array([ind.get_fitness() for ind in self.population])
-        affected_ind = list(np.argsort(fitness_values))[self.size:]
+        affected_ind = list(np.argsort(fitness_values))[:(actual_size_pop - self.size)]
 
-        self.population = [self.population[i] for i in range(len(self.population)) if i in affected_ind] 
+        self.population = [self.population[i] for i in range(len(self.population)) if i not in affected_ind] 
 

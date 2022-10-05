@@ -84,35 +84,16 @@ class Population:
                     new_solution[i] += np.random.normal(0, self.bn)
             else:
                 new_solution[i] = np.random.normal(popul_mean[i], self.bn)
+        new_solution = self.objfunc.check_bounds(new_solution)
         self.population.append(Indiv(new_solution, self.objfunc))
-
-    """
-    Applies a random mutation to a small portion of individuals
-    """
-    def mutate(self):
-        for i in self.offspring:
-            new_ind = i
-            if random.random() < self.pmut:
-                new_solution = self.mutation_op.evolve(new_ind, self.population, self.objfunc)
-                new_ind = Indiv(new_solution, self.objfunc)
-            self.population.append(new_ind)
-    
-    """
-    Crosses individuals of the population
-    """
-    def cross(self):
-        self.offspring = []
-        for i in range(len(self.population)):
-            parent1 = random.choice(self.population)
-            new_solution = self.cross_op.evolve(parent1, self.population, self.objfunc)
-            self.offspring.append(Indiv(new_solution, self.objfunc))
     
     """
     Removes the worse solutions of the population
     """
     def selection(self):
+        actual_size_pop = len(self.population)
         fitness_values = np.array([ind.get_fitness() for ind in self.population])
-        kept_ind = list(np.argsort(fitness_values))[self.size:]
+        kept_ind = list(np.argsort(fitness_values))[:(actual_size_pop - self.size)]
 
-        self.population = [self.population[i] for i in range(len(self.population)) if i in kept_ind] 
+        self.population = [self.population[i] for i in range(len(self.population)) if i not in kept_ind] 
 
