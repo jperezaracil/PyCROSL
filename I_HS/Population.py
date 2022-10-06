@@ -77,6 +77,9 @@ class Population:
     def evolve(self):
         # popul_matrix = HM
         popul_matrix = np.vstack([i.solution for i in self.population])
+        fitness_values = np.array([ind.get_fitness() for ind in self.population])
+        popul_matrix = popul_matrix[np.argsort(fitness_values)]
+        popul_matrix = np.flip(popul_matrix, axis=0)
         solution_size = popul_matrix.shape[1]
         new_solution = np.zeros(solution_size)
         mask1 = np.zeros(solution_size)

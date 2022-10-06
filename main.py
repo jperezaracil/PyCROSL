@@ -119,17 +119,18 @@ def test_hs():
         "PAR" : 0.3,
         "BN" : 0.3,
 
-        "stop_cond": "time",
+        "stop_cond": "neval",
         "time_limit": 20.0,
         "Ngen": 3500,
-        "Neval": 1e5,
+        "Neval": 3e5,
         "fit_target": 1000,
 
         "verbose": True,
         "v_timer": 1
     }
 
-    objfunc = MaxOnes(1000, "max")
+    #objfunc = MaxOnes(1000, "max")
+    objfunc = Rosenbrock(30, "min")
 
     c = HS(objfunc, OperatorReal("Gauss", {"F":params["BN"]}), OperatorReal("Replace", {"F":params["BN"],"method":"Gauss"}), params)
     #c = CRO_SL(objfunc, operators_real, params)
@@ -144,10 +145,10 @@ def test_i_hs():
         "PAR" : 0.3,
         "BN" : 0.3,
 
-        "stop_cond": "time",
+        "stop_cond": "neval",
         "time_limit": 20.0,
         "Ngen": 3500,
-        "Neval": 1e5,
+        "Neval": 3e5,
         "fit_target": 1000,
 
         "verbose": True,
@@ -168,7 +169,8 @@ def test_i_hs():
         #OperatorReal("Replace", {"F":params["BN"], "method":"Laplace"}),
     #]
 
-    objfunc = MaxOnes(1000, "max")
+    #objfunc = MaxOnes(1000, "max")
+    objfunc = Rosenbrock(30, "min")
 
     c = I_HS(objfunc, operators_mut_i_hs, OperatorReal("Replace", {"F":params["BN"], "method":"Gauss"}), params)
     #c = CRO_SL(objfunc, operators_real, params)
