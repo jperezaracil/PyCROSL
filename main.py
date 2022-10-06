@@ -5,6 +5,7 @@ from Operator import *
 from OperatorInt import *
 from OperatorReal import *
 from TestFunctions import *
+from I_HS import *
 
 
 def test_cro():
@@ -116,7 +117,7 @@ def test_hs():
         "PopSize": 100,
         "HMCR": 0.9,
         "PAR" : 0.3,
-        "BN" : 1,
+        "BN" : 0.3,
 
         "stop_cond": "time",
         "time_limit": 20.0,
@@ -130,7 +131,7 @@ def test_hs():
 
     objfunc = MaxOnes(1000, "max")
 
-    c = HS(objfunc, OperatorReal("Gauss", {"F":params["BN"]}), params)
+    c = HS(objfunc, OperatorReal("Gauss", {"F":params["BN"]}), OperatorReal("Replace", {"F":params["BN"],"method":"Gauss"}), params)
     #c = CRO_SL(objfunc, operators_real, params)
     ind, fit = c.optimize()
     print(ind)
@@ -141,7 +142,7 @@ def test_i_hs():
         "PopSize": 100,
         "HMCR": 0.9,
         "PAR" : 0.3,
-        "BN" : 1,
+        "BN" : 0.3,
 
         "stop_cond": "time",
         "time_limit": 20.0,
@@ -153,15 +154,23 @@ def test_i_hs():
         "v_timer": 1
     }
     
-    operators_i_hs = [
+    operators_mut_i_hs = [
         OperatorReal("Gauss", {"F":params["BN"]}),
+        #OperatorReal("Gauss", {"F":params["BN"]*1.5}),
+        #OperatorReal("Gauss", {"F":params["BN"]*2}),
+        OperatorReal("Cauchy", {"F":params["BN"]/2}),
         OperatorReal("Laplace", {"F":params["BN"]}),
-        OperatorReal("Cauchy", {"F":params["BN"]}),
     ]
+
+    #operators_rep_i_hs = [
+        #OperatorReal("Replace", {"F":params["BN"], "method":"Gauss"}),
+        #OperatorReal("Replace", {"F":params["BN"], "method":"Cauchy"}),
+        #OperatorReal("Replace", {"F":params["BN"], "method":"Laplace"}),
+    #]
 
     objfunc = MaxOnes(1000, "max")
 
-    c = I_HS(objfunc, operators_i_hs, params)
+    c = I_HS(objfunc, operators_mut_i_hs, OperatorReal("Replace", {"F":params["BN"], "method":"Gauss"}), params)
     #c = CRO_SL(objfunc, operators_real, params)
     ind, fit = c.optimize()
     print(ind)
@@ -240,7 +249,8 @@ def main():
     #thity_runs()
     #test_cro()
     #test_genetic()
-    test_hs()
+    #test_hs()
+    test_i_hs()
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,8 @@
 import numpy as np
 import random
-from .Operator import Operator
+from Operator import Operator
 import scipy as sp
+import scipy.stats
 
 
 """
@@ -15,7 +16,7 @@ class OperatorReal(Operator):
     """
     Evolves a solution with a different strategy depending on the type of operator
     """
-    def evolve(self, solution, population, objfunc, calc_mean=False):
+    def evolve(self, solution, population, objfunc):
         result = None
         others = [i for i in population if i != solution]
         if len(others) > 1:
@@ -30,23 +31,11 @@ class OperatorReal(Operator):
         elif self.evolution_method == "Multipoint":
             result = crossMp(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "Gauss":
-            if calc_mean:
-                popul_matrix = np.vstack([i.solution for i in population])
-                result = gaussian(solution.solution.copy(), self.params["F"], popul_matrix.mean(axis=0))
-            else:
-                result = gaussian(solution.solution.copy(), self.params["F"])
+            result = gaussian(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Laplace":
-            if calc_mean:
-                popul_matrix = np.vstack([i.solution for i in population])
-                result = laplace(solution.solution.copy(), self.params["F"], popul_matrix.mean(axis=0))
-            else:
-                result = laplace(solution.solution.copy(), self.params["F"])
+            result = laplace(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Cauchy":
-            if calc_mean:
-                popul_matrix = np.vstack([i.solution for i in population])
-                result = cauchy(solution.solution.copy(), self.params["F"], popul_matrix.mean(axis=0))
-            else:
-                result = cauchy(solution.solution.copy(), self.params["F"])
+            result = cauchy(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "BLXalpha":
             result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["F"])
         elif self.evolution_method == "SBX":
@@ -69,8 +58,8 @@ class OperatorReal(Operator):
             result = sim_annealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.evolution_method == "HS":
             result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], 0.4)
-        elif self.evolution_method == "Rand":
-            result = random_replace(solution.solution.copy())
+        elif self.evolution_method == "Replace":
+            result = replace(solution.solution.copy(), population, self.params["method"], self.params["F"])
         else:
             print(f"Error: evolution method \"{self.evolution_method}\" not defined")
             exit(1)
@@ -79,17 +68,26 @@ class OperatorReal(Operator):
         return result
 
 ## Mutation and recombination methods
-def random_replace(solution):
-    return solution.max()*np.random.random(solution.shape)-2*solution.min()
+def replace(solution, population, method, strength):
+    popul_matrix = np.vstack([i.solution for i in population])
+    mean = popul_matrix.mean(axis=0)
+    if method == "Laplace":
+        return sp.stats.laplace.rvs(mean,strength,solution.shape)
+    elif method == "Cauchy":
+        return sp.stats.cauchy.rvs(mean,strength,solution.shape)
+    elif method == "Gauss":
+        return np.random.normal(mean, strength,solution.shape)
+    elif method == "Uniform":
+        return solution.max()*np.random.random(solution.shape)-2*solution.min()
 
-def laplace(solution, strength, mean=0):
-    return solution + sp.stats.laplace.rvs(mean,strength,solution.shape)
+def laplace(solution, strength):
+    return solution + sp.stats.laplace.rvs(0,strength,solution.shape)
 
-def cauchy(solution, strength, mean=0):
-    return solution + sp.stats.cauchy.rvs(mean,strength,solution.shape)
+def cauchy(solution, strength):
+    return solution + sp.stats.cauchy.rvs(0,strength,solution.shape)
 
-def gaussian(solution, strength, mean=0):
-    return solution + np.random.normal(mean,strength,solution.shape)
+def gaussian(solution, strength):
+    return solution + np.random.normal(0, strength,solution.shape)
 
 def permutation(solution, strength):
     mask = np.random.random(solution.shape) < strength

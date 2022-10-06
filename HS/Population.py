@@ -32,13 +32,14 @@ class Population:
     """
     Constructor of the Population class
     """
-    def __init__(self, objfunc, mutation_op, params, population=None):
+    def __init__(self, objfunc, mutation_op, replace_op ,params, population=None):
         # Hyperparameters of the algorithm
         self.size = params["PopSize"]
         self.hmcr = params["HMCR"]
         self.par = params["PAR"]
         self.bn = params["BN"]
         self.mutation_op = mutation_op
+        self.replace_op = replace_op
 
         # Data structures of the algorithm
         self.objfunc = objfunc
@@ -85,8 +86,10 @@ class Population:
                 mask2[i] = 0
                 if random.random() <= self.par:
                     mask1[i] = 1
-        new_solution[mask1] = self.mutation_op.evolve(new_solution[mask1], self.population, self.objfunc)
-        new_solution[mask2] = self.mutation_op.evolve(new_solution[mask2], self.population, self.objfunc, calc_mean=True)
+        mask1 = mask1 >=1
+        mask2 = mask2 >=1
+        new_solution[mask1] = self.mutation_op.evolve(Indiv(new_solution, self.objfunc), self.population, self.objfunc)[mask1]
+        new_solution[mask2] = self.replace_op.evolve(Indiv(new_solution, self.objfunc), self.population, self.objfunc)[mask2]
         new_solution = self.objfunc.check_bounds(new_solution)
         self.population.append(Indiv(new_solution, self.objfunc))
     

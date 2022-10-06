@@ -32,13 +32,14 @@ class Population:
     """
     Constructor of the Population class
     """
-    def __init__(self, objfunc, mutation_op, params, population=None):
+    def __init__(self, objfunc, mutation_op, replace_op, params, population=None):
         # Hyperparameters of the algorithm
         self.size = params["PopSize"]
         self.hmcr = params["HMCR"]
         self.par = params["PAR"]
         self.bn = params["BN"]
         self.mutation_op = mutation_op
+        self.replace_op = replace_op
         self.mutation_levels = len(mutation_op)
 
         # Data structures of the algorithm
@@ -80,21 +81,23 @@ class Population:
         new_solution = np.zeros(solution_size)
         mask1 = np.zeros(solution_size)
         mask2 = np.ones(solution_size)
+        mask3 = -np.ones(solution_size)
         popul_mean = popul_matrix.mean(axis=0)
         for i in range(solution_size):
             if random.random() < self.hmcr:
-                new_solution[i] = random.choice(self.population).solution[i]
+                pos = random.randrange(popul_matrix.shape[0])
+                new_solution[i] = popul_matrix[pos][i]
                 mask2[i] = 0
+                mask3[i] = pos
                 if random.random() <= self.par:
                     mask1[i] = 1
+        mask1 = mask1 >=1
+        mask2 = mask2 >=1
         for i in range(self.mutation_levels):
-            pos = solution_size/self.mutation_levels
-            solution_aux = new_solution[int(pos*i):int(pos*i + pos)]
-            mask1_aux = mask1[int(pos*i):int(pos*i + pos)]
-            mask2_aux = mask2[int(pos*i):int(pos*i + pos)]
-            solution_aux[mask1_aux] = self.mutation_op[i].evolve(solution_aux[mask1_aux], self.population, self.objfunc)
-            solution_aux[mask2_aux] = self.mutation_op[i].evolve(solution_aux[mask2_aux], self.population, self.objfunc, calc_mean=True)
-            new_solution[int(pos*i):int(pos*i + pos)] = solution_aux
+            step = solution_size/self.mutation_levels
+            mask1_aux = (mask3 >= int(step*i)) & (mask3 < int(step*i + step)) & mask1
+            new_solution[mask1_aux] = self.mutation_op[i].evolve(Indiv(new_solution, self.objfunc), self.population, self.objfunc)[mask1_aux]
+            new_solution[mask2] = self.replace_op.evolve(Indiv(new_solution, self.objfunc), self.population, self.objfunc)[mask2]
         
         new_solution = self.objfunc.check_bounds(new_solution)
         self.population.append(Indiv(new_solution, self.objfunc))
@@ -105,6 +108,7 @@ class Population:
     def selection(self):
         actual_size_pop = len(self.population)
         fitness_values = np.array([ind.get_fitness() for ind in self.population])
+        #print(fitness_values)
         kept_ind = list(np.argsort(fitness_values))[:(actual_size_pop - self.size)]
 
         self.population = [self.population[i] for i in range(len(self.population)) if i not in kept_ind] 

@@ -10,7 +10,7 @@ class I_HS:
     """
     Constructor of the Harmony Search algorithm
     """
-    def __init__(self, objfunc, mutation_op, params):
+    def __init__(self, objfunc, mutation_op, replace_op, params):
         # Verbose parameters
         self.verbose = params["verbose"]
         self.v_timer = params["v_timer"]
@@ -24,7 +24,7 @@ class I_HS:
 
         # Data structures of the algorithm
         self.objfunc = objfunc
-        self.population = Population(objfunc, mutation_op, params)
+        self.population = Population(objfunc, mutation_op, replace_op, params)
         
         # Metrics
         self.history = []
