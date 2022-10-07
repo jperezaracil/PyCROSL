@@ -28,6 +28,8 @@ class CRO_SL:
     Constructor of the CRO algorithm
     """
     def __init__(self, objfunc, substrates, params):
+        self.params = params
+
         # Dynamic parameters
         self.dynamic = params["dynamic"]
         self.dyn_method = params["dyn_method"]
@@ -55,6 +57,15 @@ class CRO_SL:
         self.best_fitness = 0
         self.time_spent = 0
         self.real_time_spent = 0
+
+    def restart(self):
+        self.population = CoralPopulation(self.objfunc, self.substrates, self.params)
+        self.history = []
+        self.pop_size = []
+        self.best_fitness = 0
+        self.time_spent = 0
+        self.real_time_spent = 0
+        self.objfunc.counter = 0
 
     """
     One step of the algorithm

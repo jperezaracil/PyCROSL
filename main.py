@@ -135,7 +135,7 @@ def thity_runs():
         "stop_cond": "neval",
         "time_limit": 4000.0,
         "Ngen": 3500,
-        "Neval": 3e5,
+        "Neval": 1e5,
         "fit_target": 1000,
 
         "verbose": False,
@@ -143,13 +143,13 @@ def thity_runs():
 
         "dynamic": False,
         "dyn_method": "fitness",
-        "dyn_metric": "best",
+        "dyn_metric": "avg",
         "dyn_steps": 100,
         "prob_amp": 0.1
     }
 
     n_coord = 30
-    n_runs = 10
+    n_runs = 5
     
     combination_DE = [
         [0,1,2,3],
@@ -183,9 +183,9 @@ def thity_runs():
         print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
 
 def main():
-    #thity_runs()
+    thity_runs()
     #test_cro()
-    test_files()
+    #test_files()
 
 if __name__ == "__main__":
     main()

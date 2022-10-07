@@ -128,9 +128,6 @@ class CoralPopulation:
     """
     def evaluate_substrates(self):
         for idx, s_data in enumerate(self.substrate_data):
-            #if self.dyn_method:
-            #    self.substrate_data = self.substrate_data.copy()
-
             if self.dyn_method == "success":
                 if self.larva_count[idx] > 0:
                     self.substrate_metric[idx] = s_data[0]/self.larva_count[idx]
@@ -142,6 +139,7 @@ class CoralPopulation:
                 self.larva_count[idx] = 0
             elif self.dyn_method == "fitness" or self.dyn_method == "diff":
                 if len(s_data) > 0:
+                    s_data = sorted(s_data)
                     if self.dyn_metric == "best":
                         self.substrate_metric[idx] = max(s_data)
                     elif self.dyn_metric == "avg":
@@ -327,27 +325,26 @@ class CoralPopulation:
     def depredation(self):
         if self.Fd == 1:
             self.full_depredation()
-            return
-        
-        # Calculate the number of affected corals
-        amount = int(self.size*self.Pd)
+        else:
+            # Calculate the number of affected corals
+            amount = int(self.size*self.Pd)
 
-        # Extract the worse 'n_corals' in the grid
-        fitness_values = np.array([coral.get_fitness() for coral in self.population])
-        affected_corals = list(np.argsort(fitness_values))[:amount]
+            # Extract the worse 'n_corals' in the grid
+            fitness_values = np.array([coral.get_fitness() for coral in self.population])
+            affected_corals = list(np.argsort(fitness_values))[:amount]
 
-        # Set a 'dead' flag in the affected corals with a small probability
-        alive_count = len(self.population)
-        for i in affected_corals:
-            if alive_count <= 2:
-                break
-            dies = random.random() <= self.Fd
-            self.population[i].is_dead = dies
-            if dies:
-                alive_count -= 1
+            # Set a 'dead' flag in the affected corals with a small probability
+            alive_count = len(self.population)
+            for i in affected_corals:
+                if alive_count <= 2:
+                    break
+                dies = random.random() <= self.Fd
+                self.population[i].is_dead = dies
+                if dies:
+                    alive_count -= 1
 
-        # Remove the dead corals from the population
-        self.population = list(filter(lambda c: not c.is_dead, self.population))
+            # Remove the dead corals from the population
+            self.population = list(filter(lambda c: not c.is_dead, self.population))
 
     def full_depredation(self):
         # Calculate the number of affected corals
