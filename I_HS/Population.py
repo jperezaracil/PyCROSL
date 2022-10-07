@@ -85,7 +85,6 @@ class Population:
         mask1 = np.zeros(solution_size)
         mask2 = np.ones(solution_size)
         mask3 = -np.ones(solution_size)
-        popul_mean = popul_matrix.mean(axis=0)
         for i in range(solution_size):
             if random.random() < self.hmcr:
                 pos = random.randrange(popul_matrix.shape[0])
@@ -96,14 +95,52 @@ class Population:
                     mask1[i] = 1
         mask1 = mask1 >=1
         mask2 = mask2 >=1
+        mutation = np.zeros(solution_size)
         for i in range(self.mutation_levels):
             step = solution_size/self.mutation_levels
             mask1_aux = (mask3 >= int(step*i)) & (mask3 < int(step*i + step)) & mask1
-            new_solution[mask1_aux] = self.mutation_op[i].evolve(Indiv(new_solution, self.objfunc), self.population, self.objfunc)[mask1_aux]
+            mutation_i = self.mutation_op[i].evolve(Indiv(new_solution, self.objfunc), self.population, self.objfunc)
+            new_solution[mask1_aux] = mutation_i[mask1_aux]
+            mutation[int(step*i):int(step*i+step)] = mutation_i[int(step*i):int(step*i+step)]
             new_solution[mask2] = self.replace_op.evolve(Indiv(new_solution, self.objfunc), self.population, self.objfunc)[mask2]
         
+        mask3[mask1==False] = -1
+        popul_matrix = self.inharmony(mask3, popul_matrix, mutation)
+
+        self.population += [Indiv(sol, self.objfunc) for sol in popul_matrix]
+
         new_solution = self.objfunc.check_bounds(new_solution)
         self.population.append(Indiv(new_solution, self.objfunc))
+
+    def inharmony(self, positions, ordered_population, mutation):
+        tam = len(ordered_population)
+        new_population = []
+        for i in range(len(positions)):
+            pos = int(positions[i])
+            if pos != -1:
+                if pos==0:
+                    ind = ordered_population[pos+1]
+                    inharmony_mutation = mutation[i]/(tam-pos)
+                    ind[i] = ind[i]+inharmony_mutation
+                    ind = self.objfunc.check_bounds(ind)
+                    new_population.append(ind)
+                elif pos==(len(ordered_population)-1):
+                    ind = ordered_population[pos-1]
+                    inharmony_mutation = mutation[i]/(tam-pos)
+                    ind[i] = ind[i]+inharmony_mutation
+                    ind = self.objfunc.check_bounds(ind)
+                    new_population.append(ind)
+                else:
+                    ind_pre = ordered_population[pos-1]
+                    ind_post = ordered_population[pos+1]
+                    inharmony_mutation = mutation[i]/(tam-pos)
+                    ind_pre[i] = ind_pre[i]+inharmony_mutation
+                    ind_post[i] = ind_post[i]+inharmony_mutation
+                    ind_pre = self.objfunc.check_bounds(ind_pre)
+                    ind_post = self.objfunc.check_bounds(ind_post)
+                    new_population.append(ind_pre)
+                    new_population.append(ind_post)
+        return new_population
     
     """
     Removes the worse solutions of the population

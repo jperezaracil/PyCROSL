@@ -119,8 +119,8 @@ def test_hs():
         "PAR" : 0.3,
         "BN" : 0.3,
 
-        "stop_cond": "neval",
-        "time_limit": 20.0,
+        "stop_cond": "time",
+        "time_limit": 40.0,
         "Ngen": 3500,
         "Neval": 3e5,
         "fit_target": 1000,
@@ -145,7 +145,7 @@ def test_i_hs():
         "PAR" : 0.3,
         "BN" : 0.3,
 
-        "stop_cond": "neval",
+        "stop_cond": "time",
         "time_limit": 20.0,
         "Ngen": 3500,
         "Neval": 3e5,
@@ -247,12 +247,90 @@ def thity_runs():
         print(f"\nRESULTS {comb}:")
         print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
 
+def hs_vs_i_hs():
+    params = {
+        "PopSize": 100,
+        "HMCR": 0.9,
+        "PAR" : 0.3,
+        "BN" : 0.3,
+
+        "stop_cond": "time",
+        "time_limit": 40.0,
+        "Ngen": 3500,
+        "Neval": 3e5,
+        "fit_target": 1000,
+
+        "verbose": False,
+        "v_timer": 1
+    }
+
+    operators_mut = [
+        OperatorReal("Gauss", {"F":params["BN"]}),
+        OperatorReal("Cauchy", {"F":params["BN"]/2}),
+        OperatorReal("Laplace", {"F":params["BN"]}),
+        OperatorReal("Gauss", {"F":params["BN"]*1.5}),
+        OperatorReal("Gauss", {"F":params["BN"]*2}),
+        
+    ]
+
+    operators_rep = [
+        OperatorReal("Replace", {"F":params["BN"], "method":"Gauss"}),
+        OperatorReal("Replace", {"F":params["BN"], "method":"Cauchy"}),
+        OperatorReal("Replace", {"F":params["BN"], "method":"Laplace"}),
+    ]
+
+    objfunc = Rosenbrock(30, "min")
+    
+    n_coord = 30
+    n_runs = 8
+    
+    combination_mut = [
+        #[0,1,2,3,4],
+        #[0,1,2,3],
+        [0,1,2],
+        [0,1,3],
+        [0,3,4],
+        [0,1],
+        [0,2],
+        [0,3],
+        [0,4],
+        [1,2],
+        [1,3],
+        [1,4],
+        [2,3],
+        [2,4],
+        [3,4]
+    ]
+
+    for comb in combination_mut:
+        operators_mut_filtered = [operators_mut[i] for i in range(4) if i in comb]
+        for comb_rep in operators_rep:
+            fit_list_i_hs = []
+            fit_list_hs = []
+            for i in range(n_runs):
+                c_i_hs = I_HS(objfunc, operators_mut_filtered, comb_rep, params)
+                _, fit_i_hs = c_i_hs.optimize()
+                c_hs = HS(objfunc, operators_mut_filtered[0], comb_rep, params)
+                _, fit_hs = c_hs.optimize()
+                fit_list_i_hs.append(fit_i_hs)
+                fit_list_hs.append(fit_hs)
+                #print(f"Run {i+1} {comb} ended")
+                #c.display_report(show_plots=False)
+            fit_list_i_hs = np.array(fit_list_i_hs)
+            fit_list_hs = np.array(fit_list_hs)
+            print(f"\nRESULTS {comb}:")
+            print("I-HS: ")
+            print(f"min: {fit_list_i_hs.min():e}; mean: {fit_list_i_hs.mean():e}; std: {fit_list_i_hs.std():e}")
+            print("HS: ")
+            print(f"min: {fit_list_hs.min():e}; mean: {fit_list_hs.mean():e}; std: {fit_list_hs.std():e}")
+
 def main():
     #thity_runs()
     #test_cro()
     #test_genetic()
     #test_hs()
-    test_i_hs()
+    #test_i_hs()
+    hs_vs_i_hs()
 
 if __name__ == "__main__":
     main()
