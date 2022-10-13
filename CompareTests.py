@@ -5,9 +5,21 @@ from AbsObjetiveFunc import AbsObjetiveFunc
 
 """
 Example of objective function.
-
-Counts the number of ones in the array
 """
+
+class Sphere(AbsObjetiveFunc):
+    def __init__(self, size, opt="min"):
+        self.size = size
+        super().__init__(self.size, opt)
+
+    def objetive(self, solution):
+        return sphere(solution)
+    
+    def random_solution(self):
+        return 200*np.random.random(self.size)-100
+    
+    def check_bounds(self, solution):
+        return np.clip(solution, -100, 100)
 
 class HighCondElliptic(AbsObjetiveFunc):
     def __init__(self, size, opt="min"):
@@ -158,10 +170,10 @@ class HappyCat(AbsObjetiveFunc):
         return happy_cat(solution)
     
     def random_solution(self):
-        return 200*np.random.random(self.size)-100
+        return 4*np.random.random(self.size)-2
     
     def check_bounds(self, solution):
-        return np.clip(solution, -100, 100)
+        return np.clip(solution, -2, 2)
 
 class HGBat(AbsObjetiveFunc):
     def __init__(self, size, opt="min"):
@@ -172,10 +184,10 @@ class HGBat(AbsObjetiveFunc):
         return hgbat(solution)
     
     def random_solution(self):
-        return 200*np.random.random(self.size)-100
+        return 4*np.random.random(self.size)-2
     
     def check_bounds(self, solution):
-        return np.clip(solution, -100, 100)
+        return np.clip(solution, -2, 2)
 
 class ExpandedGriewankPlusRosenbrock(AbsObjetiveFunc):
     def __init__(self, size, opt="min"):
@@ -206,6 +218,10 @@ class ExpandedShafferF6(AbsObjetiveFunc):
         return np.clip(solution, -100, 100)
 
 
+@jit(nopython=True)
+def sphere(solution):
+    return (solution**2).sum()
+
 #@jit(nopython=True)
 def high_cond_elipt_f(vect):
     d = vect.shape[0]
@@ -215,22 +231,22 @@ def high_cond_elipt_f(vect):
         c = 1e6
     return (c*vect*vect).sum()
 
-#@jit(nopython=True)
+@jit(nopython=True)
 def bent_cigar(solution):
     return solution[0]**2 + 1e6*(solution[1:]**2).sum()
 
-#@jit(nopython=True)
+@jit(nopython=True)
 def discus(solution):
     return 1e6*solution[0]**2 + (solution[1:]**2).sum()
 
-#@jit(nopython=True)
+@jit(nopython=True)
 def rosenbrock(solution):
     term1 = solution[1:] - solution[:-1]**2
     term2 = 1 - solution[:-1]
     result = 100*term1**2 + term2**2
     return result.sum()
 
-#@jit(nopython=True)
+@jit(nopython=True)
 def ackley(solution):
     term1 = (solution**2).sum()
     term1 = -0.2 * np.sqrt(term1/solution.size)
@@ -247,11 +263,11 @@ def griewank(solution):
     term2 = np.prod(np.cos(solution/np.sqrt(np.arange(1, solution.size+1))))
     return 1 + term1/4000 - term2
 
-#@jit(nopython=True)
+@jit(nopython=True)
 def rastrigin(solution, A=10):
     return (A * len(solution) + (solution**2 - A*np.cos(2*np.pi*solution)).sum())
 
-#@jit(nopython=True)
+@jit(nopython=True)
 def mod_schwefel(solution):
     fit = 0
     for i in range(solution.size):
@@ -272,13 +288,13 @@ def mod_schwefel(solution):
 def katsuura(solution):
     return np.prod([1 + (i + 1)*np.sum(np.floor(2**(np.arange(1, 32+1))*solution[i])*2**(-np.arange(1, 32+1, dtype=float))) for i in range(solution.size)])
 
-#@jit(nopython=True)
+@jit(nopython=True)
 def happy_cat(solution):
     z = solution+4.189828872724338e2
     r2 = (z * solution).sum()
     s = solution.sum()
-    return (r2-solution.size)**0.25 + (0.5*r2+s)/solution.size + 0.5
-    #return ((solution**2).sum() - solution.size())**0.25 + (0.5*(solution**2).sum() + solution.sum())/solution.size + 0.5
+    return np.abs(r2-solution.size)**0.25 + (0.5*r2+s)/solution.size + 0.5
+    #return ((solution**2).sum() - solution.size)**0.25 + (0.5*(solution**2).sum() + solution.sum())/solution.size + 0.5
 
 #@jit(nopython=True)
 def hgbat(solution):

@@ -153,8 +153,8 @@ def DERand1(solution, population, F, CR):
 
 def DEBest1(solution, population, F, CR):
     if len(population) > 3:
-        fitness = [i.fitness for i in population]
-        best = population[fitness.index(max(fitness))]
+        fitness = [i.get_fitness() for i in population]
+        best = population.pop(fitness.index(max(fitness)))
         r1, r2 = random.sample(population, 2)
 
         v = best.solution + F*(r1.solution-r2.solution)
@@ -173,8 +173,8 @@ def DERand2(solution, population, F, CR):
 
 def DEBest2(solution, population, F, CR):
     if len(population) > 5:
-        fitness = [i.fitness for i in population]
-        best = population[fitness.index(max(fitness))]
+        fitness = [i.get_fitness() for i in population]
+        best = population.pop(fitness.index(max(fitness)))
         r1, r2, r3, r4 = random.sample(population, 4)
 
         v = best.solution + F*(r1.solution-r2.solution) + F*(r3.solution-r4.solution)
@@ -184,8 +184,8 @@ def DEBest2(solution, population, F, CR):
 
 def DECurrentToBest1(solution, population, F, CR):
     if len(population) > 3:
-        fitness = [i.fitness for i in population]
-        best = population[fitness.index(max(fitness))]
+        fitness = [i.get_fitness() for i in population]
+        best = population.pop(fitness.index(max(fitness)))
         r1, r2 = random.sample(population, 2)
 
         v = solution + F*(best.solution-solution) + F*(r1.solution-r2.solution)

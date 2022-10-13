@@ -17,12 +17,12 @@ def exec_runs(evalg_inst, dframe, func_name, subs_name, nruns=10):
     dframe.loc[len(dframe)] = [func_name, subs_name, fit_list.min(), fit_list.mean(), fit_list.std()]
 
 def save_dframe_error(dframe, last_func, last_subs):
-    save_dframe(dframe, filename="cro_incomplete.csv")
+    save_dframe(dframe, filename="cro_incomplete_classic.csv")
     with open("cro_log.txt", "w") as f:
         f.write("Warning: stopped before all the runs were completed")
         f.write(f"\t - last function: {last_func}, with substrates: {last_subs}")
 
-def save_dframe(dframe, filename="cro_results.csv"):
+def save_dframe(dframe, filename="cro_results_classic.csv"):
     dframe.to_csv(filename)
     print("saved dataframe to disk")
 
@@ -36,9 +36,10 @@ def main():
     ]
 
     combination_DE = [
-        [0,1,2,3],
-        [0,1,2],[0,1,3],[0,2,3],[1,2,3],
-        [0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
+        #[0,1,2,3],
+        #[0,1,2],[0,1,3],[0,2,3],[1,2,3],
+        #[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
+        [0,2],[0,3],[1,2],[1,3],[2,3],
         [0],[1],[2],[3]
     ]
 
@@ -55,7 +56,7 @@ def main():
         "stop_cond": "neval",
         "time_limit": 4000.0,
         "Ngen": 3500,
-        "Neval": 1e5,
+        "Neval": 3e5,
         "fit_target": 1000,
 
         "verbose": False,
@@ -69,19 +70,19 @@ def main():
     }
 
     funcs = [
-        HighCondElliptic(30),
-        BentCigar(30),
-        Discus(30),
-        Rosenbrock(30),
-        Ackley(30),
-        Weierstrass(30),
-        Griewank(30),
-        Rastrigin(30),
-        ModSchwefel(30),
-        Katsuura(30),
-        HappyCat(30),
-        HGBat(30),
-        ExpandedGriewankPlusRosenbrock(30),
+        #HighCondElliptic(30),
+        #BentCigar(30),
+        #Discus(30),
+        #Rosenbrock(30),
+        #Ackley(30),
+        #Weierstrass(30),
+        #Griewank(30),
+        #Rastrigin(30),
+        #ModSchwefel(30),
+        #Katsuura(30),
+        #HappyCat(30),
+        #HGBat(30),
+        #ExpandedGriewankPlusRosenbrock(30),
         ExpandedShafferF6(30)
     ]
 
@@ -95,6 +96,7 @@ def main():
     try:
         for f in funcs:
             last_func_name = str(type(f))[8:-2].replace("CompareTests.", "")
+            print()
             print(last_func_name)
 
             for comb in combination_DE:
