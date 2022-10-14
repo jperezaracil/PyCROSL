@@ -1,8 +1,6 @@
-from cmath import isnan
 import random
 import numpy as np
 from numba import jit
-import math
 from Substrate import *
 
 """

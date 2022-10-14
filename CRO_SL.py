@@ -1,4 +1,3 @@
-from fileinput import filename
 import numpy as np
 from matplotlib import pyplot as plt 
 from CoralPopulation import CoralPopulation

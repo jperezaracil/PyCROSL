@@ -1,4 +1,3 @@
-from doctest import testfile
 from CRO_SL import *
 
 def test_cro():

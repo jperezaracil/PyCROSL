@@ -70,19 +70,20 @@ def main():
     }
 
     funcs = [
-        #HighCondElliptic(30),
-        #BentCigar(30),
-        #Discus(30),
-        #Rosenbrock(30),
-        #Ackley(30),
-        #Weierstrass(30),
-        #Griewank(30),
-        #Rastrigin(30),
-        #ModSchwefel(30),
-        #Katsuura(30),
-        #HappyCat(30),
-        #HGBat(30),
-        #ExpandedGriewankPlusRosenbrock(30),
+        Sphere(30),
+        HighCondElliptic(30),
+        BentCigar(30),
+        Discus(30),
+        Rosenbrock(30),
+        Ackley(30),
+        Weierstrass(30),
+        Griewank(30),
+        Rastrigin(30),
+        ModSchwefel(30),
+        Katsuura(30),
+        HappyCat(30),
+        HGBat(30),
+        ExpandedGriewankPlusRosenbrock(30),
         ExpandedShafferF6(30)
     ]
 
