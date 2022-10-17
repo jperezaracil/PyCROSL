@@ -1,6 +1,8 @@
+from CompareTests import Weierstrass
 from CRO_SL import *
 
 def test_cro():
+    DEparams = {"F":0.7, "Pr":0.8}
     substrates_int = [
         #SubstrateInt("DE/best/1", {"F":0.8, "Pr":0.8}),
         #SubstrateInt("DE/rand/1", {"F":0.8, "Pr":0.8}),
@@ -10,69 +12,75 @@ def test_cro():
         #SubstrateInt("DE/current-to-rand/1", {"F":0.8, "Pr":0.8}),
         #SubstrateInt("AddOne", {"F":0.1}),
         #SubstrateInt("DGauss", {"F":12}),
-        SubstrateInt("Perm", {"F":0.1}),
-        SubstrateInt("1point"),
-        SubstrateInt("2point"),
-        SubstrateInt("Multipoint"),
+        #SubstrateInt("Perm", {"F":0.1}),
+        #SubstrateInt("1point"),
+        #SubstrateInt("2point"),
+        #SubstrateInt("Multipoint"),
         SubstrateInt("Xor", {"F":0.002})
     ]
 
-    DEparams = {"F":0.5, "Pr":0.8}
+    DEparams = {"F":0.7, "Pr":0.8}
     substrates_real = [
-        #SubstrateReal("SBX", {"F":0.5}),
-        #SubstrateReal("Perm", {"F":0.3}),
+        #SubstrateReal("SBX", {"F":0.8}),
+        SubstrateReal("Perm", {"F":1}),
         #SubstrateReal("1point"),
         #SubstrateReal("2point"),
-        #SubstrateReal("Multipoint"),
+        SubstrateReal("Multipoint"),
+        #SubstrateReal("Multicross", {"n_ind": 4}),
         #SubstrateReal("BLXalpha", {"F":0.8}),
-        #SubstrateReal("Rand"),
-        #SubstrateReal("DE/best/1", {"F":0.6, "Pr":0.06}),
-        #SubstrateReal("DE/rand/1", {"F":0.7, "Pr":0.25}),
-        #SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.25}),
-        #SubstrateReal("DE/rand/2", {"F":0.6, "Pr":0.06}),
-        #SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.25}),
-        #SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Pr":0.25}),
+        #SubstrateReal("Replace", {"method": "Cauchy", "F":0.7}),
+        SubstrateReal("DE/best/1", DEparams),
+        #SubstrateReal("DE/rand/1", DEparams),
+        #SubstrateReal("DE/best/2", DEparams),
+        #SubstrateReal("DE/rand/2", DEparams),
+        #SubstrateReal("DE/current-to-best/1", DEparams),
+        SubstrateReal("DE/current-to-rand/1", DEparams),
+        SubstrateReal("LSHADE", {"F":0.7, "Pr":0.8}),
+        #SubstrateReal("DE/current-to-rand/1", DEparams),
         #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
         #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
-        #SubstrateReal("Gauss", {"F":0.04}),
-
+        #SubstrateReal("Cauchy", {"F":0.0005}),
+        #SubstrateReal("Cauchy", {"F":0.005}),
+        #SubstrateReal("Gauss", {"F":0.5}),
+        #SubstrateReal("Gauss", {"F":0.05}),
+        #SubstrateReal("Gauss", {"F":0.001}),
         #SubstrateReal("DE/rand/1", DEparams),
-        SubstrateReal("DE/best/2", DEparams),
+        #SubstrateReal("DE/best/2", DEparams),
+        #SubstrateReal("DE/current-to-pbest/1", DEparams),
         #SubstrateReal("DE/current-to-best/1", DEparams),
         #SubstrateReal("DE/current-to-rand/1", DEparams)
     ]
     
     params = {
-        "ReefSize": 100,
-        "rho": 0.6,
+        "ReefSize": 540,
+        "rho": 0.7,
         "Fb": 0.98,
-        "Fd": 1,
-        "Pd": 0.1,
-        "k": 3,
-        "K": 20,
-        "group_subs": False,
+        "Fd": 0.75,
+        "Pd": 0.3,
+        "k": 7,
+        "K": 3,
+        "group_subs": True,
 
         "stop_cond": "neval",
-        "time_limit": 4000.0,
+        "time_limit": 40.0,
         "Ngen": 3500,
-        "Neval": 1e5,
+        "Neval": 3e5,
         "fit_target": 1000,
 
         "verbose": True,
         "v_timer": 1,
 
         "dynamic": True,
-        "dyn_method": "fitness",
-        "dyn_metric": "best",
-        "dyn_steps": 100,
-        "prob_amp": 0.001
+        "dyn_method": "success",
+        "dyn_metric": "med",
+        "dyn_steps": 200,
+        "prob_amp": 0.05
     }
 
     #objfunc = MaxOnes(1000)
     #objfunc = MaxOnesReal(1000)
-    objfunc = Sphere(30)
-    #objfunc = Test1(30)
-    #objfunc = Rosenbrock(30)
+    #objfunc = Sphere(30)
+    objfunc = Rosenbrock(30)
     #objfunc = Rastrigin(30)
 
     #c = CRO_SL(objfunc, substrates_int, params)
@@ -140,7 +148,7 @@ def thity_runs():
         "verbose": False,
         "v_timer": 1,
 
-        "dynamic": False,
+        "dynamic": True,
         "dyn_method": "fitness",
         "dyn_metric": "avg",
         "dyn_steps": 100,
@@ -182,8 +190,8 @@ def thity_runs():
         print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
 
 def main():
-    thity_runs()
-    #test_cro()
+    #thity_runs()
+    test_cro()
     #test_files()
 
 if __name__ == "__main__":
