@@ -14,7 +14,6 @@ Parameters:
     Ngen: number of generations
     ReefSize: maximum number of corals in the reef
     rho: percentage of initial ocupation of the reef
-    mut_str: strength of the mutations
     Fb: broadcast spawning proportion
     Fa: asexual reproduction proportion
     Fd: depredation probability
@@ -113,12 +112,12 @@ class CRO_SL:
         elif self.stop_cond == "ngen":
             prog = gen/self.Ngen 
         elif self.stop_cond == "time":
-            stop = (time.time()-time_start)/self.time_limit
+            prog = (time.time()-time_start)/self.time_limit
         elif self.stop_cond == "fit_target":
             if self.objfunc.opt == "max":
-                stop = self.population.best_solution()[1]/self.fit_target
+                prog = self.population.best_solution()[1]/self.fit_target
             else:
-                stop = self.fit_target/self.population.best_solution()[1]
+                prog = self.fit_target/self.population.best_solution()[1]
 
         return prog
 
@@ -249,7 +248,6 @@ class CRO_SL:
 
             plt.subplot(2, 1, 2)
             prob_data = np.array(self.population.substrate_w_history).T
-            print(prob_data.shape)
             plt.stackplot(range(prob_data.shape[1]), prob_data, labels=[i.evolution_method for i in self.substrates])
             plt.legend()
             plt.xlabel("generations")

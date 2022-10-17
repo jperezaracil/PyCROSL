@@ -31,14 +31,15 @@ def main():
     substrates_real = [
         SubstrateReal("DE/rand/1", DEparams),
         SubstrateReal("DE/best/2", DEparams),
-        SubstrateReal("DE/current-to-best/1", DEparams),
-        SubstrateReal("DE/current-to-rand/1", DEparams)
+        SubstrateReal("DE/current-to-pbest/1", DEparams),
+        SubstrateReal("DE/current-to-rand/1", DEparams),
+        SubstrateReal("Multipoint")
     ]
 
     combination_DE = [
-        #[0,1,2,3],
-        #[0,1,2],[0,1,3],[0,2,3],[1,2,3],
-        #[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
+        [0,1,2,3],
+        [0,1,2],[0,1,3],[0,2,3],[1,2,3],
+        [0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
         [0,2],[0,3],[1,2],[1,3],[2,3],
         [0],[1],[2],[3]
     ]

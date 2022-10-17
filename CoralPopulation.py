@@ -137,18 +137,18 @@ class CoralPopulation:
                 self.larva_count[idx] = 0
             elif self.dyn_method == "fitness" or self.dyn_method == "diff":
                 if len(s_data) > 0:
-                    s_data = sorted(s_data)
+                    s_data = sorted(s_data, reverse=True)
                     if self.dyn_metric == "best":
-                        self.substrate_metric[idx] = max(s_data)
+                        self.substrate_metric[idx] = s_data[0]
                     elif self.dyn_metric == "avg":
                         self.substrate_metric[idx] = sum(s_data)/len(s_data)
                     elif self.dyn_metric == "med":
                         if len(s_data) % 2 == 0:
-                            self.substrate_metric[idx] = s_data[len(s_data)//2-1]+s_data[len(s_data)//2]
+                            self.substrate_metric[idx] = (s_data[len(s_data)//2-1]+s_data[len(s_data)//2])/2
                         else:
                             self.substrate_metric[idx] = s_data[len(s_data)//2]
                     elif self.dyn_metric == "worse":
-                        self.substrate_metric[idx] = min(s_data)
+                        self.substrate_metric[idx] = s_data[-1]
                 else:
                     self.substrate_metric[idx] = 0
                 
