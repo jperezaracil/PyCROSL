@@ -11,50 +11,52 @@ def exec_runs(evalg_inst, dframe, func_name, subs_name, nruns=10):
         _, fit = evalg_inst.optimize()
         evalg_inst.restart()
         fit_list.append(fit)
+        print(f"RUN {i+1} - {func_name}-{subs_name}: {fit}")
     fit_list = np.array(fit_list)
     print(f"\nRESULTS {func_name}-{subs_name}:")
     print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
     dframe.loc[len(dframe)] = [func_name, subs_name, fit_list.min(), fit_list.mean(), fit_list.std()]
 
 def save_dframe_error(dframe, last_func, last_subs):
-    save_dframe(dframe, filename="cro_incomplete_classic.csv")
+    save_dframe(dframe, filename="cro_incomplete_compete.csv")
     with open("cro_log.txt", "w") as f:
         f.write("Warning: stopped before all the runs were completed")
         f.write(f"\t - last function: {last_func}, with substrates: {last_subs}")
 
-def save_dframe(dframe, filename="cro_results_classic.csv"):
+def save_dframe(dframe, filename="cro_results_compete.csv"):
     dframe.to_csv(filename)
     print("saved dataframe to disk")
 
 def main():
-    DEparams = {"F":0.7, "Pr":0.8}
+    DEparams = {"F":0.7, "Pr":0.83}
     substrates_real = [
-        SubstrateReal("DE/rand/1", DEparams),
-        SubstrateReal("DE/best/2", DEparams),
-        SubstrateReal("DE/current-to-best/1", DEparams),
-        SubstrateReal("DE/current-to-rand/1", DEparams)
+        SubstrateReal("BLXalpha", {"F":0.6}),
+        SubstrateReal("DE/best/1", {"F":0.58, "Pr":0.83}),
+        SubstrateReal("DE/best/2", {"F":0.7, "Pr":0.83}),
+        SubstrateReal("DE/current-to-best/1", {"F":0.7, "Pr":0.83}),
+        SubstrateReal("DE/current-to-rand/1", {"F":0.6, "Pr":0.83}),
+        SubstrateReal("LSHADE", {"F":0.82, "Pr":0.78}),
     ]
 
-    combination_DE = [
-        #[0,1,2,3],
-        #[0,1,2],[0,1,3],[0,2,3],[1,2,3],
-        #[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
-        [0,2],[0,3],[1,2],[1,3],[2,3],
-        [0],[1],[2],[3]
-    ]
+    #combination_DE = [
+    #    [0,1,2,3],
+    #    [0,1,2],[0,1,3],[0,2,3],[1,2,3],
+    #    [0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
+    #    [0],[1],[2],[3]
+    #]
 
     params = {
-        "ReefSize": 100,
-        "rho": 0.6,
+        "ReefSize": 540,
+        "rho": 0.7,
         "Fb": 0.98,
-        "Fd": 1,
-        "Pd": 0.1,
-        "k": 3,
-        "K": 20,
+        "Fd": 0.28,
+        "Pd": 0.9,
+        "k": 7,
+        "K": 3,
         "group_subs": True,
 
         "stop_cond": "neval",
-        "time_limit": 4000.0,
+        "time_limit": 40.0,
         "Ngen": 3500,
         "Neval": 3e5,
         "fit_target": 1000,
@@ -63,12 +65,12 @@ def main():
         "v_timer": 1,
 
         "dynamic": True,
-        "dyn_method": "fitness",
-        "dyn_metric": "avg",
-        "dyn_steps": 100,
-        "prob_amp": 0.1
+        "dyn_method": "success",
+        "dyn_metric": "med",
+        "dyn_steps": 75,
+        "prob_amp": 0.05
     }
-
+    
     funcs = [
         Sphere(30),
         HighCondElliptic(30),
@@ -100,18 +102,20 @@ def main():
             print()
             print(last_func_name)
 
-            for comb in combination_DE:
-                comb_name = f"{len(comb)}DE_{''.join([str(i) for i in comb])}"
-                substrates_filtered = [substrates_real[i] for i in range(4) if i in comb]
-                c = CRO_SL(f, substrates_filtered, params)
-                exec_runs(c, exec_data, last_func_name, comb_name)
+            #for comb in combination_DE:
+            #    comb_name = f"{len(comb)}DE_{''.join([str(i) for i in comb])}"
+            #    substrates_filtered = [substrates_real[i] for i in range(4) if i in comb]
+            #    c = CRO_SL(f, substrates_filtered, params)
+            #    exec_runs(c, exec_data, last_func_name, comb_name)
+            c = CRO_SL(f, substrates_real, params)
+            exec_runs(c, exec_data, last_func_name, "DE-Ensemble", 10)
         save_dframe(exec_data)
     except KeyboardInterrupt as k:
         print("\nexecution stopped early")
-        save_dframe_error(exec_data, last_func_name, comb_name)
+        save_dframe_error(exec_data, last_func_name, "DE-Ensemble")
     except Exception as e:
         print(f"\nsomething went wrong:\n{e}")
-        save_dframe_error(exec_data, last_func_name, comb_name)
+        save_dframe_error(exec_data, last_func_name, "DE-Ensemble")
 
 def do_on_shutdown(sig, fr, exec_data, last_func_name, comb_name):
     print("saving before shutdown")

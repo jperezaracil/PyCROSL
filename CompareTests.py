@@ -285,7 +285,7 @@ def mod_schwefel(solution):
 
 #@jit(nopython=True)
 def katsuura(solution):
-    return np.prod([1 + (i + 1)*np.sum(np.floor(2**(np.arange(1, 32+1))*solution[i])*2**(-np.arange(1, 32+1, dtype=float))) for i in range(solution.size)])
+    return 10/solution.size**2 * np.prod([1 + (i+1)*np.sum((np.abs(2**(np.arange(1, 32+1))*solution[i]-np.round(2**(np.arange(1, 32+1))*solution[i]))*2**(-np.arange(1, 32+1, dtype=float)))**(10/solution.size**1.2)) for i in range(solution.size)]) - 10/solution.size**2
 
 @jit(nopython=True)
 def happy_cat(solution):

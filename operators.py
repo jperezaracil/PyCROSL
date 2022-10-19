@@ -42,6 +42,7 @@ def replace(solution, population, method, strength):
         return np.random.normal(mean, std,solution.shape)
     elif method == "Uniform":
         return solution.max()*np.random.random(solution.shape)-2*solution.min()
+        #return popul_matrix.max(axis=0)*np.random.random(solution.shape)-2*popul_matrix.min(axis=0)
 
 def laplace(solution, strength):
     return solution + sp.stats.laplace.rvs(0,strength,solution.shape)
@@ -85,6 +86,7 @@ def multiCross(solution1, population, n_ind):
     return aux
 
 def blxalpha(solution1, solution2, alpha):
+    alpha *= np.random.random()
     return alpha*solution1 + (1-alpha)*solution2
 
 def sbx(solution1, solution2, strength):
@@ -193,7 +195,7 @@ def DECurrentToRand1(solution, population, F, CR):
         solution[mask] = v[mask]
     return solution
 
-def DECurrentToPBest1(solution, population, F, CR, p=0.02):
+def DECurrentToPBest1(solution, population, F, CR, p=0.11):
     if len(population) > 3:
         fitness = [i.fitness for i in population]
         pbest_idx = random.choice(np.argsort(fitness)[:math.ceil(len(population)*p)])
@@ -204,3 +206,6 @@ def DECurrentToPBest1(solution, population, F, CR, p=0.02):
         mask = np.random.random(solution.shape) <= CR
         solution[mask] = v[mask]
     return solution
+
+def dummy_op(solution, scale=1000):
+    return np.ones(solution.shape)*scale

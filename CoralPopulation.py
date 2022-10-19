@@ -121,10 +121,33 @@ class CoralPopulation:
             new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx])
             self.population.append(new_coral)
     
+    def get_value_from_data(self, data):
+        result = 0
+        if len(data) > 0:
+            data = sorted(data)
+            if self.dyn_metric == "best":
+                result = max(data)
+            elif self.dyn_metric == "avg":
+                result = sum(data)/len(data)
+            elif self.dyn_metric == "med":
+                if len(data) % 2 == 0:
+                    result = data[len(data)//2-1]+data[len(data)//2]
+                else:
+                    result = data[len(data)//2]
+            elif self.dyn_metric == "worse":
+                result = min(data)
+        return result
+
     """
     Evaluates the substrates using a given metric
     """
     def evaluate_substrates(self):
+        metric = 0
+        if self.dyn_method == "diff":
+            full_data = [d for subs_data in self.substrate_data for d in subs_data]
+            metric = self.get_value_from_data(full_data)
+            #self.substrate_metric = [metric] * len(self.substrate_metric)
+        
         for idx, s_data in enumerate(self.substrate_data):
             if self.dyn_method == "success":
                 if self.larva_count[idx] > 0:
@@ -135,30 +158,18 @@ class CoralPopulation:
                 # Reset data for nex iteration
                 self.substrate_data[idx] = [0]
                 self.larva_count[idx] = 0
+
             elif self.dyn_method == "fitness" or self.dyn_method == "diff":
-                if len(s_data) > 0:
-                    s_data = sorted(s_data)
-                    if self.dyn_metric == "best":
-                        self.substrate_metric[idx] = max(s_data)
-                    elif self.dyn_metric == "avg":
-                        self.substrate_metric[idx] = sum(s_data)/len(s_data)
-                    elif self.dyn_metric == "med":
-                        if len(s_data) % 2 == 0:
-                            self.substrate_metric[idx] = s_data[len(s_data)//2-1]+s_data[len(s_data)//2]
-                        else:
-                            self.substrate_metric[idx] = s_data[len(s_data)//2]
-                    elif self.dyn_metric == "worse":
-                        self.substrate_metric[idx] = min(s_data)
-                else:
-                    self.substrate_metric[idx] = 0
+                self.substrate_metric[idx] = self.get_value_from_data(s_data)
                 
+
                 # Reset data for nex iteration
                 self.substrate_data[idx] = []
             
             if self.dyn_method == "diff":
-                aux = self.substrate_metric[idx]
-                self.substrate_metric[idx] = self.substrate_metric[idx] - self.substrate_metric_prev[idx]
-                self.substrate_metric_prev[idx] = aux
+                self.substrate_metric[idx] =  self.substrate_metric_prev[idx] - self.substrate_metric[idx]
+                self.substrate_metric_prev[idx] = metric
+                
         
         
 
@@ -218,8 +229,10 @@ class CoralPopulation:
     def substrate_probability(self, values):
         # Normalization
         weight = np.array(values)
-        if weight.sum() != 0:
-            weight = weight/np.abs(weight.sum())
+        if np.abs(weight).sum() != 0:
+            weight = weight/np.abs(weight).sum()
+        else:
+            weight = weight/(np.abs(weight).sum()+1e2)
         
         # softmax to convert to a probability distribution
         exp_vec = np.exp(weight)
@@ -245,10 +258,10 @@ class CoralPopulation:
     Generates the assignment of the substrates
     """
     def generate_substrates(self, progress=0):
+        n_substrates = len(self.substrates)
         if progress > (1/self.dyn_steps)*self.subs_steps:
             self.subs_steps += 1
-
-            n_substrates = len(self.substrates)
+            
             self.evaluate_substrates()
             if self.dynamic:
                 # Assign the probability of each substrate
@@ -265,6 +278,16 @@ class CoralPopulation:
                 coral.set_substrate(self.substrates[substrate_idx])
 
             self.substrate_history.append(np.array(self.substrate_metric))
+        else:
+            # Choose each substrate with the weights chosen
+            self.substrate_list = random.choices(range(n_substrates), 
+                                                weights=self.substrate_weight, k=self.size)
+
+            # Assign the substrate to each coral
+            for idx, coral in enumerate(self.population):
+                substrate_idx = self.substrate_list[idx]
+                coral.set_substrate(self.substrates[substrate_idx])
+
 
     """
     Inserts solutions into our reef with some conditions
@@ -321,11 +344,11 @@ class CoralPopulation:
     Removes a portion of the worst solutions in our population
     """
     def depredation(self):
-        if self.Fd == 1:
+        if self.Pd == 1:
             self.full_depredation()
         else:
             # Calculate the number of affected corals
-            amount = int(self.size*self.Pd)
+            amount = int(len(self.population)*self.Fd)
 
             # Extract the worse 'n_corals' in the grid
             fitness_values = np.array([coral.get_fitness() for coral in self.population])
@@ -336,7 +359,7 @@ class CoralPopulation:
             for i in affected_corals:
                 if alive_count <= 2:
                     break
-                dies = random.random() <= self.Fd
+                dies = random.random() <= self.Pd
                 self.population[i].is_dead = dies
                 if dies:
                     alive_count -= 1
@@ -346,7 +369,7 @@ class CoralPopulation:
 
     def full_depredation(self):
         # Calculate the number of affected corals
-        amount = int(self.size*self.Pd)
+        amount = int(self.size*self.Fd)
 
         fitness_values = np.array([coral.get_fitness() for coral in self.population])
         affected_corals = list(np.argsort(fitness_values))[:amount]

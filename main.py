@@ -1,4 +1,4 @@
-from CompareTests import Weierstrass
+from CompareTests import Katsuura, Weierstrass
 from CRO_SL import *
 
 def test_cro():
@@ -19,44 +19,37 @@ def test_cro():
         SubstrateInt("Xor", {"F":0.002})
     ]
 
-    DEparams = {"F":0.7, "Pr":0.8}
+    DEparams = {"F":0.7, "Pr":0.83}
     substrates_real = [
-        #SubstrateReal("SBX", {"F":0.8}),
-        #SubstrateReal("Perm", {"F":0.6}),
+        #SubstrateReal("SBX", {"F":0.6}),
+        #SubstrateReal("Perm", {"F":1}),
         #SubstrateReal("1point"),
         #SubstrateReal("2point"),
         #SubstrateReal("Multipoint"),
         #SubstrateReal("Multicross", {"n_ind": 3}),
-        #SubstrateReal("BLXalpha", {"F":0.8}),
-        SubstrateReal("Replace", {"method": "Uniform", "F":1/3}),
-        SubstrateReal("DE/best/1", DEparams),
-        SubstrateReal("DE/rand/1", DEparams),
-        SubstrateReal("DE/best/2", DEparams),
-        SubstrateReal("DE/rand/2", DEparams),
-        SubstrateReal("DE/current-to-best/1", DEparams),
-        SubstrateReal("DE/current-to-rand/1", DEparams),
-        SubstrateReal("LSHADE", {"F":0.5, "Pr":0.5}),
-        #SubstrateReal("DE/current-to-rand/1", DEparams),
-        #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
-        #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
-        #SubstrateReal("Cauchy", {"F":0.005}),
-        #SubstrateReal("Cauchy", {"F":0.005}),
-        #SubstrateReal("Gauss", {"F":0.5}),
-        #SubstrateReal("Gauss", {"F":0.05}),
-        #SubstrateReal("Gauss", {"F":0.001}),
+        #SubstrateReal("BLXalpha", {"F":0.6}),
+        #SubstrateReal("Replace", {"method": "Gauss", "F":0.4}),
+        #SubstrateReal("DE/best/1", DEparams),
         #SubstrateReal("DE/rand/1", DEparams),
         #SubstrateReal("DE/best/2", DEparams),
-        #SubstrateReal("DE/current-to-pbest/1", DEparams),
+        #SubstrateReal("DE/rand/2", DEparams),
         #SubstrateReal("DE/current-to-best/1", DEparams),
-        #SubstrateReal("DE/current-to-rand/1", DEparams)
+        #SubstrateReal("DE/current-to-rand/1", DEparams),
+        #SubstrateReal("LSHADE", {"F":0.7, "Pr":0.8}),
+        #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
+        #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
+        #SubstrateReal("Gauss", {"F":0.01}),
+        #SubstrateReal("Cauchy", {"F":100}),
+        SubstrateReal("Dummy", {"F":100}),
+        SubstrateReal("Dummy", {"F":10})
     ]
     
     params = {
         "ReefSize": 540,
         "rho": 0.7,
         "Fb": 0.98,
-        "Fd": 0.8,
-        "Pd": 0.2,
+        "Fd": 0.28,
+        "Pd": 0.98,
         "k": 7,
         "K": 3,
         "group_subs": True,
@@ -64,23 +57,29 @@ def test_cro():
         "stop_cond": "neval",
         "time_limit": 40.0,
         "Ngen": 3500,
-        "Neval": 3e5,
+        "Neval": 1e5,
         "fit_target": 1000,
 
         "verbose": True,
         "v_timer": 1,
 
         "dynamic": True,
-        "dyn_method": "success",
-        "dyn_metric": "med",
+        #"dyn_method": "success",
+        #"dyn_metric": "med",
+        #"dyn_steps": 75,
+        
+        "dyn_method": "diff",
+        "dyn_metric": "avg",
         "dyn_steps": 75,
-        "prob_amp": 0.05
+        
+        "prob_amp": 0.03
     }
 
     #objfunc = MaxOnes(1000)
     #objfunc = MaxOnesReal(1000)
-    #objfunc = Sphere(30)
-    objfunc = Rosenbrock(30)
+    objfunc = Sphere(300)
+    #objfunc = Rosenbrock(30)
+    #objfunc = Katsuura(30)
     #objfunc = Rastrigin(30)
 
     #c = CRO_SL(objfunc, substrates_int, params)

@@ -74,6 +74,8 @@ class SubstrateReal(Substrate):
             result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], 0.4)
         elif self.evolution_method == "Replace":
             result = replace(solution.solution.copy(), population, self.params["method"], self.params["F"])
+        elif self.evolution_method == "Dummy":
+            result = dummy_op(solution.solution.copy(), self.params["F"])
         else:
             print(f"Error: evolution method \"{self.evolution_method}\" not defined")
             exit(1)
