@@ -167,7 +167,7 @@ class CoralPopulation:
                 self.substrate_data[idx] = []
             
             if self.dyn_method == "diff":
-                self.substrate_metric[idx] =  self.substrate_metric_prev[idx] - self.substrate_metric[idx]
+                self.substrate_metric[idx] =  self.substrate_metric[idx] - self.substrate_metric_prev[idx]
                 self.substrate_metric_prev[idx] = metric
                 
         

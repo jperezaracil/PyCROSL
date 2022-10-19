@@ -41,6 +41,10 @@ def test_cro():
         #SubstrateReal("Gauss", {"F":0.01}),
         #SubstrateReal("Cauchy", {"F":100}),
         SubstrateReal("Dummy", {"F":100}),
+        SubstrateReal("Dummy", {"F":80}),
+        SubstrateReal("Dummy", {"F":60}),
+        SubstrateReal("Dummy", {"F":40}),
+        SubstrateReal("Dummy", {"F":20}),
         SubstrateReal("Dummy", {"F":10})
     ]
     
@@ -57,7 +61,7 @@ def test_cro():
         "stop_cond": "neval",
         "time_limit": 40.0,
         "Ngen": 3500,
-        "Neval": 1e5,
+        "Neval": 3e5,
         "fit_target": 1000,
 
         "verbose": True,
@@ -72,7 +76,7 @@ def test_cro():
         "dyn_metric": "avg",
         "dyn_steps": 75,
         
-        "prob_amp": 0.03
+        "prob_amp": 0.1
     }
 
     #objfunc = MaxOnes(1000)
