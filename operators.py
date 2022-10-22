@@ -1,8 +1,10 @@
 import math
+import random
+
 import numpy as np
 import scipy as sp
 import scipy.stats
-import random
+
 
 ## Mutation and recombination methods
 def random_replace(solution):

@@ -1,6 +1,6 @@
 import numpy as np
-from numba import jit
 from AbsObjetiveFunc import AbsObjetiveFunc
+from numba import jit
 
 """
 Example of objective function.

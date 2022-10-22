@@ -1,5 +1,9 @@
-from CompareTests import Katsuura, Weierstrass
+from CompareTests import *
 from CRO_SL import *
+from Substrate import *
+from SubstrateInt import *
+from SubstrateReal import *
+
 
 def test_cro():
     DEparams = {"F":0.7, "Pr":0.8}
@@ -19,7 +23,7 @@ def test_cro():
         SubstrateInt("Xor", {"F":0.002})
     ]
 
-    DEparams = {"F":0.7, "Pr":0.83}
+    DEparams = {"F":0.7, "Pr":0.8}
     substrates_real = [
         #SubstrateReal("SBX", {"F":0.6}),
         #SubstrateReal("Perm", {"F":1}),
@@ -30,36 +34,36 @@ def test_cro():
         #SubstrateReal("BLXalpha", {"F":0.6}),
         #SubstrateReal("Replace", {"method": "Gauss", "F":0.4}),
         #SubstrateReal("DE/best/1", DEparams),
-        #SubstrateReal("DE/rand/1", DEparams),
-        #SubstrateReal("DE/best/2", DEparams),
+        SubstrateReal("DE/rand/1", DEparams),
+        SubstrateReal("DE/best/2", DEparams),
         #SubstrateReal("DE/rand/2", DEparams),
-        #SubstrateReal("DE/current-to-best/1", DEparams),
-        #SubstrateReal("DE/current-to-rand/1", DEparams),
+        SubstrateReal("DE/current-to-best/1", DEparams),
+        SubstrateReal("DE/current-to-rand/1", DEparams)
         #SubstrateReal("LSHADE", {"F":0.7, "Pr":0.8}),
         #SubstrateReal("HS", {"F":0.5, "Pr":0.8}),
         #SubstrateReal("SA", {"F":0.14, "temp_ch":10, "iter":20}),
         #SubstrateReal("Gauss", {"F":0.01}),
         #SubstrateReal("Cauchy", {"F":100}),
-        SubstrateReal("Dummy", {"F":100}),
-        SubstrateReal("Dummy", {"F":80}),
-        SubstrateReal("Dummy", {"F":60}),
-        SubstrateReal("Dummy", {"F":40}),
-        SubstrateReal("Dummy", {"F":20}),
-        SubstrateReal("Dummy", {"F":10})
+        #SubstrateReal("Dummy", {"F":100}),
+        #SubstrateReal("Dummy", {"F":80}),
+        #SubstrateReal("Dummy", {"F":60}),
+        #SubstrateReal("Dummy", {"F":40}),
+        #SubstrateReal("Dummy", {"F":20}),
+        #SubstrateReal("Dummy", {"F":10})
     ]
     
     params = {
-        "ReefSize": 540,
-        "rho": 0.7,
+        "popSize": 100,
+        "rho": 0.6,
         "Fb": 0.98,
-        "Fd": 0.28,
-        "Pd": 0.98,
-        "k": 7,
-        "K": 3,
+        "Fd": 0.2,
+        "Pd": 0.8,
+        "k": 3,
+        "K": 20,
         "group_subs": True,
 
         "stop_cond": "neval",
-        "time_limit": 40.0,
+        "time_limit": 4000.0,
         "Ngen": 3500,
         "Neval": 3e5,
         "fit_target": 1000,
@@ -68,20 +72,15 @@ def test_cro():
         "v_timer": 1,
 
         "dynamic": True,
-        #"dyn_method": "success",
-        #"dyn_metric": "med",
-        #"dyn_steps": 75,
-        
-        "dyn_method": "diff",
+        "dyn_method": "success",
         "dyn_metric": "avg",
-        "dyn_steps": 75,
-        
+        "dyn_steps": 100,
         "prob_amp": 0.1
     }
 
     #objfunc = MaxOnes(1000)
     #objfunc = MaxOnesReal(1000)
-    objfunc = Sphere(300)
+    objfunc = Sphere(30)
     #objfunc = Rosenbrock(30)
     #objfunc = Katsuura(30)
     #objfunc = Rastrigin(30)

@@ -1,26 +1,29 @@
-import numpy as np
-from matplotlib import pyplot as plt 
-from CoralPopulation import CoralPopulation
-from TestFunctions import *
-from Substrate import *
-from SubstrateInt import *
-from SubstrateReal import *
 import time
+
+import numpy as np
+from CoralPopulation import CoralPopulation
+from matplotlib import pyplot as plt
 
 """
 Coral reef optimization with substrate layers
 
 Parameters:
-    Ngen: number of generations
-    ReefSize: maximum number of corals in the reef
-    rho: percentage of initial ocupation of the reef
-    mut_str: strength of the mutations
-    Fb: broadcast spawning proportion
-    Fa: asexual reproduction proportion
-    Fd: depredation probability
-    Pd: depredation proportion
-    k: maximum trys for larva setting
-    K: maximum amount of equal corals
+    popSize: maximum number of corals in the reef        [Integer,          100  recomended]
+    rho: percentage of initial ocupation of the reef     [Real from 0 to 1, 0.6  recomended]
+    Fb: broadcast spawning proportion                    [Real from 0 to 1, 0.98 recomended]
+    Fd: depredation proportion                           [Real from 0 to 1, 0.2  recomended]
+    Pd: depredation probability                          [Real from 0 to 1, 0.9  recomended]
+    k: maximum attempts for larva setting                [Integer,          4    recomended]
+    K: maximum amount of corals with duplicate solutions [Integer,          20   recomended]
+
+    group_subs: evolve only within the same substrate or with the whole population
+
+    dynamic: change the size of each substrate
+    dyn_method: which value to use for the evaluation of the substrates
+    dyn_metric: how to process the data from the substrate for the evaluation
+    dyn_steps: number of times the substrates will be evaluated
+    prob_amp: parameter that makes probabilities more or less extreme with the same data
+
 """
 class CRO_SL:
     """
@@ -47,7 +50,6 @@ class CRO_SL:
         # Data structures of the algorithm
         self.objfunc = objfunc
         self.substrates = substrates
-        #self.population = CoralPopulation(self.ReefSize, self.objfunc, self.substrates, self.dyn_metric, self.prob_amp, self.group_subs)
         self.population = CoralPopulation(objfunc, substrates, params)
         
         # Metrics
@@ -145,6 +147,9 @@ class CRO_SL:
         self.time_spent = time.process_time() - time_start
         return self.population.best_solution()
     
+    """
+    Execute the classic version of the algorithm
+    """
     def optimize_classic(self):
         gen = 0
         time_start = time.process_time()
@@ -165,13 +170,14 @@ class CRO_SL:
         self.time_spent = time.process_time() - time_start
         return self.population.best_solution()
 
+    """
+    Save the result of an execution to a csv file in disk
+    """
     def save_solution(self, file_name="solution.csv"):
         ind, fit = self.population.best_solution()
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
         with open(file_name, "a") as file:
             file.write(str(fit))
-
-
 
     """
     Displays information about the current state of the algotithm

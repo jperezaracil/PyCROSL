@@ -1,8 +1,8 @@
-import numpy as np
 import random
-from Substrate import *
-from operators import *
 
+import numpy as np
+from operators import *
+from Substrate import *
 
 """
 Substrate class that has continuous mutation and cross methods

@@ -1,7 +1,8 @@
-import numpy as np
 import random
-from Substrate import *
+
+import numpy as np
 from operators import *
+from Substrate import *
 
 """
 Substrate class that has discrete mutation and cross methods
