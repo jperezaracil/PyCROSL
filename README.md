@@ -5,13 +5,14 @@ To configure the hyperparameters a dictionaty will have to be given to the class
 
 The hyperparameters will be the following:
 - Algorithm's hyperparameters:
-    - ReefSize: maximum number of solutions stored each generation
-    - rho: percentage of the reef occupied at the start of the algorithm
-    - Fb: proportion of solutions that will mutate with a substrate
-    - Fd: probability that a solution will be discarded in the depredation phase
-    - Pd: proportion of solutions chosen for the depredation phase
-    - k: number of attempt for each solution to be included if it has a worse fitness in the larvae setting phase
-    - K: number of allowed copies of each solution 
+    - popSize: maximum number of corals in the reef       
+    - rho: percentage of initial ocupation of the reef 
+    - Fb: broadcast spawning proportion     
+    - Fd: depredation proportion          
+    - Pd: depredation probability     
+    - k: maximum attempts for larva setting               
+    - K: maximum amount of corals with duplicate solutions
+    - group_subs: evolve only within the same substrate or with the whole population
 - Dynamic variant hyperparameters:
     - dynamic: use or not the dynamic variant of the algotithm
     - method: value that is used to determine the probability of choosing each substrate
@@ -23,7 +24,7 @@ The hyperparameters will be the following:
         - "avg": takes the average fitness
         - "med": takes the median fitness
         - "worse": takes the worse fitness
-    - "dyn_steps": specifies the number of times the substrates will be evaluated, -1 for every generation
+    - dyn_steps: specifies the number of times the substrates will be evaluated, -1 for every generation
     - prob_amp: how differences between de metric affect the probability of each one, lower means more amplification
 - Stopping conditions:
     - stop_cond: stopping condition, there are various options
