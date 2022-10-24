@@ -7,16 +7,16 @@ from SubstrateReal import *
 
 
 def test_cro():
-    DEparams = {"F":0.7, "Pr":0.8}
+    DEparams = {"F":0.7, "Cr":0.8}
     substrates_int = [
         SubstrateInt("1point"),
         SubstrateInt("2point"),
         SubstrateInt("Multipoint"),
-        SubstrateInt("BLXalpha", {"Pr": 0.5}),
+        SubstrateInt("BLXalpha", {"Cr": 0.5}),
         SubstrateInt("Multicross", {"N": 5}),
-        SubstrateInt("Perm", {"Pr": 0.5}),
-        SubstrateInt("Xor", {"Pr": 0.1}),
-        SubstrateInt("MutRand", {"method": "Gauss", "F":5, "Pr": 0.01}),
+        SubstrateInt("Perm", {"Cr": 0.5}),
+        SubstrateInt("Xor", {"Cr": 0.1}),
+        SubstrateInt("MutRand", {"method": "Gauss", "F":5, "Cr": 0.01}),
         SubstrateInt("Gauss", {"F": 5}),
         SubstrateInt("Laplace", {"F": 5}),
         SubstrateInt("Cauchy", {"F": 10}),
@@ -30,21 +30,21 @@ def test_cro():
         SubstrateInt("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("LSHADE", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("SA", {"F":5, "temp_ch": 20, "iter": 10}),
-        SubstrateInt("HS", {"F":5, "Pr":0.3, "Par":0.1}),
+        SubstrateInt("HS", {"F":5, "Cr":0.3, "Par":0.1}),
         SubstrateInt("Replace", {"method":"Gauss", "F":0.1}),
         #SubstrateInt("Dummy", {"F": 0.5})
     ]
 
-    DEparams = {"F":0.7, "Pr":0.8}
+    DEparams = {"F":0.7, "Cr":0.8}
     substrates_real = [
         SubstrateReal("1point"),
         SubstrateReal("2point"),
         SubstrateReal("Multipoint"),
-        SubstrateReal("BLXalpha", {"Pr": 0.5}),
-        SubstrateReal("SBX", {"Pr": 0.5}),
+        SubstrateReal("BLXalpha", {"Cr": 0.5}),
+        SubstrateReal("SBX", {"Cr": 0.5}),
         SubstrateReal("Multicross", {"N": 5}),
-        SubstrateReal("Perm", {"Pr": 0.5}),
-        SubstrateReal("MutRand", {"method": "Gauss", "F":0.01, "Pr": 0.01}),
+        SubstrateReal("Perm", {"Cr": 0.5}),
+        SubstrateReal("MutRand", {"method": "Gauss", "F":0.01, "Cr": 0.01}),
         SubstrateReal("Gauss", {"F":0.001}),
         SubstrateReal("Laplace", {"F":0.001}),
         SubstrateReal("Cauchy", {"F":0.002}),
@@ -57,7 +57,7 @@ def test_cro():
         SubstrateReal("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("LSHADE", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("SA", {"F":0.01, "temp_ch": 20, "iter": 10}),
-        SubstrateReal("HS", {"F":0.01, "Pr":0.3, "Par":0.1}),
+        SubstrateReal("HS", {"F":0.01, "Cr":0.3, "Par":0.1}),
         SubstrateReal("Replace", {"method":"Gauss", "F":0.1}),
         SubstrateReal("Dummy", {"F": 100})
     ]

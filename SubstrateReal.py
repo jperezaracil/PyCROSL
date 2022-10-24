@@ -30,15 +30,15 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "Multipoint":
             result = crossMp(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "BLXalpha":
-            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["Pr"])
+            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["Cr"])
         elif self.evolution_method == "SBX":
-            result = sbx(solution.solution.copy(), solution2.solution.copy(), self.params["Pr"])
+            result = sbx(solution.solution.copy(), solution2.solution.copy(), self.params["Cr"])
         elif self.evolution_method == "Multicross":
             result = multiCross(solution.solution.copy(), others, self.params["N"])
         elif self.evolution_method == "Perm":
-            result = permutation(solution.solution.copy(), self.params["Pr"])
+            result = permutation(solution.solution.copy(), self.params["Cr"])
         elif self.evolution_method == "MutRand":
-            result = mutate_rand(solution.solution.copy(), population, self.params["method"], self.params["F"], self.params["Pr"])
+            result = mutate_rand(solution.solution.copy(), population, self.params["method"], self.params["F"], self.params["Cr"])
         elif self.evolution_method == "Gauss":
             result = gaussian(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Laplace":
@@ -70,7 +70,7 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "SA":
             result = sim_annealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.evolution_method == "HS":
-            result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], self.params["Par"])
+            result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Cr"], self.params["Par"])
         elif self.evolution_method == "Replace":
             result = replace(solution.solution.copy(), population, self.params["method"], self.params["F"])
         elif self.evolution_method == "Dummy":

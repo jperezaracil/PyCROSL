@@ -10,7 +10,16 @@ class Substrate:
         self.evolution_method = evolution_method
         self.params = params
         if self.params is None:
-            self.params = {"F": 0.5, "Pr": 0.8, "temp_ch":10, "iter":20}
+            # Default parameters
+            self.params = {
+                "F": 0.5, 
+                "Cr": 0.8,
+                "Par":0.1,
+                "N":5,
+                "method": "Gauss",
+                "temp_ch":10,
+                "iter":20
+            }
     
     """
     Evolves a solution with a different strategy depending on the type of substrate
