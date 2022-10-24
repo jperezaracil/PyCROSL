@@ -29,49 +29,48 @@ class SubstrateReal(Substrate):
             result = cross2p(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "Multipoint":
             result = crossMp(solution.solution.copy(), solution2.solution.copy())
+        elif self.evolution_method == "BLXalpha":
+            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["Pr"])
+        elif self.evolution_method == "SBX":
+            result = sbx(solution.solution.copy(), solution2.solution.copy(), self.params["Pr"])
         elif self.evolution_method == "Multicross":
-            result = multiCross(solution.solution.copy(), others, self.params["n_ind"])
+            result = multiCross(solution.solution.copy(), others, self.params["N"])
+        elif self.evolution_method == "Perm":
+            result = permutation(solution.solution.copy(), self.params["Pr"])
+        elif self.evolution_method == "MutRand":
+            result = mutate_rand(solution.solution.copy(), population, self.params["method"], self.params["F"], self.params["Pr"])
         elif self.evolution_method == "Gauss":
             result = gaussian(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Laplace":
             result = laplace(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Cauchy":
             result = cauchy(solution.solution.copy(), self.params["F"])
-        elif self.evolution_method == "BLXalpha":
-            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["F"])
-        elif self.evolution_method == "SBX":
-            result = sbx(solution.solution.copy(), solution2.solution.copy(), self.params["F"])
-        elif self.evolution_method == "Perm":
-            result = permutation(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "DE/rand/1":
-            result = DERand1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DERand1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/best/1":
-            result = DEBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DEBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/rand/2":
-            result = DERand2(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DERand2(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/best/2":
-            result = DEBest2(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DEBest2(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/current-to-rand/1":
-            result = DECurrentToRand1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DECurrentToRand1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/current-to-best/1":
-            result = DECurrentToBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DECurrentToBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/current-to-pbest/1":
-            result = DECurrentToPBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DECurrentToPBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "LSHADE":
-            self.params["Pr"] = np.random.normal(self.params["Pr"], 0.1)
+            self.params["Cr"] = np.random.normal(self.params["Cr"], 0.1)
             self.params["F"] = np.random.normal(self.params["F"], 0.1)
 
-            self.params["Pr"] = np.clip(self.params["Pr"], 0, 1)
+            self.params["Cr"] = np.clip(self.params["Cr"], 0, 1)
             self.params["F"] = np.clip(self.params["F"], 0, 1)
 
-            result = DECurrentToPBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
-            #result = crossMp(result, solution2.solution.copy())
-            #result = blxalpha(result, solution2.solution.copy(), self.params["Pr"])
-            
+            result = DECurrentToPBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])            
         elif self.evolution_method == "SA":
             result = sim_annealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.evolution_method == "HS":
-            result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], 0.4)
+            result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], self.params["Par"])
         elif self.evolution_method == "Replace":
             result = replace(solution.solution.copy(), population, self.params["method"], self.params["F"])
         elif self.evolution_method == "Dummy":

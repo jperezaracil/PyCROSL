@@ -1,5 +1,6 @@
 import math
 import random
+from kiwisolver import strength
 
 import numpy as np
 import scipy as sp
@@ -7,22 +8,15 @@ import scipy.stats
 
 
 ## Mutation and recombination methods
-def random_replace(solution):
-    return np.random.randint(solution.max(), solution.min(), size=solution.shape)
-
-def discreteGaussian(solution, strength):
-    return (solution + np.random.normal(0,strength,solution.shape)).astype(np.int32)
-
-def addOne(solution, strength):
-    increase = np.random.choice([-1,0,1], size=solution.size, p=[strength/2, 1-strength, strength/2])
-    return (solution + increase).astype(np.int32)
-
-def xorMask(solution, strength):
-    if min(solution) == 0 and max(solution) == 1:
+def xorMask(solution, strength, mode="byte"):
+    if mode == "bin":
         vector = np.random.random(solution.shape) < strength
-    else:
+    elif mode == "byte":
         mask = (np.random.random(solution.shape) < strength).astype(np.int32)
         vector = np.random.randint(1, 0xFF, size=solution.shape) * mask
+    elif mode == "int":
+        mask = (np.random.random(solution.shape) < strength).astype(np.int32)
+        vector = np.random.randint(1, 0xFFFF, size=solution.shape) * mask
     return solution ^ vector
 
 def permutation(solution, strength):
@@ -32,28 +26,67 @@ def permutation(solution, strength):
     np.random.shuffle(solution[mask])
     return solution
 
+def mutate_rand(solution, population, method, strength, prop):
+    amount = max(1, int(solution.size*prop))
+    idx = random.sample(range(solution.size), amount)
+
+    popul_matrix = np.vstack([i.solution for i in population])
+    mean = popul_matrix.mean(axis=0)[idx]
+    std = (popul_matrix.std(axis=0)[idx] + 1e-6)*strength # ensure there will be some standard deviation
+
+    random_vec = None
+    if method == "Laplace":
+        random_vec = sp.stats.laplace.rvs(mean, std, size=amount)
+    elif method == "Cauchy":
+        random_vec = sp.stats.cauchy.rvs(mean, std, size=amount)
+    elif method == "Gauss":
+        random_vec = sp.stats.norm.rvs(mean, std, size=amount)
+    elif method == "Uniform":
+        random_vec = solution.max()*np.random.random(size=amount)-2*solution.min()
+    elif method == "Poisson":
+        random_vec = sp.stats.poisson.rvs(mean, size=amount)
+    
+    
+    solution[idx] = random_vec
+    return solution
+
 def replace(solution, population, method, strength):
     popul_matrix = np.vstack([i.solution for i in population])
     mean = popul_matrix.mean(axis=0)
     std = popul_matrix.std(axis=0)*strength
     if method == "Laplace":
-        return sp.stats.laplace.rvs(mean, std,solution.shape)
+        return sp.stats.laplace.rvs(mean, std, size=solution.shape)
     elif method == "Cauchy":
-        return sp.stats.cauchy.rvs(mean, std,solution.shape)
+        return sp.stats.cauchy.rvs(mean, std, size=solution.shape)
     elif method == "Gauss":
-        return np.random.normal(mean, std,solution.shape)
+        return np.random.normal(mean, std, size=solution.size)
     elif method == "Uniform":
-        return solution.max()*np.random.random(solution.shape)-2*solution.min()
-        #return popul_matrix.max(axis=0)*np.random.random(solution.shape)-2*popul_matrix.min(axis=0)
+        return solution.max()*np.random.random(size=solution.shape)-2*solution.min()
+    elif method == "Poisson":
+        return sp.stats.poisson.rvs(mean, size=solution.shape)
 
 def laplace(solution, strength):
-    return solution + sp.stats.laplace.rvs(0,strength,solution.shape)
+    return solution + sp.stats.laplace.rvs(0, strength, size=solution.shape)
 
 def cauchy(solution, strength):
-    return solution + sp.stats.cauchy.rvs(0,strength,solution.shape)
+    return solution + sp.stats.cauchy.rvs(0, strength, size=solution.shape)
 
 def gaussian(solution, strength):
-    return solution + np.random.normal(0, strength,solution.shape)
+    return solution + np.random.normal(0, strength, size=solution.shape)
+
+def uniform(solution, strength):
+    return solution + np.random.uniform(-strength, strength, size=solution.shape)
+
+def poisson(solution, mu):
+    return solution + sp.stats.poisson.rvs(mu, size=solution.shape)
+
+"""
+-Distribución zeta
+-Distribución hipergeométrica
+-Distribución geomética
+-Distribución de Boltzman
+-Distribución de Pascal (binomial negativa)
+"""
 
 def permutation(solution, strength):
     mask = np.random.random(solution.shape) < strength
@@ -78,14 +111,16 @@ def crossMp(solution1, solution2):
     return aux
 
 def multiCross(solution1, population, n_ind):
-    if len(population) < n_ind:
+    if n_ind <= len(population):
         n_ind = len(population)-1
-    vector = np.random.randint(n_ind, size=solution1.size)
-    parents = random.sample(population, n_ind-1)
-    aux = np.copy(solution1)
-    for i in range(1, n_ind-1):
-        aux[vector==i] = parents[i].solution[vector==i]
-    return aux
+        vector = np.random.randint(n_ind, size=solution1.size)
+        parents = random.sample(population, n_ind)
+        aux = np.copy(solution1)
+        for i in range(1, n_ind-1):
+            aux[vector==i] = parents[i].solution[vector==i]
+        return aux
+    else:
+        return solution1
 
 def blxalpha(solution1, solution2, alpha):
     alpha *= np.random.random()

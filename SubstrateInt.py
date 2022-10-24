@@ -29,38 +29,58 @@ class SubstrateInt(Substrate):
             result = cross2p(solution.solution.copy(), solution2.solution.copy())
         elif self.evolution_method == "Multipoint":
             result = crossMp(solution.solution.copy(), solution2.solution.copy())
+        elif self.evolution_method == "BLXalpha":
+            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), self.params["Pr"])
+        elif self.evolution_method == "Multicross":
+            result = multiCross(solution.solution.copy(), others, self.params["N"])
         elif self.evolution_method == "Perm":
-            result = permutation(solution.solution.copy(), self.params["F"])
+            result = permutation(solution.solution.copy(), self.params["Pr"])
         elif self.evolution_method == "Xor":
-            result = xorMask(solution.solution.copy(), self.params["F"])
+            result = xorMask(solution.solution.copy(), self.params["Pr"])
+        elif self.evolution_method == "MutRand":
+            result = mutate_rand(solution.solution.copy(), population, self.params["method"], self.params["F"], self.params["Pr"])
         elif self.evolution_method == "Gauss":
             result = gaussian(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Laplace":
             result = laplace(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "Cauchy":
             result = cauchy(solution.solution.copy(), self.params["F"])
-        elif self.evolution_method == "AddOne":
-            result = addOne(solution.solution.copy(), self.params["F"])
+        elif self.evolution_method == "Uniform":
+            result = uniform(solution.solution.copy(), self.params["F"])
+        elif self.evolution_method == "Poisson":
+            result = poisson(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "DE/rand/1":
-            result = DERand1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DERand1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/best/1":
-            result = DEBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DEBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/rand/2":
-            result = DERand2(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DERand2(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/best/2":
-            result = DEBest2(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DEBest2(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/current-to-rand/1":
-            result = DECurrentToRand1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DECurrentToRand1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
         elif self.evolution_method == "DE/current-to-best/1":
-            result = DECurrentToBest1(solution.solution.copy(), others, self.params["F"], self.params["Pr"])
+            result = DECurrentToBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
+        elif self.evolution_method == "DE/current-to-pbest/1":
+            result = DECurrentToPBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"])
+        elif self.evolution_method == "LSHADE":
+            self.params["Cr"] = np.random.normal(self.params["Cr"], 0.1)
+            self.params["F"] = np.random.normal(self.params["F"], 0.1)
+
+            self.params["Cr"] = np.clip(self.params["Cr"], 0, 1)
+            self.params["F"] = np.clip(self.params["F"], 0, 1)
+
+            result = DECurrentToPBest1(solution.solution.copy(), others, self.params["F"], self.params["Cr"]) 
         elif self.evolution_method == "SA":
             result = sim_annealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.evolution_method == "HS":
-            result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], 0.4)
+            result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Pr"], self.params["Par"])
         elif self.evolution_method == "Replace":
-            result = random_replace(solution.solution.copy())
+            result = replace(solution.solution.copy(), population, self.params["method"], self.params["F"])
+        elif self.evolution_method == "Dummy":
+            result = dummy_op(solution.solution.copy(), self.params["F"])
         else:
             print(f"Error: evolution method \"{self.evolution_method}\" not defined")
             exit(1)
 
-        return np.round(result).astype(np.int32)
+        return np.round(result)
