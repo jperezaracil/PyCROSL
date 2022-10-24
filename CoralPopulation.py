@@ -248,7 +248,7 @@ class CoralPopulation:
         if np.abs(weight).sum() != 0:
             weight = weight/np.abs(weight).sum()
         else:
-            weight = weight/(np.abs(weight).sum()+1e2)
+            weight = weight/(np.abs(weight).sum()+1e-5)
         
         # softmax to convert to a probability distribution
         exp_vec = np.exp(weight)
