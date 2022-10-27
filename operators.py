@@ -1,7 +1,5 @@
 import math
 import random
-from kiwisolver import strength
-
 import numpy as np
 import scipy as sp
 import scipy.stats
