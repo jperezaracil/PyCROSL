@@ -71,6 +71,8 @@ class SubstrateReal(Substrate):
             result = sim_annealing(solution, self.params["F"], objfunc, self.params["temp_ch"], self.params["iter"])
         elif self.evolution_method == "HS":
             result = harmony_search(solution.solution.copy(), population, self.params["F"], self.params["Cr"], self.params["Par"])
+        elif self.evolution_method == "Firefly":
+            result = firefly(solution, population, objfunc, self.params["a"], self.params["b"], self.params["d"], self.params["g"])
         elif self.evolution_method == "Replace":
             result = replace(solution.solution.copy(), population, self.params["method"], self.params["F"])
         elif self.evolution_method == "Dummy":

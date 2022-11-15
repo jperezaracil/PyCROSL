@@ -1,5 +1,6 @@
 import math
 import random
+
 import numpy as np
 import scipy as sp
 import scipy.stats
@@ -242,5 +243,22 @@ def DECurrentToPBest1(solution, population, F, CR, p=0.11):
         solution[mask] = v[mask]
     return solution
 
+def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
+    sol_range = objfunc.sup_lim - objfunc.inf_lim
+    n_dim = solution.solution.size
+    new_solution = solution.solution.copy()
+    for idx, ind in enumerate(population):
+        if solution.get_fitness() < ind.get_fitness():
+            r = np.linalg.norm(solution.solution - ind.solution)
+            alpha = alpha_0 * delta ** idx
+            beta = beta_0 * np.exp(-gamma*(r/(sol_range*np.sqrt(n_dim)))**2)
+            new_solution = new_solution + beta*(ind.solution-new_solution) + alpha * sol_range * random.random()-0.5
+            new_solution = objfunc.check_bounds(new_solution)
+    
+    return new_solution
+
+"""
+Only for testing, not useful for real applications
+"""
 def dummy_op(solution, scale=1000):
     return np.ones(solution.shape)*scale

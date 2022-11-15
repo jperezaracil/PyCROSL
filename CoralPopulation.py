@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 from numba import jit
+from operators import *
 
 """
 Individual that holds a tentative solution with 
@@ -112,13 +113,29 @@ class CoralPopulation:
     Generates a random population of corals
     """
     def generate_random(self):
-        amount = int(self.size*self.rho)
-        self.population = []
+        amount = int(self.size*self.rho) - len(self.population)
 
         for i in range(amount):
             substrate_idx = self.substrate_list[i]
-            new_coral = Coral(self.objfunc.random_solution(), self.objfunc, self.substrates[substrate_idx])
+            new_sol = self.objfunc.random_solution()
+            fixed_sol = self.objfunc.check_bounds(new_sol)
+            new_coral = Coral(fixed_sol, self.objfunc, self.substrates[substrate_idx])
             self.population.append(new_coral)
+
+    
+    def insert_solution(self, solution, mutate=False, strength=0.1):
+        #solution = self.objfunc.check_bounds(solution)
+        if mutate:
+            solution = gaussian(solution, strength)
+            solution = self.objfunc.check_bounds(solution)
+        
+        if len(self.population) < self.size:
+            new_ind = Coral(solution, self.objfunc)
+            self.population.append(new_ind)
+        else:
+            new_ind = Coral(solution, self.objfunc)
+            idx = random.randint(self.size)
+            self.population[idx] = new_ind
     
     def get_value_from_data(self, data):
         result = 0
@@ -212,7 +229,9 @@ class CoralPopulation:
                         if self.dyn_method == "fitness" or self.dyn_method == "diff":
                             self.substrate_data[i].append(new_coral.get_fitness())
                     else:
-                        new_coral = Coral(self.objfunc.random_solution(), self.objfunc)
+                        new_sol = self.objfunc.random_solution()
+                        fixed_sol = self.objfunc.check_bounds(new_sol)
+                        new_coral = Coral(fixed_sol, self.objfunc)
 
                     # Add larva to the list of larvae
                     larvae.append(new_coral)
@@ -231,7 +250,9 @@ class CoralPopulation:
                     if self.dyn_method == "fitness" or self.dyn_method == "diff":
                         self.substrate_data[s_idx].append(new_coral.get_fitness())
                 else:
-                    new_coral = Coral(self.objfunc.random_solution(), self.objfunc)
+                    new_sol = self.objfunc.random_solution()
+                    fixed_sol = self.objfunc.check_bounds(new_sol)
+                    new_coral = Coral(fixed_sol, self.objfunc)
 
                 # Add larva to the list of larvae
                 larvae.append(new_coral)
@@ -281,31 +302,22 @@ class CoralPopulation:
             self.subs_steps += 1
             self.evaluate_substrates()
 
-            # Assign the probability of each substrate
-            if self.dynamic:
-                self.substrate_weight = self.substrate_probability(self.substrate_metric)
-                self.substrate_w_history.append(self.substrate_weight)
-            
-            # Choose each substrate with the weights chosen
-            self.substrate_list = random.choices(range(n_substrates), 
-                                                weights=self.substrate_weight, k=self.size)
+        # Assign the probability of each substrate
+        if self.dynamic:
+            self.substrate_weight = self.substrate_probability(self.substrate_metric)
+            self.substrate_w_history.append(self.substrate_weight)
+        
+        # Choose each substrate with the weights chosen
+        self.substrate_list = random.choices(range(n_substrates), 
+                                            weights=self.substrate_weight, k=self.size)
 
-            # Assign the substrate to each coral
-            for idx, coral in enumerate(self.population):
-                substrate_idx = self.substrate_list[idx]
-                coral.set_substrate(self.substrates[substrate_idx])
+        # Assign the substrate to each coral
+        for idx, coral in enumerate(self.population):
+            substrate_idx = self.substrate_list[idx]
+            coral.set_substrate(self.substrates[substrate_idx])
 
-            # save the evaluation of each substrate
-            self.substrate_history.append(np.array(self.substrate_metric))
-        else:
-            # Choose each substrate with the weights chosen
-            self.substrate_list = random.choices(range(n_substrates), 
-                                                weights=self.substrate_weight, k=self.size)
-
-            # Assign the substrate to each coral
-            for idx, coral in enumerate(self.population):
-                substrate_idx = self.substrate_list[idx]
-                coral.set_substrate(self.substrates[substrate_idx])
+        # save the evaluation of each substrate
+        self.substrate_history.append(np.array(self.substrate_metric))
 
 
     """

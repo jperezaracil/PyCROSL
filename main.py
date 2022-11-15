@@ -58,12 +58,13 @@ def test_cro():
         SubstrateReal("LSHADE", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("SA", {"F":0.01, "temp_ch": 20, "iter": 10}),
         SubstrateReal("HS", {"F":0.01, "Cr":0.3, "Par":0.1}),
+        SubstrateReal("Firefly", {"a":0.5, "b":1, "d":0.95, "g":10}),
         SubstrateReal("Replace", {"method":"Gauss", "F":0.1}),
         SubstrateReal("Dummy", {"F": 100})
     ]
     
     params = {
-        "popSize": 5000,
+        "popSize": 100,
         "rho": 0.6,
         "Fb": 0.98,
         "Fd": 0.2,
@@ -72,9 +73,9 @@ def test_cro():
         "K": 20,
         "group_subs": True,
 
-        "stop_cond": "neval",
+        "stop_cond": "ngen",
         "time_limit": 4000.0,
-        "Ngen": 3500,
+        "Ngen": 200,
         "Neval": 10e5,
         "fit_target": 1000,
 
@@ -84,7 +85,7 @@ def test_cro():
         "dynamic": True,
         "dyn_method": "success",
         "dyn_metric": "avg",
-        "dyn_steps": 100,
+        "dyn_steps": 10,
         "prob_amp": 0.01
     }
 
@@ -93,7 +94,7 @@ def test_cro():
     #objfunc = Sphere(30)
     #objfunc = Rosenbrock(30)
     #objfunc = Katsuura(30)
-    objfunc = Rastrigin(30)
+    objfunc = Rastrigin(10)
 
     #c = CRO_SL(objfunc, substrates_int, params)
     c = CRO_SL(objfunc, substrates_real, params)
