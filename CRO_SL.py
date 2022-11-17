@@ -95,7 +95,7 @@ class CRO_SL:
     """
     def local_search(self, operator, n_ind, iterations=100):
         if self.verbose:
-            print("Starting local search, {n_ind} individuals searching {100} neighbours each.")
+            print(f"Starting local search, {n_ind} individuals searching {iterations} neighbours each.")
         
         self.population.local_search(operator, n_ind, iterations)
         return self.population.best_solution()
