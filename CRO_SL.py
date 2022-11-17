@@ -60,6 +60,9 @@ class CRO_SL:
         self.time_spent = 0
         self.real_time_spent = 0
 
+    """
+    Resets the data of the CRO algorithm
+    """
     def restart(self):
         self.population = CoralPopulation(self.objfunc, self.substrates, self.params)
         self.history = []
@@ -87,6 +90,16 @@ class CRO_SL:
         _, best_fitness = self.population.best_solution()
         self.history.append(best_fitness)
     
+    """
+    Local search
+    """
+    def local_search(self, operator, n_ind, iterations=100):
+        if self.verbose:
+            print("Starting local search, {n_ind} individuals searching {100} neighbours each.")
+        
+        self.population.local_search(operator, n_ind, iterations)
+        return self.population.best_solution()
+
     """
     Stopping conditions given by a parameter
     """
@@ -149,6 +162,21 @@ class CRO_SL:
         return self.population.best_solution()
     
     """
+    Execute the algorithm with early stopping
+    """
+    def safe_optimize(self):
+        result = (np.array([]), 0)
+        try:
+            result = self.optimize()
+        except KeyboardInterrupt:
+            print("stopped early")
+            self.save_solution(file_name="stopped.csv")
+            self.display_report(show_plots=False, save_figure=True, figure_name="stopped.eps")
+            exit(1)
+        
+        return result
+
+    """
     Execute the classic version of the algorithm
     """
     def optimize_classic(self):
@@ -169,6 +197,12 @@ class CRO_SL:
                 
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
+        return self.population.best_solution()
+
+    """
+    Gets the best solution so far in the population
+    """
+    def best_solution(self):
         return self.population.best_solution()
 
     """

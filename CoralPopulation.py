@@ -3,6 +3,8 @@ import random
 import numpy as np
 from numba import jit
 from operators import *
+from joblib import Parallel, delayed 
+
 
 """
 Individual that holds a tentative solution with 
@@ -359,6 +361,25 @@ class CoralPopulation:
                 substrate_idx = self.substrate_list[idx]
                 larva.set_substrate(self.substrates[substrate_idx])
     
+    """
+    Performs a local search with the best "n_ind" corals
+    """
+    def local_search(self, operator, n_ind, iterations=100):
+        fitness_values = np.array([coral.get_fitness() for coral in self.population])
+        affected_corals = list(np.argsort(fitness_values))[n_ind-len(self.population):]
+        
+        for i in affected_corals:
+            best = self.population[i]
+
+            for j in range(iterations):
+                new_solution = operator.evolve(self.population[i], [], self.objfunc)
+                new_solution = self.objfunc.check_bounds(new_solution)
+                new_coral = Coral(new_solution, self.objfunc, self.population[i].substrate)
+                if new_coral.get_fitness() > best.get_fitness():
+                    best = new_coral
+            
+            self.population[i] = best
+
     """
     Removes a portion of the worst solutions in our population
     """
