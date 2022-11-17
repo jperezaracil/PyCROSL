@@ -366,7 +366,7 @@ class CoralPopulation:
     """
     def local_search(self, operator, n_ind, iterations=100):
         fitness_values = np.array([coral.get_fitness() for coral in self.population])
-        affected_corals = list(np.argsort(fitness_values))[n_ind-len(self.population):]
+        affected_corals = list(np.argsort(fitness_values))[len(self.population)-n_ind:]
         
         for i in affected_corals:
             best = self.population[i]
