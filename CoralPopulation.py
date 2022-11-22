@@ -342,7 +342,7 @@ class CoralPopulation:
                 # to replace the coral in that position
                 if setted := (idx >= len(self.population)):
                     self.population.append(larva)
-                elif setted := (larva.get_fitness() > self.population[idx].fitness):
+                elif setted := (larva.get_fitness() > self.population[idx].get_fitness()):
                     self.population[idx] = larva
 
                 attempts_left -= 1
