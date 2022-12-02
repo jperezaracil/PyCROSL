@@ -42,7 +42,7 @@ The hyperparameters will be the following:
 
 # Cite
 
-Please, if you use the algorithm, cite:
+Please, if you use the algorithm, cite as:
 
 @misc{pérezaracil2022new,
       title={New Probabilistic-Dynamic Multi-Method Ensembles for Optimization based on the CRO-SL}, 
