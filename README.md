@@ -39,3 +39,16 @@ The hyperparameters will be the following:
 - Display options:
     - verbose: shows a report of the state of the algorithm periodicaly
     - v_timer: amount of time between each report
+
+# Cite
+
+Please, if you use the algorithm, cite:
+
+@misc{pérezaracil2022new,
+      title={New Probabilistic-Dynamic Multi-Method Ensembles for Optimization based on the CRO-SL}, 
+      author={Jorge Pérez-Aracil and Carlos Camacho-Gómez and Eugenio Lorente-Ramos and Cosmin M. Marina and Sancho Salcedo-Sanz},
+      year={2022},
+      eprint={2212.00742},
+      archivePrefix={arXiv},
+      primaryClass={cs.NE}
+}
