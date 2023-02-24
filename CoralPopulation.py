@@ -354,6 +354,8 @@ class CoralPopulation:
 
             # Assign substrate to the setted coral
             if setted:
+                self.updated = True
+                
                 # Get substrate index
                 if self.dyn_method == "success" and larva.substrate is not None:
                     self.substrate_data[s_idx][0] += 1
