@@ -1,5 +1,5 @@
 __pycache__/
 __pycache__/*
-solution.csv
+*.csv
 .ipynb_checkpoints/
 .ipynb_checkpoints/*

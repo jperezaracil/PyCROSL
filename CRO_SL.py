@@ -4,6 +4,7 @@ import os
 import numpy as np
 from CoralPopulation import CoralPopulation
 from matplotlib import pyplot as plt
+# import json
 
 """
 Coral reef optimization with substrate layers
@@ -55,6 +56,7 @@ class CRO_SL:
         
         # Metrics
         self.history = []
+        self.sol_history = []
         self.pop_size = []
         self.best_fitness = 0
         self.time_spent = 0
@@ -137,11 +139,32 @@ class CRO_SL:
                 prog = self.fit_target/self.population.best_solution()[1]
 
         return prog
+    
+    """
+    Save execution data
+    """
+    def save_data(self, solution_file="best_solution.csv", population_file="last_population.csv", history_file="fit_history.csv", prob_file="prob_history.csv"):
+        ind, fit = self.population.best_solution()
+        np.savetxt(solution_file, ind.reshape([1, -1]), delimiter=',')
+        
+        pop_matrix = [i.solution for i in self.population.population]
+        np.savetxt(population_file, pop_matrix, delimiter=',')
+
+        np.savetxt(history_file, self.history)
+
+        if self.dynamic:
+            prob_data = np.array(self.population.substrate_w_history)
+            np.savetxt(prob_file, prob_data, delimiter=',')
+
+        # with open(file_name, "a") as file:
+        #     file.write(str(fit))
+        
+
 
     """
     Execute the algorithm to get the best solution possible along with it's evaluation
     """
-    def optimize(self):
+    def optimize(self, save_data = True):
         gen = 0
         time_start = time.process_time()
         real_time_start = time.time()
@@ -159,6 +182,7 @@ class CRO_SL:
                 
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
+        self.save_data()
         return self.population.best_solution()
     
     """
@@ -197,6 +221,7 @@ class CRO_SL:
                 
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
+        self.save_data()
         return self.population.best_solution()
 
     """
