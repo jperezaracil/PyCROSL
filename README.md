@@ -3,13 +3,15 @@
 
 Please, if you use the algorithm, cite as:
 
-@misc{pérezaracil2022new,
-      title={New Probabilistic-Dynamic Multi-Method Ensembles for Optimization based on the CRO-SL}, 
-      author={Jorge Pérez-Aracil and Carlos Camacho-Gómez and Eugenio Lorente-Ramos and Cosmin M. Marina and Sancho Salcedo-Sanz},
-      year={2022},
-      eprint={2212.00742},
-      archivePrefix={arXiv},
-      primaryClass={cs.NE}
+@article{perez2023,
+  title={New Probabilistic, Dynamic Multi-Method Ensembles for Optimization Based on the CRO-SL},
+  author={P{\'e}rez-Aracil, Jorge and Camacho-G{\'o}mez, Carlos and Lorente-Ramos, Eugenio and Marina, Cosmin M and Cornejo-Bueno, Laura M and Salcedo-Sanz, Sancho},
+  journal={Mathematics},
+  volume={11},
+  number={7},
+  pages={1666},
+  year={2023},
+  publisher={MDPI}
 }
 
 
