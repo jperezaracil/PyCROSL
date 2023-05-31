@@ -1,5 +1,5 @@
 import numpy as np
-from AbsObjetiveFunc import AbsObjetiveFunc
+from PyCROSL.AbsObjetiveFunc import AbsObjetiveFunc
 from numba import jit
 
 """

@@ -2,7 +2,7 @@ import time
 import os
 
 import numpy as np
-from CoralPopulation import CoralPopulation
+from PyCROSL.CoralPopulation import CoralPopulation
 from matplotlib import pyplot as plt
 # import json
 

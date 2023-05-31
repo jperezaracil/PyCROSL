@@ -2,7 +2,7 @@ import random
 
 import numpy as np
 from numba import jit
-from operators import *
+from PyCROSL.operators import *
 from joblib import Parallel, delayed 
 
 
