@@ -1,9 +1,9 @@
-from TestFunctions import *
-from CompareTests import *
-from CRO_SL import *
-from Substrate import *
-from SubstrateInt import *
-from SubstrateReal import *
+from PyCROSL.TestFunctions import *
+from PyCROSL.CompareTests import *
+from PyCROSL.CRO_SL import *
+from PyCROSL.Substrate import *
+from PyCROSL.SubstrateInt import *
+from PyCROSL.SubstrateReal import *
 
 
 def test_cro():

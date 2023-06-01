@@ -3,6 +3,7 @@
 
 Please, if you use the algorithm, cite as:
 
+```
 @article{perez2023,
   title={New Probabilistic, Dynamic Multi-Method Ensembles for Optimization Based on the CRO-SL},
   author={P{\'e}rez-Aracil, Jorge and Camacho-G{\'o}mez, Carlos and Lorente-Ramos, Eugenio and Marina, Cosmin M and Cornejo-Bueno, Laura M and Salcedo-Sanz, Sancho},
@@ -13,7 +14,7 @@ Please, if you use the algorithm, cite as:
   year={2023},
   publisher={MDPI}
 }
-
+```
 
 # CRO-SL
 Python implementation of the Coral reef optimization algorithm with substrate layers

@@ -2,9 +2,9 @@ import signal
 
 import numpy as np
 import pandas as pd
-from CompareTests import *
-from CRO_SL import CRO_SL
-from SubstrateReal import *
+from PyCROSL.CompareTests import *
+from PyCROSL.CRO_SL import CRO_SL
+from PyCROSL.SubstrateReal import *
 
 
 def exec_runs(evalg_inst, dframe, func_name, subs_name, nruns=10):
