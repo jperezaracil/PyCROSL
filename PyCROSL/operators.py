@@ -10,6 +10,7 @@ def xorMask(vector, n, mode="byte"):
     Applies an XOR operation between a random number and the input vector.
     """
 
+    vector = vector.astype(int)
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     np.random.shuffle(mask_pos)
 
@@ -39,7 +40,7 @@ def permutation(vector, n):
 
     return vector
 
-def mutateRand(vector, population, params):
+def mutate_rand(vector, params):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
@@ -60,7 +61,7 @@ def mutateRand(vector, population, params):
     return vector
 
 
-def mutateSample(vector, population, params):
+def mutate_sample(vector, population, params):
     """
     Replaces 'n' components of the input vector with a random value sampled from a given probability distribution.
     """
@@ -84,7 +85,7 @@ def mutateSample(vector, population, params):
     return vector
 
 
-def randSample(vector, population, params):
+def rand_sample(vector, population, params):
     """
     Picks a vector with components sampled from a probability distribution.
     """
@@ -104,7 +105,7 @@ def randSample(vector, population, params):
     return rand_vec
 
 
-def randNoise(vector, params):
+def rand_noise(vector, params):
     """
     Adds random noise with a given probability distribution to all components of the input vector.
     """
@@ -135,17 +136,17 @@ def sampleDistribution(method, n, mean=0, strength=0.01, low=0, up=1):
     """
 
     sample = 0
-    if method == "gauss":
+    if method == "Gauss":
         sample = np.random.normal(mean, strength, size=n)
-    elif method == "uniform":
+    elif method == "Uniform":
         sample = np.random.uniform(low, up, size=n)
-    elif method == "cauchy":
+    elif method == "Cauchy":
         sample = sp.stats.cauchy.rvs(mean, strength, size=n)
-    elif method == "laplace":
+    elif method == "Laplace":
         sample = sp.stats.laplace.rvs(mean, strength, size=n)
-    elif method == "poisson":
+    elif method == "Poisson":
         sample = sp.stats.poisson.rvs(strength, size=n)
-    elif method == "bernouli":
+    elif method == "Bernouli":
         sample = sp.stats.bernoulli.rvs(strength, size=n)
     else:
         print(f"Error: distribution \"{method}\" not defined")
@@ -158,7 +159,7 @@ def gaussian(vector, strength):
     Adds random noise following a Gaussian distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "gauss", "F": strength})
+    return rand_noise(vector, {"method": "Gauss", "F": strength})
 
 
 def cauchy(vector, strength):
@@ -166,7 +167,7 @@ def cauchy(vector, strength):
     Adds random noise following a Cauchy distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "cauchy", "F": strength})
+    return rand_noise(vector, {"method": "Cauchy", "F": strength})
 
 
 def laplace(vector, strength):
@@ -174,7 +175,7 @@ def laplace(vector, strength):
     Adds random noise following a Laplace distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "laplace", "F": strength})
+    return rand_noise(vector, {"method": "Laplace", "F": strength})
 
 
 def uniform(vector, low, up):
@@ -182,7 +183,7 @@ def uniform(vector, low, up):
     Adds random noise following an Uniform distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "uniform", "Low": low, "Up": up})
+    return rand_noise(vector, {"method": "Uniform", "Low": low, "Up": up})
 
 
 def poisson(vector, mu):
@@ -190,7 +191,7 @@ def poisson(vector, mu):
     Adds random noise following a Poisson distribution to the vector.
     """
 
-    return randNoise(vector, {"method": "poisson", "F": mu})
+    return rand_noise(vector, {"method": "Poisson", "F": mu})
 
 """
 -Distribución zeta
@@ -438,11 +439,11 @@ def firefly(solution, population, objfunc, alpha_0, beta_0, delta, gamma):
             alpha = alpha_0 * delta ** idx
             beta = beta_0 * np.exp(-gamma*(r/(sol_range*np.sqrt(n_dim)))**2)
             new_solution = new_solution + beta*(ind.solution-new_solution) + alpha * sol_range * random.random()-0.5
-            new_solution = objfunc.check_bounds(new_solution)
+            new_solution = objfunc.repair_solution(new_solution)
     
     return new_solution
 
-def dummyOp(vector, scale=1000):
+def dummy_op(vector, scale=1000):
     """
     Replaces the vector with one consisting of all the same value
 

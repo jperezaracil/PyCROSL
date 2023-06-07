@@ -48,11 +48,11 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "Perm":
             result = permutation(solution.solution.copy(), params["N"])
         elif self.evolution_method == "MutNoise":
-            result = mutate_rand(solution.solution.copy(), population, params)
-        elif self.evolution_method == "MutRand":
+            result = mutate_rand(solution.solution.copy(), params)
+        elif self.evolution_method == "MutSample":
             result = mutate_sample(solution.solution.copy(), population, params)
         elif self.evolution_method == "RandNoise":
-            result = rand_noise(solution.solution.copy(), population, params)
+            result = rand_noise(solution.solution.copy(), params)
         elif self.evolution_method == "RandSample":
             result = rand_sample(solution.solution.copy(), population, params)
         elif self.evolution_method == "Gauss":
@@ -74,7 +74,7 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "DE/current-to-best/1":
             result = DECurrentToBest1(solution.solution.copy(), others, params["F"], params["Cr"])
         elif self.evolution_method == "DE/current-to-pbest/1":
-            result = DECurrentToPBest1(solution.solution.copy(), others, params["F"], params["Cr"])
+            result = DECurrentToPBest1(solution.solution.copy(), others, params["F"], params["Cr"], params["P"])
         elif self.evolution_method == "LSHADE":
             params["Cr"] = np.random.normal(params["Cr"], 0.1)
             params["F"] = np.random.normal(params["F"], 0.1)
@@ -82,7 +82,7 @@ class SubstrateReal(Substrate):
             params["Cr"] = np.clip(params["Cr"], 0, 1)
             params["F"] = np.clip(params["F"], 0, 1)
 
-            result = DECurrentToPBest1(solution.solution.copy(), others, params["F"], params["Cr"])            
+            result = DECurrentToPBest1(solution.solution.copy(), others, params["F"], params["Cr"], params["P"])            
         elif self.evolution_method == "SA":
             result = sim_annealing(solution, params["F"], objfunc, params["temp_ch"], params["iter"])
         elif self.evolution_method == "HS":

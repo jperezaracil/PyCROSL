@@ -15,8 +15,11 @@ def test_cro():
         SubstrateInt("BLXalpha", {"Cr": 0.5}),
         SubstrateInt("Multicross", {"N": 5}),
         SubstrateInt("Perm", {"Cr": 0.5}),
-        SubstrateInt("Xor", {"Cr": 0.1}),
-        SubstrateInt("MutRand", {"method": "Gauss", "F":5, "Cr": 0.01}),
+        SubstrateInt("Xor", {"Cr": 0.2}),
+        SubstrateInt("MutNoise", {"method": "Gauss", "F":0.001, "N": 3}),
+        SubstrateInt("MutSample", {"method": "Cauchy", "F":2, "N": 3}),
+        SubstrateInt("RandNoise", {"method": "Laplace", "F":0.1}),
+        SubstrateInt("RandSample", {"method": "Gauss", "F":0.1}),
         SubstrateInt("Gauss", {"F": 5}),
         SubstrateInt("Laplace", {"F": 5}),
         SubstrateInt("Cauchy", {"F": 10}),
@@ -27,11 +30,10 @@ def test_cro():
         SubstrateInt("DE/best/2", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("DE/current-to-rand/1", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("DE/current-to-best/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateInt("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateInt("LSHADE", {"F":0.7, "Cr": 0.8}),
+        SubstrateInt("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8, "P":0.11}),
+        SubstrateInt("LSHADE", {"F":0.7, "Cr": 0.8, "P":0.11}),
         SubstrateInt("SA", {"F":5, "temp_ch": 20, "iter": 10}),
         SubstrateInt("HS", {"F":5, "Cr":0.3, "Par":0.1}),
-        SubstrateInt("Replace", {"method":"Gauss", "F":0.1}),
         #SubstrateInt("Dummy", {"F": 0.5})
     ]
 
@@ -44,7 +46,10 @@ def test_cro():
         SubstrateReal("SBX", {"Cr": 0.5}),
         SubstrateReal("Multicross", {"N": 5}),
         SubstrateReal("Perm", {"Cr": 0.5}),
-        SubstrateReal("MutRand", {"method": "Gauss", "F":0.01, "Cr": 0.01}),
+        SubstrateReal("MutNoise", {"method": "Gauss", "F":0.001, "N": 3}),
+        SubstrateReal("MutSample", {"method": "Cauchy", "F":2, "N": 3}),
+        SubstrateReal("RandNoise", {"method": "Laplace", "F":0.1}),
+        SubstrateReal("RandSample", {"method": "Gauss", "F":0.1}),
         SubstrateReal("Gauss", {"F":0.001}),
         SubstrateReal("Laplace", {"F":0.001}),
         SubstrateReal("Cauchy", {"F":0.002}),
@@ -54,17 +59,16 @@ def test_cro():
         SubstrateReal("DE/best/2", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("DE/current-to-best/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateReal("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateReal("LSHADE", {"F":0.7, "Cr": 0.8}),
+        SubstrateReal("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8, "P":0.11}),
+        SubstrateReal("LSHADE", {"F":0.7, "Cr": 0.8, "P":0.11}),
         SubstrateReal("SA", {"F":0.01, "temp_ch": 20, "iter": 10}),
         SubstrateReal("HS", {"F":0.01, "Cr":0.3, "Par":0.1}),
         SubstrateReal("Firefly", {"a":0.5, "b":1, "d":0.95, "g":10}),
-        SubstrateReal("Replace", {"method":"Gauss", "F":0.1}),
         SubstrateReal("Dummy", {"F": 100})
     ]
     
     params = {
-        "popSize": 100,
+        "popSize": 500,
         "rho": 0.6,
         "Fb": 0.98,
         "Fd": 0.2,
@@ -96,8 +100,13 @@ def test_cro():
     #objfunc = Katsuura(30)
     objfunc = Rastrigin(10)
 
-    #c = CRO_SL(objfunc, substrates_int, params)
+    
     c = CRO_SL(objfunc, substrates_real, params)
+    ind, fit = c.optimize()
+    print(ind)
+    c.display_report()
+
+    c = CRO_SL(objfunc, substrates_int, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()
