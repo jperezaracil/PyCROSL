@@ -81,6 +81,7 @@ def test_cro():
 
         "verbose": True,
         "v_timer": 1,
+        "Njobs": 1,
 
         "dynamic": True,
         "dyn_method": "success",
@@ -121,6 +122,7 @@ def test_files():
 
         "verbose": True,
         "v_timer": 1,
+        "Njobs": 1,
 
         "dynamic": True,
         "dyn_method": "fitness",
@@ -160,6 +162,7 @@ def thity_runs():
 
         "verbose": False,
         "v_timer": 1,
+        "Njobs": 1,
 
         "dynamic": True,
         "dyn_method": "fitness",
@@ -202,10 +205,60 @@ def thity_runs():
         print(f"\nRESULTS {comb}:")
         print(f"min: {fit_list.min():e}; mean: {fit_list.mean():e}; std: {fit_list.std():e}")
 
+
+def test_parallelism():
+    jobs_list = [1, 2, 4, 8, 16]
+    times_elapsed = []
+
+    for n_jobs in jobs_list:
+        print(f"Evaluating for {n_jobs} jobs")
+
+        substrates_real = [
+            SubstrateReal("Dummy", {"F": 100})
+        ]
+
+        params = {
+            "popSize": 100,
+            "rho": 0.6,
+            "Fb": 0.98,
+            "Fd": 0.2,
+            "Pd": 0.8,
+            "k": 3,
+            "K": 20,
+            "group_subs": True,
+
+            "stop_cond": "ngen",
+            "time_limit": 4000.0,
+            "Ngen": 20,
+            "Neval": 10e5,
+            "fit_target": 1000,
+
+            "verbose": True,
+            "v_timer": 1,
+            "Njobs": n_jobs,
+
+            "dynamic": True,
+            "dyn_method": "success",
+            "dyn_metric": "avg",
+            "dyn_steps": 10,
+            "prob_amp": 0.01
+        }
+
+        objfunc = TimeTest(10)
+
+        c = CRO_SL(objfunc, substrates_real, params)
+        c.optimize()
+
+        times_elapsed.append(c.real_time_spent)
+
+    for n_jobs, time_elapsed in zip(jobs_list, times_elapsed):
+        print(f"{n_jobs} jobs: {time_elapsed:.2f}s")
+
 def main():
     #thity_runs()
     test_cro()
     #test_files()
+    # test_parallelism()
 
 if __name__ == "__main__":
     main()
