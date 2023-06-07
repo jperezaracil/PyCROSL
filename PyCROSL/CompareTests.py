@@ -1,17 +1,17 @@
 import numpy as np
-from PyCROSL.AbsObjetiveFunc import AbsObjetiveFunc
+from PyCROSL.AbsObjectiveFunc import AbsObjectiveFunc
 from numba import jit
 
 """
 Example of objective function.
 """
 
-class Sphere(AbsObjetiveFunc):
+class Sphere(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return sphere(solution)
     
     def random_solution(self):
@@ -20,12 +20,12 @@ class Sphere(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class HighCondElliptic(AbsObjetiveFunc):
+class HighCondElliptic(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return high_cond_elipt_f(solution)
     
     def random_solution(self):
@@ -34,12 +34,12 @@ class HighCondElliptic(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
-class BentCigar(AbsObjetiveFunc):
+class BentCigar(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return bent_cigar(solution)
     
     def random_solution(self):
@@ -48,12 +48,12 @@ class BentCigar(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class Discus(AbsObjetiveFunc):
+class Discus(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return discus(solution)
     
     def random_solution(self):
@@ -62,12 +62,12 @@ class Discus(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
-class Rosenbrock(AbsObjetiveFunc):
+class Rosenbrock(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return rosenbrock(solution)
     
     def random_solution(self):
@@ -76,12 +76,12 @@ class Rosenbrock(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class Ackley(AbsObjetiveFunc):
+class Ackley(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return ackley(solution)
     
     def random_solution(self):
@@ -90,12 +90,12 @@ class Ackley(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
-class Weierstrass(AbsObjetiveFunc):
+class Weierstrass(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return weierstrass(solution)
     
     def random_solution(self):
@@ -104,12 +104,12 @@ class Weierstrass(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class Griewank(AbsObjetiveFunc):
+class Griewank(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return griewank(solution)
     
     def random_solution(self):
@@ -118,12 +118,12 @@ class Griewank(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class Rastrigin(AbsObjetiveFunc):
+class Rastrigin(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return rastrigin(solution)
     
     def random_solution(self):
@@ -132,12 +132,12 @@ class Rastrigin(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
-class ModSchwefel(AbsObjetiveFunc):
+class ModSchwefel(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return mod_schwefel(solution)
     
     def random_solution(self):
@@ -146,12 +146,12 @@ class ModSchwefel(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class Katsuura(AbsObjetiveFunc):
+class Katsuura(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return katsuura(solution)
     
     def random_solution(self):
@@ -160,12 +160,12 @@ class Katsuura(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class HappyCat(AbsObjetiveFunc):
+class HappyCat(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return happy_cat(solution)
     
     def random_solution(self):
@@ -174,12 +174,12 @@ class HappyCat(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -2, 2)
 
-class HGBat(AbsObjetiveFunc):
+class HGBat(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return hgbat(solution)
     
     def random_solution(self):
@@ -188,12 +188,12 @@ class HGBat(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -2, 2)
 
-class ExpandedGriewankPlusRosenbrock(AbsObjetiveFunc):
+class ExpandedGriewankPlusRosenbrock(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return exp_griewank_plus_rosenbrock(solution)
     
     def random_solution(self):
@@ -202,12 +202,12 @@ class ExpandedGriewankPlusRosenbrock(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class ExpandedShafferF6(AbsObjetiveFunc):
+class ExpandedShafferF6(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return exp_shafferF6(solution)
     
     def random_solution(self):

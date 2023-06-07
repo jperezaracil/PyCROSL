@@ -5,7 +5,7 @@ For each problem a new class will inherit from this one
 and implement the fitness function, random solution generation,
 mutation function and crossing of solutions.
 """
-class AbsObjetiveFunc:
+class AbsObjectiveFunc:
     def __init__(self, input_size, opt, sup_lim = 100, inf_lim = -100):
         self.counter = 0
         self.input_size = input_size
@@ -18,9 +18,9 @@ class AbsObjetiveFunc:
     
     def fitness(self, solution):
         self.counter += 1
-        return self.factor * self.objetive(solution)
+        return self.factor * self.objective(solution)
     
-    def objetive(self, solution):
+    def objective(self, solution):
         pass
     
     def random_solution(self):

@@ -1,5 +1,5 @@
 import numpy as np
-from PyCROSL.AbsObjetiveFunc import AbsObjetiveFunc
+from PyCROSL.AbsObjectiveFunc import AbsObjectiveFunc
 from numba import jit
 
 """
@@ -7,12 +7,12 @@ Example of objective function.
 
 Counts the number of ones in the array
 """
-class MaxOnes(AbsObjetiveFunc):
+class MaxOnes(AbsObjectiveFunc):
     def __init__(self, size, opt="max"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return solution.sum()
     
     def random_solution(self):
@@ -22,14 +22,14 @@ class MaxOnes(AbsObjetiveFunc):
         return (solution.copy() >= 0.5).astype(np.int32)
         #return -(solution.copy() <= -0.5).astype(np.int32)
 
-class DiophantineEq(AbsObjetiveFunc):
+class DiophantineEq(AbsObjectiveFunc):
     def __init__(self, size, coeff, target, opt="min"):
         self.size = size
         self.coeff = coeff
         self.target = target
         super().__init__(self.size, opt)
     
-    def objetive(self, solution):
+    def objective(self, solution):
         return abs((solution*self.coeff).sum() - self.target)
     
     def random_solution(self):
@@ -38,12 +38,12 @@ class DiophantineEq(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return solution.astype(np.int32)
 
-class MaxOnesReal(AbsObjetiveFunc):
+class MaxOnesReal(AbsObjectiveFunc):
     def __init__(self, size, opt="max"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return solution.sum()
     
     def random_solution(self):
@@ -54,12 +54,12 @@ class MaxOnesReal(AbsObjetiveFunc):
 
 # https://www.scientificbulletin.upb.ro/rev_docs_arhiva/rez0cb_759909.pdf
 
-class Sphere(AbsObjetiveFunc):
+class Sphere(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return (solution**2).sum()
     
     def random_solution(self):
@@ -68,12 +68,12 @@ class Sphere(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class Rosenbrock(AbsObjetiveFunc):
+class Rosenbrock(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return rosenbrock(solution)
     
     def random_solution(self):
@@ -82,12 +82,12 @@ class Rosenbrock(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -100, 100)
 
-class Rastrigin(AbsObjetiveFunc):
+class Rastrigin(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return rastrigin(solution)
     
     def random_solution(self):
@@ -96,12 +96,12 @@ class Rastrigin(AbsObjetiveFunc):
     def check_bounds(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
-class Test1(AbsObjetiveFunc):
+class Test1(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
         super().__init__(self.size, opt)
 
-    def objetive(self, solution):
+    def objective(self, solution):
         return sum([(2*solution[i-1] + solution[i]**2*solution[i+1]-solution[i-1])**2 for i in range(1, solution.size-1)])
     
     def random_solution(self):
