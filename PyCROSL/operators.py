@@ -40,7 +40,7 @@ def permutation(vector, n):
 
     return vector
 
-def mutate_rand(vector, params):
+def mutate_noise(vector, params):
     """
     Adds random noise with a given probability distribution to 'n' components of the input vector.
     """
@@ -85,6 +85,22 @@ def mutate_sample(vector, population, params):
     return vector
 
 
+def rand_noise(vector, params):
+    """
+    Adds random noise with a given probability distribution to all components of the input vector.
+    """
+
+    method = params["method"]
+
+    low = params["Low"] if "Low" in params else -1
+    up = params["Up"] if "Low" in params else 1
+    strength = params["F"] if "F" in params else 1
+
+    noise = sampleDistribution(method, vector.shape, 0, strength, low, up)
+
+    return vector + noise
+
+
 def rand_sample(vector, population, params):
     """
     Picks a vector with components sampled from a probability distribution.
@@ -103,22 +119,6 @@ def rand_sample(vector, population, params):
     rand_vec = sampleDistribution(method, vector.shape, mean, std, low, up)
 
     return rand_vec
-
-
-def rand_noise(vector, params):
-    """
-    Adds random noise with a given probability distribution to all components of the input vector.
-    """
-
-    method = params["method"]
-
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
-
-    noise = sampleDistribution(method, vector.shape, 0, strength, low, up)
-
-    return vector + noise
 
 
 """

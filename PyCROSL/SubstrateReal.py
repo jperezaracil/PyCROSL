@@ -40,7 +40,7 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "WeightedAvg":
             result = weightedAverage(solution.solution.copy(), solution2.solution.copy(), params["F"])
         elif self.evolution_method == "BLXalpha":
-            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), params["Cr"])
+            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), params["F"])
         elif self.evolution_method == "SBX":
             result = sbx(solution.solution.copy(), solution2.solution.copy(), params["Cr"])
         elif self.evolution_method == "Multicross":
@@ -48,7 +48,7 @@ class SubstrateReal(Substrate):
         elif self.evolution_method == "Perm":
             result = permutation(solution.solution.copy(), params["N"])
         elif self.evolution_method == "MutNoise":
-            result = mutate_rand(solution.solution.copy(), params)
+            result = mutate_noise(solution.solution.copy(), params)
         elif self.evolution_method == "MutSample":
             result = mutate_sample(solution.solution.copy(), population, params)
         elif self.evolution_method == "RandNoise":
@@ -61,6 +61,8 @@ class SubstrateReal(Substrate):
             result = laplace(solution.solution.copy(), params["F"])
         elif self.evolution_method == "Cauchy":
             result = cauchy(solution.solution.copy(), params["F"])
+        elif self.evolution_method == "Uniform":
+            result = uniform(solution.solution.copy(), params["Low"], params["Up"])
         elif self.evolution_method == "DE/rand/1":
             result = DERand1(solution.solution.copy(), others, params["F"], params["Cr"])
         elif self.evolution_method == "DE/best/1":
@@ -89,8 +91,6 @@ class SubstrateReal(Substrate):
             result = harmony_search(solution.solution.copy(), population, params["F"], params["Cr"], params["Par"])
         elif self.evolution_method == "Firefly":
             result = firefly(solution, population, objfunc, params["a"], params["b"], params["d"], params["g"])
-        elif self.evolution_method == "Replace":
-            result = replace(solution.solution.copy(), population, params["method"], params["F"])
         elif self.evolution_method == "Dummy":
             result = dummy_op(solution.solution.copy(), params["F"])
         else:

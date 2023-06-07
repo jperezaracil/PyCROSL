@@ -40,7 +40,7 @@ class SubstrateInt(Substrate):
         elif self.evolution_method == "WeightedAvg":
             result = weightedAverage(solution.solution.copy(), solution2.solution.copy(), params["F"])
         elif self.evolution_method == "BLXalpha":
-            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), params["Cr"])
+            result = blxalpha(solution.solution.copy(), solution2.solution.copy(), params["F"])
         elif self.evolution_method == "Multicross":
             result = multiCross(solution.solution.copy(), others, params["N"])
         elif self.evolution_method == "Perm":
@@ -48,7 +48,7 @@ class SubstrateInt(Substrate):
         elif self.evolution_method == "Xor":
             result = xorMask(solution.solution.copy(), params["N"])
         elif self.evolution_method == "MutNoise":
-            result = mutate_rand(solution.solution.copy(), params)
+            result = mutate_noise(solution.solution.copy(), params)
         elif self.evolution_method == "MutSample":
             result = mutate_sample(solution.solution.copy(), population, params)
         elif self.evolution_method == "RandNoise":
@@ -62,7 +62,7 @@ class SubstrateInt(Substrate):
         elif self.evolution_method == "Cauchy":
             result = cauchy(solution.solution.copy(), params["F"])
         elif self.evolution_method == "Uniform":
-            result = uniform(solution.solution.copy(), self.params["F"])
+            result = uniform(solution.solution.copy(), params["Low"], params["Up"])
         elif self.evolution_method == "Poisson":
             result = poisson(solution.solution.copy(), self.params["F"])
         elif self.evolution_method == "DE/rand/1":
