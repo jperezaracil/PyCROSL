@@ -26,5 +26,5 @@ class AbsObjectiveFunc:
     def random_solution(self):
         pass
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         pass
