@@ -12,27 +12,31 @@ def test_cro():
         SubstrateInt("1point"),
         SubstrateInt("2point"),
         SubstrateInt("Multipoint"),
-        SubstrateInt("BLXalpha", {"Cr": 0.5}),
+        SubstrateInt("WeightedAvg", {"F": 0.75}),
+        SubstrateInt("BLXalpha", {"F": 0.5}),
         SubstrateInt("Multicross", {"N": 5}),
         SubstrateInt("Perm", {"Cr": 0.5}),
-        SubstrateInt("Xor", {"Cr": 0.1}),
-        SubstrateInt("MutRand", {"method": "Gauss", "F":5, "Cr": 0.01}),
+        SubstrateInt("Xor", {"Cr": 0.2}),
+        SubstrateInt("MutNoise", {"method": "Gauss", "F":0.001, "N": 3}),
+        SubstrateInt("MutSample", {"method": "Cauchy", "F":2, "N": 3}),
+        SubstrateInt("RandNoise", {"method": "Laplace", "F":0.1}),
+        SubstrateInt("RandSample", {"method": "Gauss", "F":0.1}),
         SubstrateInt("Gauss", {"F": 5}),
         SubstrateInt("Laplace", {"F": 5}),
         SubstrateInt("Cauchy", {"F": 10}),
         SubstrateInt("Poisson", {"F": 5}),
+        SubstrateInt("Uniform", {"Low": -10, "Up": 10}),
         SubstrateInt("DE/rand/1", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("DE/best/1", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("DE/rand/2", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("DE/best/2", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("DE/current-to-rand/1", {"F":0.7, "Cr": 0.8}),
         SubstrateInt("DE/current-to-best/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateInt("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateInt("LSHADE", {"F":0.7, "Cr": 0.8}),
+        SubstrateInt("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8, "P":0.11}),
+        SubstrateInt("LSHADE", {"F":0.7, "Cr": 0.8, "P":0.11}),
         SubstrateInt("SA", {"F":5, "temp_ch": 20, "iter": 10}),
         SubstrateInt("HS", {"F":5, "Cr":0.3, "Par":0.1}),
-        SubstrateInt("Replace", {"method":"Gauss", "F":0.1}),
-        #SubstrateInt("Dummy", {"F": 0.5})
+        SubstrateInt("Dummy", {"F": 0.5})
     ]
 
     DEparams = {"F":0.7, "Cr":0.8}
@@ -40,31 +44,35 @@ def test_cro():
         SubstrateReal("1point"),
         SubstrateReal("2point"),
         SubstrateReal("Multipoint"),
-        SubstrateReal("BLXalpha", {"Cr": 0.5}),
+        SubstrateReal("WeightedAvg", {"F": 0.75}),
+        SubstrateReal("BLXalpha", {"F": 0.5}),
         SubstrateReal("SBX", {"Cr": 0.5}),
         SubstrateReal("Multicross", {"N": 5}),
         SubstrateReal("Perm", {"Cr": 0.5}),
-        SubstrateReal("MutRand", {"method": "Gauss", "F":0.01, "Cr": 0.01}),
+        SubstrateReal("MutNoise", {"method": "Gauss", "F":5, "N": 3}),
+        SubstrateReal("MutSample", {"method": "Cauchy", "F":2, "N": 3}),
+        SubstrateReal("RandNoise", {"method": "Laplace", "F":6}),
+        SubstrateReal("RandSample", {"method": "Gauss", "F":4}),
         SubstrateReal("Gauss", {"F":0.001}),
         SubstrateReal("Laplace", {"F":0.001}),
         SubstrateReal("Cauchy", {"F":0.002}),
+        SubstrateReal("Uniform", {"Low": -10, "Up": 10}),
         SubstrateReal("DE/rand/1", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("DE/best/1", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("DE/rand/2", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("DE/best/2", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("DE/current-to-rand/1", {"F":0.7, "Cr": 0.8}),
         SubstrateReal("DE/current-to-best/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateReal("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8}),
-        SubstrateReal("LSHADE", {"F":0.7, "Cr": 0.8}),
+        SubstrateReal("DE/current-to-pbest/1", {"F":0.7, "Cr": 0.8, "P":0.11}),
+        SubstrateReal("LSHADE", {"F":0.7, "Cr": 0.8, "P":0.11}),
         SubstrateReal("SA", {"F":0.01, "temp_ch": 20, "iter": 10}),
         SubstrateReal("HS", {"F":0.01, "Cr":0.3, "Par":0.1}),
         SubstrateReal("Firefly", {"a":0.5, "b":1, "d":0.95, "g":10}),
-        SubstrateReal("Replace", {"method":"Gauss", "F":0.1}),
         SubstrateReal("Dummy", {"F": 100})
     ]
     
     params = {
-        "popSize": 100,
+        "popSize": 500,
         "rho": 0.6,
         "Fb": 0.98,
         "Fd": 0.2,
@@ -92,20 +100,25 @@ def test_cro():
 
     #objfunc = MaxOnes(1000, "min")
     #objfunc = MaxOnesReal(1000)
-    #objfunc = Sphere(30)
-    #objfunc = Rosenbrock(30)
+    # objfunc = Sphere(30)
+    # objfunc = Rosenbrock(30)
     #objfunc = Katsuura(30)
-    objfunc = Rastrigin(10)
+    objfunc = Rastrigin(30)
 
-    #c = CRO_SL(objfunc, substrates_int, params)
+    
     c = CRO_SL(objfunc, substrates_real, params)
+    ind, fit = c.optimize()
+    print(ind)
+    c.display_report()
+
+    c = CRO_SL(objfunc, substrates_int, params)
     ind, fit = c.optimize()
     print(ind)
     c.display_report()
 
 def test_files():
     params = {
-        "ReefSize": 100,
+        "popSize": 100,
         "rho": 0.6,
         "Fb": 0.98,
         "Fd": 1,
@@ -135,7 +148,7 @@ def test_files():
     c.population.generate_random()
     c.save_solution()
 
-def thity_runs():
+def thirty_runs():
     DEparams = {"F":0.7, "Pr":0.8}
     substrates_real = [
         SubstrateReal("DE/rand/1", DEparams),
@@ -145,7 +158,7 @@ def thity_runs():
     ]
 
     params = {
-        "ReefSize": 100,
+        "popSize": 100,
         "rho": 0.6,
         "Fb": 0.98,
         "Fd": 1,
@@ -255,7 +268,7 @@ def test_parallelism():
         print(f"{n_jobs} jobs: {time_elapsed:.2f}s")
 
 def main():
-    #thity_runs()
+    #thirty_runs()
     test_cro()
     #test_files()
     # test_parallelism()

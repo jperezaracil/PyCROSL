@@ -17,7 +17,7 @@ class Sphere(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class HighCondElliptic(AbsObjectiveFunc):
@@ -31,7 +31,7 @@ class HighCondElliptic(AbsObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class BentCigar(AbsObjectiveFunc):
@@ -45,7 +45,7 @@ class BentCigar(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Discus(AbsObjectiveFunc):
@@ -59,7 +59,7 @@ class Discus(AbsObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class Rosenbrock(AbsObjectiveFunc):
@@ -73,7 +73,7 @@ class Rosenbrock(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Ackley(AbsObjectiveFunc):
@@ -87,7 +87,7 @@ class Ackley(AbsObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class Weierstrass(AbsObjectiveFunc):
@@ -101,7 +101,7 @@ class Weierstrass(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Griewank(AbsObjectiveFunc):
@@ -115,7 +115,7 @@ class Griewank(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Rastrigin(AbsObjectiveFunc):
@@ -129,7 +129,7 @@ class Rastrigin(AbsObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class ModSchwefel(AbsObjectiveFunc):
@@ -143,7 +143,7 @@ class ModSchwefel(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Katsuura(AbsObjectiveFunc):
@@ -157,7 +157,7 @@ class Katsuura(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class HappyCat(AbsObjectiveFunc):
@@ -171,7 +171,7 @@ class HappyCat(AbsObjectiveFunc):
     def random_solution(self):
         return 4*np.random.random(self.size)-2
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -2, 2)
 
 class HGBat(AbsObjectiveFunc):
@@ -185,7 +185,7 @@ class HGBat(AbsObjectiveFunc):
     def random_solution(self):
         return 4*np.random.random(self.size)-2
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -2, 2)
 
 class ExpandedGriewankPlusRosenbrock(AbsObjectiveFunc):
@@ -199,7 +199,7 @@ class ExpandedGriewankPlusRosenbrock(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class ExpandedShafferF6(AbsObjectiveFunc):
@@ -213,7 +213,7 @@ class ExpandedShafferF6(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 

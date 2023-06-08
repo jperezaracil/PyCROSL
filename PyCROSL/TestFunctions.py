@@ -20,9 +20,8 @@ class MaxOnes(AbsObjectiveFunc):
     def random_solution(self):
         return (np.random.random(self.size) < 0.5).astype(np.int32)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return (solution.copy() >= 0.5).astype(np.int32)
-        #return -(solution.copy() <= -0.5).astype(np.int32)
 
 class DiophantineEq(AbsObjectiveFunc):
     def __init__(self, size, coeff, target, opt="min"):
@@ -37,7 +36,7 @@ class DiophantineEq(AbsObjectiveFunc):
     def random_solution(self):
         return (np.random.randint(-100, 100, size=self.size)).astype(np.int32)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return solution.astype(np.int32)
 
 class MaxOnesReal(AbsObjectiveFunc):
@@ -51,7 +50,7 @@ class MaxOnesReal(AbsObjectiveFunc):
     def random_solution(self):
         return np.random.random(self.size)
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution.copy(), 0, 1)
 
 # https://www.scientificbulletin.upb.ro/rev_docs_arhiva/rez0cb_759909.pdf
@@ -67,7 +66,7 @@ class Sphere(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Rosenbrock(AbsObjectiveFunc):
@@ -81,7 +80,7 @@ class Rosenbrock(AbsObjectiveFunc):
     def random_solution(self):
         return 200*np.random.random(self.size)-100
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -100, 100)
 
 class Rastrigin(AbsObjectiveFunc):
@@ -95,7 +94,7 @@ class Rastrigin(AbsObjectiveFunc):
     def random_solution(self):
         return 10.24*np.random.random(self.size)-5.12
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -5.12, 5.12)
 
 class Test1(AbsObjectiveFunc):
@@ -109,7 +108,7 @@ class Test1(AbsObjectiveFunc):
     def random_solution(self):
         return 4*np.random.random(self.size)-2
     
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -2, 2)
 
 class TimeTest(AbsObjectiveFunc):
@@ -124,7 +123,7 @@ class TimeTest(AbsObjectiveFunc):
     def random_solution(self):
         return 4*np.random.random(self.size)-2
 
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -2, 2)
 
 

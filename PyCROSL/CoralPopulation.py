@@ -37,7 +37,7 @@ class Coral:
     
     def reproduce(self, population):
         new_solution = self.substrate.evolve(self, population, self.objfunc)
-        new_solution = self.objfunc.check_bounds(new_solution)
+        new_solution = self.objfunc.repair_solution(new_solution)
         return Coral(new_solution, self.objfunc, self.substrate)
 
 
@@ -120,16 +120,16 @@ class CoralPopulation:
         for i in range(amount):
             substrate_idx = self.substrate_list[i]
             new_sol = self.objfunc.random_solution()
-            fixed_sol = self.objfunc.check_bounds(new_sol)
+            fixed_sol = self.objfunc.repair_solution(new_sol)
             new_coral = Coral(fixed_sol, self.objfunc, self.substrates[substrate_idx])
             self.population.append(new_coral)
 
     
     def insert_solution(self, solution, mutate=False, strength=0.1):
-        #solution = self.objfunc.check_bounds(solution)
+        #solution = self.objfunc.repair_solution(solution)
         if mutate:
             solution = gaussian(solution, strength)
-            solution = self.objfunc.check_bounds(solution)
+            solution = self.objfunc.repair_solution(solution)
         
         if len(self.population) < self.size:
             new_ind = Coral(solution, self.objfunc)
@@ -232,7 +232,7 @@ class CoralPopulation:
                             self.substrate_data[i].append(new_coral.get_fitness())
                     else:
                         new_sol = self.objfunc.random_solution()
-                        fixed_sol = self.objfunc.check_bounds(new_sol)
+                        fixed_sol = self.objfunc.repair_solution(new_sol)
                         new_coral = Coral(fixed_sol, self.objfunc)
 
                     # Add larva to the list of larvae
@@ -253,7 +253,7 @@ class CoralPopulation:
                         self.substrate_data[s_idx].append(new_coral.get_fitness())
                 else:
                     new_sol = self.objfunc.random_solution()
-                    fixed_sol = self.objfunc.check_bounds(new_sol)
+                    fixed_sol = self.objfunc.repair_solution(new_sol)
                     new_coral = Coral(fixed_sol, self.objfunc)
 
                 # Add larva to the list of larvae
@@ -388,7 +388,7 @@ class CoralPopulation:
 
             for j in range(iterations):
                 new_solution = operator.evolve(self.population[i], [], self.objfunc)
-                new_solution = self.objfunc.check_bounds(new_solution)
+                new_solution = self.objfunc.repair_solution(new_solution)
                 new_coral = Coral(new_solution, self.objfunc, self.population[i].substrate)
                 if new_coral.get_fitness() > best.get_fitness():
                     best = new_coral
