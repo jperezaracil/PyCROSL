@@ -123,7 +123,7 @@ class TimeTest(AbsObjectiveFunc):
     def random_solution(self):
         return 4*np.random.random(self.size)-2
 
-    def check_bounds(self, solution):
+    def repair_solution(self, solution):
         return np.clip(solution, -2, 2)
 
 
