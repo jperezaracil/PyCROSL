@@ -118,7 +118,7 @@ def test_cro():
 
 def test_files():
     params = {
-        "ReefSize": 100,
+        "popSize": 100,
         "rho": 0.6,
         "Fb": 0.98,
         "Fd": 1,
@@ -148,7 +148,7 @@ def test_files():
     c.population.generate_random()
     c.save_solution()
 
-def thity_runs():
+def thirty_runs():
     DEparams = {"F":0.7, "Pr":0.8}
     substrates_real = [
         SubstrateReal("DE/rand/1", DEparams),
@@ -158,7 +158,7 @@ def thity_runs():
     ]
 
     params = {
-        "ReefSize": 100,
+        "popSize": 100,
         "rho": 0.6,
         "Fb": 0.98,
         "Fd": 1,
@@ -268,7 +268,7 @@ def test_parallelism():
         print(f"{n_jobs} jobs: {time_elapsed:.2f}s")
 
 def main():
-    #thity_runs()
+    #thirty_runs()
     test_cro()
     #test_files()
     # test_parallelism()
