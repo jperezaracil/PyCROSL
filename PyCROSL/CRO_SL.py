@@ -42,6 +42,9 @@ class CRO_SL:
         self.verbose = params["verbose"]
         self.v_timer = params["v_timer"]
 
+        # Parallelization parameters
+        self.Njobs = params["Njobs"] if "Njobs" in params else 1
+
         # Stopping conditions
         self.stop_cond = params["stop_cond"]
         self.Ngen = params["Ngen"]
@@ -82,6 +85,8 @@ class CRO_SL:
             self.population.generate_substrates(progress)
 
         larvae = self.population.evolve_with_substrates()
+
+        larvae = self.population.evaluate_fitnesses(larvae, self.Njobs)
         
         self.population.larvae_setting(larvae)
 
