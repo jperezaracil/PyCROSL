@@ -321,6 +321,19 @@ class CoralPopulation:
         # save the evaluation of each substrate
         self.substrate_history.append(np.array(self.substrate_metric))
 
+    """
+    Calculate the fitnesses for a list of corals
+    """
+    def evaluate_fitnesses(self, corals, n_jobs):
+        if n_jobs == 1 or n_jobs == -1:
+            for coral in corals:
+                coral.get_fitness()
+            return corals
+        else:
+            # Separate corals into "N_jobs" partitions of equal size
+            partitions = np.array_split(corals, n_jobs)
+            results = Parallel(n_jobs=n_jobs)(delayed(self.evaluate_fitnesses)(part, 1) for part in partitions)
+            return [c for p in results for c in p]
 
     """
     Inserts solutions into our reef with some conditions

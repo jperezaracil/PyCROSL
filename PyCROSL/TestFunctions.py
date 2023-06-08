@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 from PyCROSL.AbsObjectiveFunc import AbsObjectiveFunc
 from numba import jit
@@ -20,7 +22,6 @@ class MaxOnes(AbsObjectiveFunc):
     
     def repair_solution(self, solution):
         return (solution.copy() >= 0.5).astype(np.int32)
-        #return -(solution.copy() <= -0.5).astype(np.int32)
 
 class DiophantineEq(AbsObjectiveFunc):
     def __init__(self, size, coeff, target, opt="min"):
@@ -108,6 +109,21 @@ class Test1(AbsObjectiveFunc):
         return 4*np.random.random(self.size)-2
     
     def repair_solution(self, solution):
+        return np.clip(solution, -2, 2)
+
+class TimeTest(AbsObjectiveFunc):
+    def __init__(self, size, opt="min"):
+        self.size = size
+        super().__init__(self.size, opt)
+
+    def objective(self, solution):
+        time.sleep(0.05)
+        return sum([(2*solution[i-1] + solution[i]**2*solution[i+1]-solution[i-1])**2 for i in range(1, solution.size-1)])
+
+    def random_solution(self):
+        return 4*np.random.random(self.size)-2
+
+    def check_bounds(self, solution):
         return np.clip(solution, -2, 2)
 
 
