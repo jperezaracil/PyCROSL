@@ -95,6 +95,9 @@ class SubstrateInt(Substrate):
             result = replace(solution.solution.copy(), population, params["method"], params["F"])
         elif self.evolution_method == "Dummy":
             result = dummy_op(solution.solution.copy(), params["F"])
+        elif self.evolution_method == "Custom":
+            fn = params["function"]
+            result = fn(solution.solution.copy(), population, objfunc, params)
         else:
             print(f"Error: evolution method \"{self.evolution_method}\" not defined")
             exit(1)
