@@ -43,5 +43,5 @@ class AbsObjectiveFunc(ABC):
     @abstractmethod
     def repair_solution(self, solution):
         """
-        Returns a solution that satisfies the restrictions of the problem
+        Modifies a solution that satisfies the restrictions of the problem
         """
