@@ -20,17 +20,28 @@ class AbsObjectiveFunc(ABC):
             self.factor = -1
     
     def fitness(self, solution):
+        """
+        Returns an adjusted version of the objective functio so that the problem becomes
+        a maximization problem.
+        """
+
         self.counter += 1
         return self.factor * self.objective(solution)
     
     @abstractmethod
     def objective(self, solution):
-        pass
+        """
+        Implementation of the objective function.
+        """
     
     @abstractmethod
     def random_solution(self):
-        pass
+        """
+        Returns a random vector 
+        """
     
     @abstractmethod
     def repair_solution(self, solution):
-        pass
+        """
+        Returns a solution that satisfies the restrictions of the problem
+        """

@@ -25,15 +25,27 @@ class Coral:
         self.substrate = substrate
 
     def get_fitness(self):
+        """
+        Obtains the fitness of a coral, the funciton is calculated once
+        per individual
+        """
+
         if not self.fitness_calculated:
             self.fitness = self.objfunc.fitness(self.solution)
             self.fitness_calculated = True
         return self.fitness
     
     def set_substrate(self, substrate):
+        """
+        Assigns a substrate to the coral
+        """
         self.substrate = substrate
     
     def reproduce(self, population):
+        """
+        Generates a new coral
+        """
+
         new_solution = self.substrate.evolve(self, population, self.objfunc)
         new_solution = self.objfunc.repair_solution(new_solution)
         return Coral(new_solution, self.objfunc, self.substrate)
@@ -44,7 +56,6 @@ class CoralPopulation:
     """
     Population of corals
     """
-
     
     def __init__(self, objfunc, substrates, params, population=None):
         # Hyperparameters of the algorithm
@@ -128,7 +139,10 @@ class CoralPopulation:
 
     
     def insert_solution(self, solution, mutate=False, strength=0.1):
-        #solution = self.objfunc.repair_solution(solution)
+        """
+        Inserts an specified solution into the population as a coral.
+        """
+
         if mutate:
             solution = gaussian(solution, strength)
             solution = self.objfunc.repair_solution(solution)
@@ -142,6 +156,10 @@ class CoralPopulation:
             self.population[idx] = new_ind
     
     def get_value_from_data(self, data):
+        """
+        Obtains a metric given the recorded data of a substrate
+        """
+
         result = 0
 
         # Choose what information to extract from the data gathered
@@ -446,6 +464,10 @@ class CoralPopulation:
             self.population = list(filter(lambda c: not c.is_dead, self.population))
 
     def full_depredation(self):
+        """
+        Depredation with Pd = 1
+        """
+
         # Calculate the number of affected corals
         amount = int(len(self.population)*self.Fd)
 
@@ -461,7 +483,7 @@ class CoralPopulation:
         """
         Makes sure that we calculate the list of solution vectors only once
         """
-        
+
         if not self.updated:
             self.identifier_list = [i.solution for i in self.population]
             self.updated = True
@@ -471,7 +493,7 @@ class CoralPopulation:
         """
         Eliminates duplicate solutions from our population
         """
-        
+
         # Get a list of the vectors of each individual in the population
         self.update_identifier_list()
 
