@@ -37,11 +37,11 @@ class AbsObjectiveFunc(ABC):
     @abstractmethod
     def random_solution(self):
         """
-        Returns a random vector 
+        Returns a random vector. 
         """
     
     @abstractmethod
     def repair_solution(self, solution):
         """
-        Modifies a solution that satisfies the restrictions of the problem
+        Modifies a solution so that it satisfies the restrictions of the problem.
         """
