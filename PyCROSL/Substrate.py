@@ -1,11 +1,14 @@
 import random
-
 import numpy as np
+from abc import ABC, abstractmethod
 
-"""
-Abstract Substrate class
-"""
-class Substrate:
+
+
+class Substrate(ABC):
+    """
+    Abstract Substrate class
+    """
+
     def __init__(self, evolution_method, params):
         self.evolution_method = evolution_method
         self.params = params
@@ -21,8 +24,8 @@ class Substrate:
                 "iter":20
             }
     
-    """
-    Evolves a solution with a different strategy depending on the type of substrate
-    """
+    @abstractmethod
     def evolve(self, solution, strength, population, objfunc):
-        pass
+        """
+        Evolves a solution with a different strategy depending on the type of substrate
+        """

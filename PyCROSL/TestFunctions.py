@@ -4,11 +4,6 @@ import numpy as np
 from PyCROSL.AbsObjectiveFunc import AbsObjectiveFunc
 from numba import jit
 
-"""
-Example of objective function.
-
-Counts the number of ones in the array
-"""
 class MaxOnes(AbsObjectiveFunc):
     def __init__(self, size, opt="max"):
         self.size = size

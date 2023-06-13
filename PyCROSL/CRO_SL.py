@@ -6,31 +6,30 @@ from PyCROSL.CoralPopulation import CoralPopulation
 from matplotlib import pyplot as plt
 # import json
 
-"""
-Coral reef optimization with substrate layers
 
-Parameters:
-    popSize: maximum number of corals in the reef        [Integer,          100  recomended]
-    rho: percentage of initial ocupation of the reef     [Real from 0 to 1, 0.6  recomended]
-    Fb: broadcast spawning proportion                    [Real from 0 to 1, 0.98 recomended]
-    Fd: depredation proportion                           [Real from 0 to 1, 0.2  recomended]
-    Pd: depredation probability                          [Real from 0 to 1, 0.9  recomended]
-    k: maximum attempts for larva setting                [Integer,          4    recomended]
-    K: maximum amount of corals with duplicate solutions [Integer,          20   recomended]
-
-    group_subs: evolve only within the same substrate or with the whole population
-
-    dynamic: change the size of each substrate
-    dyn_method: which value to use for the evaluation of the substrates
-    dyn_metric: how to process the data from the substrate for the evaluation
-    dyn_steps: number of times the substrates will be evaluated
-    prob_amp: parameter that makes probabilities more or less extreme with the same data
-
-"""
 class CRO_SL:
     """
-    Constructor of the CRO algorithm
+    Coral reef optimization with substrate layers
+
+    Parameters:
+        popSize: maximum number of corals in the reef        [Integer,          100  recomended]
+        rho: percentage of initial ocupation of the reef     [Real from 0 to 1, 0.6  recomended]
+        Fb: broadcast spawning proportion                    [Real from 0 to 1, 0.98 recomended]
+        Fd: depredation proportion                           [Real from 0 to 1, 0.2  recomended]
+        Pd: depredation probability                          [Real from 0 to 1, 0.9  recomended]
+        k: maximum attempts for larva setting                [Integer,          4    recomended]
+        K: maximum amount of corals with duplicate solutions [Integer,          20   recomended]
+
+        group_subs: evolve only within the same substrate or with the whole population
+
+        dynamic: change the size of each substrate
+        dyn_method: which value to use for the evaluation of the substrates
+        dyn_metric: how to process the data from the substrate for the evaluation
+        dyn_steps: number of times the substrates will be evaluated
+        prob_amp: parameter that makes probabilities more or less extreme with the same data
+
     """
+
     def __init__(self, objfunc, substrates, params):
         self.params = params
 
@@ -65,10 +64,12 @@ class CRO_SL:
         self.time_spent = 0
         self.real_time_spent = 0
 
-    """
-    Resets the data of the CRO algorithm
-    """
+    
     def restart(self):
+        """
+        Resets the data of the CRO algorithm
+        """
+        
         self.population = CoralPopulation(self.objfunc, self.substrates, self.params)
         self.history = []
         self.pop_size = []
@@ -77,10 +78,12 @@ class CRO_SL:
         self.real_time_spent = 0
         self.objfunc.counter = 0
 
-    """
-    One step of the algorithm
-    """
+    
     def step(self, progress, depredate=True, classic=False):        
+        """
+        One step of the algorithm
+        """
+        
         if not classic:
             self.population.generate_substrates(progress)
 
@@ -97,20 +100,24 @@ class CRO_SL:
         _, best_fitness = self.population.best_solution()
         self.history.append(best_fitness)
     
-    """
-    Local search
-    """
+    
     def local_search(self, operator, n_ind, iterations=100):
+        """
+        Local search
+        """
+        
         if self.verbose:
             print(f"Starting local search, {n_ind} individuals searching {iterations} neighbours each.")
         
         self.population.local_search(operator, n_ind, iterations)
         return self.population.best_solution()
 
-    """
-    Stopping conditions given by a parameter
-    """
+    
     def stopping_condition(self, gen, time_start):
+        """
+        Stopping conditions given by a parameter
+        """
+        
         stop = True
         if self.stop_cond == "neval":
             stop = self.objfunc.counter >= self.Neval
@@ -126,10 +133,12 @@ class CRO_SL:
 
         return stop
 
-    """
-    Progress of the algorithm as a number between 0 and 1, 0 at the begining, 1 at the end
-    """
+    
     def progress(self, gen, time_start):
+        """
+        Progress of the algorithm as a number between 0 and 1, 0 at the begining, 1 at the end
+        """
+        
         prog = 0
         if self.stop_cond == "neval":
             prog = self.objfunc.counter/self.Neval
@@ -145,10 +154,12 @@ class CRO_SL:
 
         return prog
     
-    """
-    Save execution data
-    """
+    
     def save_data(self, solution_file="best_solution.csv", population_file="last_population.csv", history_file="fit_history.csv", prob_file="prob_history.csv"):
+        """
+        Save execution data
+        """
+        
         ind, fit = self.population.best_solution()
         np.savetxt(solution_file, ind.reshape([1, -1]), delimiter=',')
         
@@ -166,10 +177,12 @@ class CRO_SL:
         
 
 
-    """
-    Execute the algorithm to get the best solution possible along with it's evaluation
-    """
+    
     def optimize(self, save_data = True):
+        """
+        Execute the algorithm to get the best solution possible along with it's evaluation
+        """
+        
         gen = 0
         time_start = time.process_time()
         real_time_start = time.time()
@@ -190,10 +203,12 @@ class CRO_SL:
         self.save_data()
         return self.population.best_solution()
     
-    """
-    Execute the algorithm with early stopping
-    """
+    
     def safe_optimize(self):
+        """
+        Execute the algorithm with early stopping
+        """
+        
         result = (np.array([]), 0)
         try:
             result = self.optimize()
@@ -205,10 +220,12 @@ class CRO_SL:
         
         return result
 
-    """
-    Execute the classic version of the algorithm
-    """
+    
     def optimize_classic(self):
+        """
+        Execute the classic version of the algorithm
+        """
+        
         gen = 0
         time_start = time.process_time()
         real_time_start = time.time()
@@ -229,25 +246,31 @@ class CRO_SL:
         self.save_data()
         return self.population.best_solution()
 
-    """
-    Gets the best solution so far in the population
-    """
+    
     def best_solution(self):
+        """
+        Gets the best solution so far in the population
+        """
+        
         return self.population.best_solution()
 
-    """
-    Save the result of an execution to a csv file in disk
-    """
+    
     def save_solution(self, file_name="solution.csv"):
+        """
+        Save the result of an execution to a csv file in disk
+        """
+        
         ind, fit = self.population.best_solution()
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
         with open(file_name, "a") as file:
             file.write(str(fit))
 
-    """
-    Displays information about the current state of the algotithm
-    """
+    
     def step_info(self, gen, start_time):
+        """
+        Displays information about the current state of the algotithm
+        """
+        
         print(f"Time Spent {round(time.time() - start_time,2)}s:")
         print(f"\tGeneration: {gen}")
         best_fitness = self.population.best_solution()[1]
@@ -263,10 +286,12 @@ class CRO_SL:
                 print(f"\t\t{val}:".ljust(adjust+3, " ") + f"{weights[idx]}")
         print()
     
-    """
-    Shows a summary of the execution of the algorithm
-    """
+    
     def display_report(self, show_plots=True, save_figure=False, figure_name="fig.eps"):
+        """
+        Shows a summary of the execution of the algorithm
+        """
+        
         if save_figure:
             if not os.path.exists("figures"):
                 os.makedirs("figures")
@@ -276,10 +301,12 @@ class CRO_SL:
         else:
             self.display_report_nodyn(show_plots, save_figure, figure_name)
 
-    """
-    Version of the summary for the dynamic variant
-    """
+    
     def display_report_dyn(self, show_plots=True, save_figure=False, figure_name="fig.eps"):
+        """
+        Version of the summary for the dynamic variant
+        """
+        
         factor = 1
         if self.objfunc.opt == "min" and self.dyn_method != "success":
             factor = -1
@@ -375,10 +402,12 @@ class CRO_SL:
 
             plt.show()
 
-    """
-    Version of the summary for the dynamic variant
-    """
+    
     def display_report_nodyn(self, show_plots=True, save_figure=False, figure_name="fig.eps"):
+        """
+        Version of the summary for the dynamic variant
+        """
+        
         factor = 1
         if self.objfunc.opt == "min":
             factor = -1

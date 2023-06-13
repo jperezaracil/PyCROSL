@@ -1,11 +1,14 @@
-"""
-Abstract Fitness function class.
+from abc import ABC, abstractmethod
 
-For each problem a new class will inherit from this one
-and implement the fitness function, random solution generation,
-mutation function and crossing of solutions.
-"""
-class AbsObjectiveFunc:
+class AbsObjectiveFunc(ABC):
+    """
+    Abstract Fitness function class.
+
+    For each problem a new class will inherit from this one
+    and implement the fitness function, random solution generation,
+    mutation function and crossing of solutions.
+    """
+
     def __init__(self, input_size, opt, sup_lim = 100, inf_lim = -100):
         self.counter = 0
         self.input_size = input_size
@@ -20,11 +23,14 @@ class AbsObjectiveFunc:
         self.counter += 1
         return self.factor * self.objective(solution)
     
+    @abstractmethod
     def objective(self, solution):
         pass
     
+    @abstractmethod
     def random_solution(self):
         pass
     
+    @abstractmethod
     def repair_solution(self, solution):
         pass
