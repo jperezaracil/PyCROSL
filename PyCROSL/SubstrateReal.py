@@ -4,18 +4,22 @@ import numpy as np
 from PyCROSL.operators import *
 from PyCROSL.Substrate import *
 
-"""
-Substrate class that has continuous mutation and cross methods
-"""
+
 class SubstrateReal(Substrate):
+    """
+    Substrate class that has continuous mutation and cross methods
+    """
+
     def __init__(self, evolution_method, params = None):
         self.evolution_method = evolution_method
         super().__init__(self.evolution_method, params)
     
-    """
-    Evolves a solution with a different strategy depending on the type of operator
-    """
+    
     def evolve(self, solution, population, objfunc):        
+        """
+        Evolves a solution with a different strategy depending on the type of operator
+        """
+        
         others = [i for i in population if i != solution]
         if len(others) == 0:
             solution2 = solution

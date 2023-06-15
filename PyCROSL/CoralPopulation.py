@@ -6,14 +6,12 @@ from PyCROSL.operators import *
 from joblib import Parallel, delayed 
 
 
-"""
-Individual that holds a tentative solution with 
-its fitness.
-"""
 class Coral:
     """
-    Constructor
+    Individual that holds a tentative solution with 
+    its fitness.
     """
+
     def __init__(self, solution, objfunc, substrate=None):
         self.solution = solution
         
@@ -27,27 +25,38 @@ class Coral:
         self.substrate = substrate
 
     def get_fitness(self):
+        """
+        Obtains the fitness of a coral, the funciton is calculated once
+        per individual
+        """
+
         if not self.fitness_calculated:
             self.fitness = self.objfunc.fitness(self.solution)
             self.fitness_calculated = True
         return self.fitness
     
     def set_substrate(self, substrate):
+        """
+        Assigns a substrate to the coral
+        """
         self.substrate = substrate
     
     def reproduce(self, population):
+        """
+        Generates a new coral
+        """
+
         new_solution = self.substrate.evolve(self, population, self.objfunc)
         new_solution = self.objfunc.repair_solution(new_solution)
         return Coral(new_solution, self.objfunc, self.substrate)
 
 
-"""
-Population of corals
-"""
+
 class CoralPopulation:    
     """
-    Constructor of the Coral Population class
+    Population of corals
     """
+    
     def __init__(self, objfunc, substrates, params, population=None):
         # Hyperparameters of the algorithm
         self.size = params["popSize"]
@@ -101,20 +110,24 @@ class CoralPopulation:
         self.updated = False
         self.identifier_list = []
 
-    """
-    Gives the best solution found by the algorithm and its fitness
-    """
+    
     def best_solution(self):
+        """
+        Gives the best solution found by the algorithm and its fitness
+        """
+
         best_solution = sorted(self.population, reverse=True, key = lambda c: c.get_fitness())[0]
         best_fitness = best_solution.get_fitness()
         if self.objfunc.opt == "min":
             best_fitness *= -1
         return (best_solution.solution, best_fitness)
 
-    """
-    Generates a random population of corals
-    """
+    
     def generate_random(self):
+        """
+        Generates a random population of corals
+        """
+
         amount = int(self.size*self.rho) - len(self.population)
 
         for i in range(amount):
@@ -126,7 +139,10 @@ class CoralPopulation:
 
     
     def insert_solution(self, solution, mutate=False, strength=0.1):
-        #solution = self.objfunc.repair_solution(solution)
+        """
+        Inserts an specified solution into the population as a coral.
+        """
+
         if mutate:
             solution = gaussian(solution, strength)
             solution = self.objfunc.repair_solution(solution)
@@ -140,6 +156,10 @@ class CoralPopulation:
             self.population[idx] = new_ind
     
     def get_value_from_data(self, data):
+        """
+        Obtains a metric given the recorded data of a substrate
+        """
+
         result = 0
 
         # Choose what information to extract from the data gathered
@@ -159,10 +179,12 @@ class CoralPopulation:
         
         return result
 
-    """
-    Evaluates the substrates using a given metric
-    """
+    
     def evaluate_substrates(self):
+        """
+        Evaluates the substrates using a given metric
+        """
+
         metric = 0
         
         # take reference data for the calculation of the difference of the next evaluation
@@ -201,10 +223,12 @@ class CoralPopulation:
         
         
 
-    """
-    Evolves the population using the corresponding substrates
-    """
+    
     def evolve_with_substrates(self):
+        """
+        Evolves the population using the corresponding substrates
+        """
+
         larvae = []
 
         # evolve within the substrate or mix with the whole population
@@ -261,10 +285,12 @@ class CoralPopulation:
         
         return larvae
 
-    """
-    Converts the evaluation values of the substrates to a probability distribution
-    """
+    
     def substrate_probability(self, values):
+        """
+        Converts the evaluation values of the substrates to a probability distribution
+        """
+
 
         # Normalization to avoid passing big values to softmax 
         weight = np.array(values)
@@ -294,10 +320,12 @@ class CoralPopulation:
         return prob
 
 
-    """
-    Generates the assignment of the substrates
-    """
+    
     def generate_substrates(self, progress=0):
+        """
+        Generates the assignment of the substrates
+        """
+
         n_substrates = len(self.substrates)
 
         if progress > self.subs_steps/self.dyn_steps:
@@ -321,10 +349,12 @@ class CoralPopulation:
         # save the evaluation of each substrate
         self.substrate_history.append(np.array(self.substrate_metric))
 
-    """
-    Calculate the fitnesses for a list of corals
-    """
+    
     def evaluate_fitnesses(self, corals, n_jobs):
+        """
+        Calculate the fitnesses for a list of corals
+        """
+
         if n_jobs == 1 or n_jobs == -1:
             for coral in corals:
                 coral.get_fitness()
@@ -335,10 +365,12 @@ class CoralPopulation:
             results = Parallel(n_jobs=n_jobs)(delayed(self.evaluate_fitnesses)(part, 1) for part in partitions)
             return [c for p in results for c in p]
 
-    """
-    Inserts solutions into our reef with some conditions
-    """
+    
     def larvae_setting(self, larvae_list):
+        """
+        Inserts solutions into our reef with some conditions
+        """
+
         s_names = [i.evolution_method for i in self.substrates]
 
         for larva in larvae_list:
@@ -376,10 +408,12 @@ class CoralPopulation:
                 substrate_idx = self.substrate_list[idx]
                 larva.set_substrate(self.substrates[substrate_idx])
     
-    """
-    Performs a local search with the best "n_ind" corals
-    """
+    
     def local_search(self, operator, n_ind, iterations=100):
+        """
+        Performs a local search with the best "n_ind" corals
+        """
+
         fitness_values = np.array([coral.get_fitness() for coral in self.population])
         affected_corals = list(np.argsort(fitness_values))[len(self.population)-n_ind:]
         
@@ -395,10 +429,12 @@ class CoralPopulation:
             
             self.population[i] = best
 
-    """
-    Removes a portion of the worst solutions in our population
-    """
+    
     def depredation(self):
+        """
+        Removes a portion of the worst solutions in our population
+        """
+
         if self.Pd == 1:
             self.full_depredation()
         else:
@@ -428,6 +464,10 @@ class CoralPopulation:
             self.population = list(filter(lambda c: not c.is_dead, self.population))
 
     def full_depredation(self):
+        """
+        Depredation with Pd = 1
+        """
+
         # Calculate the number of affected corals
         amount = int(len(self.population)*self.Fd)
 
@@ -438,18 +478,22 @@ class CoralPopulation:
         # Remove all the individuals chosen
         self.population = [self.population[i] for i in range(len(self.population)) if i not in affected_corals] 
 
-    """
-    Makes sure that we calculate the list of solution vectors only once
-    """
+    
     def update_identifier_list(self):
+        """
+        Makes sure that we calculate the list of solution vectors only once
+        """
+
         if not self.updated:
             self.identifier_list = [i.solution for i in self.population]
             self.updated = True
 
-    """
-    Eliminates duplicate solutions from our population
-    """
+    
     def extreme_depredation(self, tol=0):
+        """
+        Eliminates duplicate solutions from our population
+        """
+
         # Get a list of the vectors of each individual in the population
         self.update_identifier_list()
 

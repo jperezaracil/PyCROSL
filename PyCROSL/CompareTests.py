@@ -2,10 +2,6 @@ import numpy as np
 from PyCROSL.AbsObjectiveFunc import AbsObjectiveFunc
 from numba import jit
 
-"""
-Example of objective function.
-"""
-
 class Sphere(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size

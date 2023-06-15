@@ -4,18 +4,21 @@ import numpy as np
 from PyCROSL.operators import *
 from PyCROSL.Substrate import *
 
-"""
-Substrate class that has discrete mutation and cross methods
-"""
+
 class SubstrateInt(Substrate):
+    """
+    Substrate class that has discrete mutation and cross methods
+    """
+
     def __init__(self, evolution_method, params = None):
         self.evolution_method = evolution_method
         super().__init__(self.evolution_method, params)
     
-    """
-    Applies a mutation method depending on the type of operator
-    """
     def evolve(self, solution, population, objfunc):
+        """
+        Applies a mutation method depending on the type of operator
+        """
+
         others = [i for i in population if i != solution]
         if len(others) == 0:
             solution2 = solution
