@@ -229,7 +229,7 @@ class CRO_SL:
         return result
 
     
-    def optimize_classic(self):
+    def optimize_classic(self, save_data = True, update_data = True):
         """
         Execute the classic version of the algorithm
         """
@@ -248,10 +248,14 @@ class CRO_SL:
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
                 display_timer = time.time()
+            
+            if update_data:
+                self.save_data()
                 
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
-        self.save_data()
+        if save_data:
+            self.save_data()
         return self.population.best_solution()
 
     
