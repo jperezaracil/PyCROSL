@@ -121,9 +121,9 @@ class CRO_SL:
         """
         
         stop = True
-        if self.stop_cond == "neval":
+        if self.stop_cond == "Neval":
             stop = self.objfunc.counter >= self.Neval
-        elif self.stop_cond == "ngen":
+        elif self.stop_cond == "Ngen":
             stop = gen >= self.Ngen
         elif self.stop_cond == "time":
             stop = time.time()-time_start >= self.time_limit
