@@ -282,8 +282,9 @@ class CRO_SL:
         """
         Displays information about the current state of the algotithm
         """
-        
-        print(f"Time Spent {round(time.time() - start_time,2)}s:")
+
+        print(f"Optimizing {self.objfunc.name}:")
+        print(f"\tTime Spent: {round(time.time() - start_time,2)}s")
         print(f"\tGeneration: {gen}")
         best_fitness = self.population.best_solution()[1]
         print(f"\tBest fitness: {best_fitness}")
@@ -324,6 +325,7 @@ class CRO_SL:
             factor = -1
 
         # Print Info
+        print(f"Finished optimizing {self.objfunc.name}")
         print("Number of generations:", len(self.history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")
@@ -425,6 +427,7 @@ class CRO_SL:
             factor = -1
 
         # Print Info
+        print(f"Finished optimizing {self.objfunc.name}")
         print("Number of generations:", len(self.history))
         print("Real time spent: ", round(self.real_time_spent, 5), "s", sep="")
         print("CPU time spent: ", round(self.time_spent, 5), "s", sep="")

@@ -95,7 +95,7 @@ class Rastrigin(AbsObjectiveFunc):
 class Test1(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Test function")
 
     def objective(self, solution):
         return sum([(2*solution[i-1] + solution[i]**2*solution[i+1]-solution[i-1])**2 for i in range(1, solution.size-1)])
@@ -109,7 +109,7 @@ class Test1(AbsObjectiveFunc):
 class TimeTest(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Test function with delay")
 
     def objective(self, solution):
         time.sleep(0.05)
