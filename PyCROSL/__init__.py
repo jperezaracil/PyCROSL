@@ -4,3 +4,5 @@ from .AbsObjectiveFunc import AbsObjectiveFunc
 from .Substrate import Substrate
 from .SubstrateReal import SubstrateReal
 from .SubstrateInt import SubstrateInt
+
+__version__ = "0.1.0" 

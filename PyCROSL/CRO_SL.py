@@ -142,9 +142,9 @@ class CRO_SL:
         """
         
         prog = 0
-        if self.stop_cond == "neval":
+        if self.stop_cond == "Neval":
             prog = self.objfunc.counter/self.Neval
-        elif self.stop_cond == "ngen":
+        elif self.stop_cond == "Ngen":
             prog = gen/self.Ngen 
         elif self.stop_cond == "time":
             prog = (time.time()-time_start)/self.time_limit
