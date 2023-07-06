@@ -9,7 +9,7 @@ class AbsObjectiveFunc(ABC):
     mutation function and crossing of solutions.
     """
 
-    def __init__(self, input_size, opt, sup_lim = 100, inf_lim = -100):
+    def __init__(self, input_size, opt, sup_lim = 100, inf_lim = -100, name = "Some Function"):
         self.counter = 0
         self.input_size = input_size
         self.factor = 1
@@ -18,6 +18,7 @@ class AbsObjectiveFunc(ABC):
         self.inf_lim = inf_lim
         if self.opt == "min":
             self.factor = -1
+        self.name = name
     
     def fitness(self, solution):
         """

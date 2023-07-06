@@ -5,7 +5,7 @@ from numba import jit
 class Sphere(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Sphere")
 
     def objective(self, solution):
         return sphere(solution)
@@ -19,7 +19,7 @@ class Sphere(AbsObjectiveFunc):
 class HighCondElliptic(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="HighCondElliptic")
 
     def objective(self, solution):
         return high_cond_elipt_f(solution)
@@ -33,7 +33,7 @@ class HighCondElliptic(AbsObjectiveFunc):
 class BentCigar(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="BentCigar")
 
     def objective(self, solution):
         return bent_cigar(solution)
@@ -47,7 +47,7 @@ class BentCigar(AbsObjectiveFunc):
 class Discus(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Discus")
 
     def objective(self, solution):
         return discus(solution)
@@ -61,7 +61,7 @@ class Discus(AbsObjectiveFunc):
 class Rosenbrock(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Rosenbrock")
 
     def objective(self, solution):
         return rosenbrock(solution)
@@ -75,7 +75,7 @@ class Rosenbrock(AbsObjectiveFunc):
 class Ackley(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Ackley")
 
     def objective(self, solution):
         return ackley(solution)
@@ -89,7 +89,7 @@ class Ackley(AbsObjectiveFunc):
 class Weierstrass(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Weierstrass")
 
     def objective(self, solution):
         return weierstrass(solution)
@@ -103,7 +103,7 @@ class Weierstrass(AbsObjectiveFunc):
 class Griewank(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Griewank")
 
     def objective(self, solution):
         return griewank(solution)
@@ -117,7 +117,7 @@ class Griewank(AbsObjectiveFunc):
 class Rastrigin(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="Rastrigin")
 
     def objective(self, solution):
         return rastrigin(solution)
@@ -131,7 +131,7 @@ class Rastrigin(AbsObjectiveFunc):
 class ModSchwefel(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="ModSchwefel")
 
     def objective(self, solution):
         return mod_schwefel(solution)
@@ -143,7 +143,7 @@ class ModSchwefel(AbsObjectiveFunc):
         return np.clip(solution, -100, 100)
 
 class Katsuura(AbsObjectiveFunc):
-    def __init__(self, size, opt="min"):
+    def __init__(self, size, opt="min", name="Katsuura"):
         self.size = size
         super().__init__(self.size, opt)
 
@@ -157,7 +157,7 @@ class Katsuura(AbsObjectiveFunc):
         return np.clip(solution, -100, 100)
 
 class HappyCat(AbsObjectiveFunc):
-    def __init__(self, size, opt="min"):
+    def __init__(self, size, opt="min", name="HappyCat"):
         self.size = size
         super().__init__(self.size, opt)
 
@@ -173,7 +173,7 @@ class HappyCat(AbsObjectiveFunc):
 class HGBat(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="HGBat")
 
     def objective(self, solution):
         return hgbat(solution)
@@ -187,7 +187,7 @@ class HGBat(AbsObjectiveFunc):
 class ExpandedGriewankPlusRosenbrock(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="ExpandedGriewankPlusRosenbrock")
 
     def objective(self, solution):
         return exp_griewank_plus_rosenbrock(solution)
@@ -201,7 +201,7 @@ class ExpandedGriewankPlusRosenbrock(AbsObjectiveFunc):
 class ExpandedShafferF6(AbsObjectiveFunc):
     def __init__(self, size, opt="min"):
         self.size = size
-        super().__init__(self.size, opt)
+        super().__init__(self.size, opt, name="ExpandedShafferF6")
 
     def objective(self, solution):
         return exp_shafferF6(solution)
