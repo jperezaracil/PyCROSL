@@ -117,6 +117,61 @@ def test_cro():
     print(ind)
     c.display_report()
 
+def test_multi_cond():
+    substrates_real = [
+        SubstrateReal("1point"),
+        SubstrateReal("Gauss", {"F":0.001}),
+    ]
+
+    params = {
+        "popSize": 500,
+        "rho": 0.6,
+        "Fb": 0.98,
+        "Fd": 0.2,
+        "Pd": 0.8,
+        "k": 3,
+        "K": 20,
+        "group_subs": True,
+
+        "stop_cond": "time_limit or Ngen or Neval or fit_target",
+        "time_limit": 9999,
+        "Ngen": 9999,
+        "Neval": 9999999,
+        "fit_target": 0,
+
+        "verbose": False,
+        "v_timer": 1,
+        "Njobs": 1,
+
+        "dynamic": True,
+        "dyn_method": "success",
+        "dyn_metric": "avg",
+        "dyn_steps": 10,
+        "prob_amp": 0.01
+    }
+
+    # Testing three conditions: Ngen or fit_target or time_limit
+    objfunc = Rastrigin(2)
+
+    stopping_values = {"time_limit": 3, "Ngen": 200, "Neval": 1000, "fit_target": 0.1}
+    for criterion_name, criterion_val in stopping_values.items():
+        params_ = params.copy()
+        params_[criterion_name] = criterion_val
+
+        print('-'*50)
+        print(f"Should stop with '{criterion_name}' reaching {criterion_val}")
+        print('-'*50)
+
+        c = CRO_SL(objfunc, substrates_real, params_)
+        c.restart()
+        _, fit = c.optimize()
+
+        print(f"Generations: {len(c.history)}")
+        print(f"Time spent: {round(c.real_time_spent, 3)}s")
+        print(f"Best fitness: {fit}")
+        print(f"Fitness evaluations: {c.objfunc.counter}")
+
+
 def test_files():
     params = {
         "popSize": 100,
@@ -270,9 +325,10 @@ def test_parallelism():
 
 def main():
     #thirty_runs()
-    test_cro()
+    #test_cro()
+    test_multi_cond()
     #test_files()
-    # test_parallelism()
+    #test_parallelism()
 
 if __name__ == "__main__":
     main()
