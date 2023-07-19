@@ -58,26 +58,25 @@ class CoralPopulation:
     """
     
     def __init__(self, objfunc, substrates, params, population=None):
-        # Hyperparameters of the algorithm
-        self.size = params["popSize"]
-        self.rho = params["rho"]
-        self.Fb = params["Fb"]
-        self.Fd = params["Fd"]
-        self.Pd = params["Pd"]
-        self.k = params["k"]
-        self.K = params["K"]
-        self.group_subs = params["group_subs"]
+        self.size = params["popSize"] if "popSize" in params else 100
+        self.rho = params["rho"] if "rho" in params else 0.6
+        self.Fb = params["Fb"] if "Fb" in params else 0.98
+        self.Fd = params["Fd"] if "Fd" in params else 0.2
+        self.Pd = params["Pd"] if "Pd" in params else 0.9
+        self.k = params["k"] if "k" in params else 4
+        self.K = params["K"] if "K" in params else 20
+        self.group_subs = params["group_subs"] if "group_subs" in params else True
 
         # Dynamic parameters
-        self.dynamic = params["dynamic"]
-        self.dyn_method = params["dyn_method"]
-        self.dyn_metric = params["dyn_metric"]
-        self.dyn_steps = params["dyn_steps"]
-        self.prob_amp = params["prob_amp"]
+        self.dynamic = params["dynamic"] if "dynamic" in params else True
+        self.dyn_method = params["dyn_method"] if "dyn_method" in params else "fitness"
+        self.dyn_metric = params["dyn_metric"] if "dyn_metric" in params else "fitness"
+        self.dyn_steps = params["dyn_steps"] if "dyn_steps" in params else 100
+        self.prob_amp = params["prob_amp"] if "prob_amp" in params else 0.1
 
         # Verbose parameters
-        self.verbose = params["verbose"]
-        self.v_timer = params["v_timer"]
+        self.verbose = params["verbose"] if "verbose" in params else True
+        self.v_timer = params["v_timer"] if "v_timer" in params else 1
 
         # Data structures of the algorithm
         self.objfunc = objfunc
