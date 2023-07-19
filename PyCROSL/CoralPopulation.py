@@ -58,26 +58,25 @@ class CoralPopulation:
     """
     
     def __init__(self, objfunc, substrates, params, population=None):
-        # Hyperparameters of the algorithm
-        self.size = params["popSize"]
-        self.rho = params["rho"]
-        self.Fb = params["Fb"]
-        self.Fd = params["Fd"]
-        self.Pd = params["Pd"]
-        self.k = params["k"]
-        self.K = params["K"]
-        self.group_subs = params["group_subs"]
+        self.size = params.get("popSize", 100)
+        self.rho = params.get("rho", 0.6)
+        self.Fb = params.get("Fb", 0.98)
+        self.Fd = params.get("Fd", 0.2)
+        self.Pd = params.get("Pd", 0.9)
+        self.k = params.get("k", 4)
+        self.K = params.get("K", 20)
+        self.group_subs = params.get("group_subs", True)
 
         # Dynamic parameters
-        self.dynamic = params["dynamic"]
-        self.dyn_method = params["dyn_method"]
-        self.dyn_metric = params["dyn_metric"]
-        self.dyn_steps = params["dyn_steps"]
-        self.prob_amp = params["prob_amp"]
+        self.dynamic = params.get("dynamic", True)
+        self.dyn_method = params.get("dyn_method", "fitness")
+        self.dyn_metric = params.get("dyn_metric", "fitness")
+        self.dyn_steps = params.get("dyn_steps", 100)
+        self.prob_amp = params.get("prob_amp", 0.1)
 
         # Verbose parameters
-        self.verbose = params["verbose"]
-        self.v_timer = params["v_timer"]
+        self.verbose = params.get("verbose", True)
+        self.v_timer = params.get("v_timer", 1)
 
         # Data structures of the algorithm
         self.objfunc = objfunc
