@@ -81,7 +81,7 @@ def test_cro():
         "K": 20,
         "group_subs": True,
 
-        "stop_cond": "ngen",
+        "stop_cond": "Ngen or Neval",
         "time_limit": 4000.0,
         "Ngen": 200,
         "Neval": 10e5,
@@ -112,6 +112,7 @@ def test_cro():
     c.display_report()
 
     c = CRO_SL(objfunc, substrates_int, params)
+    c.restart() # reset the objective function counter
     ind, fit = c.optimize()
     print(ind)
     c.display_report()
@@ -127,7 +128,7 @@ def test_files():
         "K": 20,
         "group_subs": False,
 
-        "stop_cond": "neval",
+        "stop_cond": "Neval",
         "time_limit": 4000.0,
         "Ngen": 3500,
         "Neval": 1e5,
@@ -240,7 +241,7 @@ def test_parallelism():
             "K": 20,
             "group_subs": True,
 
-            "stop_cond": "ngen",
+            "stop_cond": "Ngen",
             "time_limit": 4000.0,
             "Ngen": 20,
             "Neval": 10e5,

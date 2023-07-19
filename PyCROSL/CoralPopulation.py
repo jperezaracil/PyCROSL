@@ -1,7 +1,7 @@
 import random
 
 import numpy as np
-from numba import jit
+# from numba import jit
 from PyCROSL.operators import *
 from joblib import Parallel, delayed 
 
