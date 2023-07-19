@@ -515,7 +515,7 @@ def parse_stopping_cond(condition_str):
 
 def process_condition(cond_parsed, neval, ngen, real_time, target):
     """
-    This function recieves as an input an expression for the stopping condition
+    This function receives as an input an expression for the stopping condition
     and the truth variable of the possible stopping conditions and returns wether to stop or not.
     """
 
@@ -549,7 +549,7 @@ def process_condition(cond_parsed, neval, ngen, real_time, target):
 
 def process_progress(cond_parsed, neval, ngen, real_time, target):
     """
-    This function recieves as an input an expression for the stopping condition 
+    This function receives as an input an expression for the stopping condition 
     and the truth variable of the possible stopping conditions and returns wether to stop or not. 
     """
     result = None
