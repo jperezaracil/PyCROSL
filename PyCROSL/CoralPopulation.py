@@ -58,25 +58,25 @@ class CoralPopulation:
     """
     
     def __init__(self, objfunc, substrates, params, population=None):
-        self.size = params["popSize"] if "popSize" in params else 100
-        self.rho = params["rho"] if "rho" in params else 0.6
-        self.Fb = params["Fb"] if "Fb" in params else 0.98
-        self.Fd = params["Fd"] if "Fd" in params else 0.2
-        self.Pd = params["Pd"] if "Pd" in params else 0.9
-        self.k = params["k"] if "k" in params else 4
-        self.K = params["K"] if "K" in params else 20
-        self.group_subs = params["group_subs"] if "group_subs" in params else True
+        self.size = params.get("popSize", 100)
+        self.rho = params.get("rho", 0.6)
+        self.Fb = params.get("Fb", 0.98)
+        self.Fd = params.get("Fd", 0.2)
+        self.Pd = params.get("Pd", 0.9)
+        self.k = params.get("k", 4)
+        self.K = params.get("K", 20)
+        self.group_subs = params.get("group_subs", True)
 
         # Dynamic parameters
-        self.dynamic = params["dynamic"] if "dynamic" in params else True
-        self.dyn_method = params["dyn_method"] if "dyn_method" in params else "fitness"
-        self.dyn_metric = params["dyn_metric"] if "dyn_metric" in params else "fitness"
-        self.dyn_steps = params["dyn_steps"] if "dyn_steps" in params else 100
-        self.prob_amp = params["prob_amp"] if "prob_amp" in params else 0.1
+        self.dynamic = params.get("dynamic", True)
+        self.dyn_method = params.get("dyn_method", "fitness")
+        self.dyn_metric = params.get("dyn_metric", "fitness")
+        self.dyn_steps = params.get("dyn_steps", 100)
+        self.prob_amp = params.get("prob_amp", 0.1)
 
         # Verbose parameters
-        self.verbose = params["verbose"] if "verbose" in params else True
-        self.v_timer = params["v_timer"] if "v_timer" in params else 1
+        self.verbose = params.get("verbose", True)
+        self.v_timer = params.get("v_timer", 1)
 
         # Data structures of the algorithm
         self.objfunc = objfunc

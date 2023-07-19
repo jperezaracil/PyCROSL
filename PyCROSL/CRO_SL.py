@@ -36,24 +36,24 @@ class CRO_SL:
         self.params = params
 
         # Dynamic parameters
-        self.dynamic = params["dynamic"] if "dynamic" in params else True
-        self.dyn_method = params["dyn_method"] if "dyn_method" in params else "fitness"
+        self.dynamic = params.get("dynamic", True) 
+        self.dyn_method = params.get("dyn_method", "fitness")
 
         # Verbose parameters
-        self.verbose = params["verbose"] if "verbose" in params else True
-        self.v_timer = params["v_timer"] if "v_timer" in params else 1
+        self.verbose = params.get("verbose", True) 
+        self.v_timer = params.get("v_timer", 1) 
 
         # Parallelization parameters
-        self.Njobs = params["Njobs"] if "Njobs" in params else 1
+        self.Njobs = params.get("Njobs", 1) 
 
         # Stopping conditions
-        self.stop_cond = params["stop_cond"] if "stop_cond" in params else "time_limit"
+        self.stop_cond = params.get("stop_cond", "time_limit")
         self.stop_cond_parsed = parse_stopping_cond(self.stop_cond)
 
-        self.Ngen = params["Ngen"] if "Ngen" in params else 100
-        self.Neval = params["Neval"] if "Neval" in params else 1e5
-        self.time_limit = params["time_limit"] if "time_limit" in params else 100
-        self.fit_target = params["fit_target"] if "fit_target" in params else 0
+        self.Ngen = params.get("Ngen", 100) 
+        self.Neval = params.get("Neval", 1e5) 
+        self.time_limit = params.get("time_limit", 100) 
+        self.fit_target = params.get("fit_target", 0) 
 
         # Data structures of the algorithm
         self.objfunc = objfunc
