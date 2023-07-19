@@ -13,6 +13,8 @@ Among its features, we highlight:
 - *Automatic report*: the implementation produces a graphical report at the end of each simulation, summarizing the behavior of the most important metrics.  
 - *Dynamic variant*: the algorithm has a dynamic variant, which allows it to reward the operators that perform better in the current problem.
 
+For an explanation of how the CRO-SL algorithm works, we refer to [the paper](https://www.mdpi.com/2227-7390/11/7/1666).
+
 ## How to install
 
 We recommend installing the project as a package. To do so, use the following commands:
