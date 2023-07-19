@@ -1,4 +1,4 @@
-# CRO-SL
+# PyCRO-SL
 
 ## About
 
