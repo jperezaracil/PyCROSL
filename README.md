@@ -31,7 +31,6 @@ Then, you can import the algorithm as a package, for example
 ```
 from PyCROSL.CRO_SL import CRO_SL
 ```
-
 ## How to use it
 
 To use PyCRO-SL in your own optimization problems, take a look at our [tutorial](/Tutorials/guide.ipynb).
@@ -63,18 +62,19 @@ This dictionary contains the following parameters:
         - `"worse"`: takes the worse fitness
     - `dyn_steps`: specifies the number of times the substrates will be evaluated. If `dyn_steps = -1`, the substrates will be evaluated every generation. 
     - `prob_amp`: float that determines how the differences between substrate metrics affect the probability of each one. A lower value means more amplification
-- Stopping conditions:
-    - `stop_cond`: determines when to stop the algorithm. Must be filled with an expression that combines the different stopping criteria, e.g.: `Ngen`, `Ngen or time_limit`, `time_limit and fit_target`.
+- Stopping conditions (you only need to include the ones that will be used!):
     - `Neval`: number of evaluations of the fitness function
     - `Ngen`: number of generations
     - `time_limit`: execution time limit given in seconds (real time, not CPU time)
     - `fit_target`: value of the fitness function we want to reach
-    Note that each one of the four parameters must be filled, even if they aren't included in the stopping condition.
+    - `stop_cond`: a string that determines the stopping condition. It can be simply the name of the criterion to be used (e.g. `Ngen`, `Neval`, etc), or also a logical expression that combines these different criteria (e.g. `Ngen or Neval`, `time_limit and fit_target`, etc). Must be included even if only a single criterion is used.
 - Parallelization:
     - `Njobs`: the number of jobs to run in parallel. If `Njobs = 1`, the algorithm will run in sequential mode.
 - Display options:
     - `verbose`: shows a periodic report of the algorithm's performance
     - `v_timer`: amount of time between each report
+
+For examples of how to fill the parameters dictionary, please take a look at [main.py](/PyCROSL/main.py).
 
 # Cite
 
