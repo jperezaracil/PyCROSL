@@ -332,7 +332,9 @@ class CoralPopulation:
         else:
             # Separate corals into "N_jobs" partitions of equal size
             partitions = np.array_split(corals, n_jobs)
+            n_corals_to_evaluate = len([c for c in corals if not c.fitness_calculated])
             results = Parallel(n_jobs=n_jobs)(delayed(self.evaluate_fitnesses)(part, 1) for part in partitions)
+            self.objfunc.counter += n_corals_to_evaluate
             return [c for p in results for c in p]
 
     """
