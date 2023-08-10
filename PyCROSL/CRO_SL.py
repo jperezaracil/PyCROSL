@@ -177,9 +177,6 @@ class CRO_SL:
         if self.dynamic:
             prob_data = np.array(self.population.substrate_w_history)
             np.savetxt(prob_file, prob_data, delimiter=',')
-
-        # with open(file_name, "a") as file:
-        #     file.write(str(fit))
         
 
 
@@ -189,20 +186,30 @@ class CRO_SL:
         Execute the algorithm to get the best solution possible along with it's evaluation
         """
         
+        if self.verbose:
+            self.init_info()
+
         gen = 0
         time_start = time.process_time()
         real_time_start = time.time()
         display_timer = time.time()
 
         self.population.generate_random()
+
+        if self.verbose:
+            self.step_info(gen, real_time_start)
+            display_timer = time.time()
+
         self.step(0, depredate=False)
         while not self.stopping_condition(gen, real_time_start):
-            prog = self.progress(gen, real_time_start)
-            self.step(prog, depredate=True)
-            gen += 1
+            
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
                 display_timer = time.time()
+            
+            prog = self.progress(gen, real_time_start)
+            self.step(prog, depredate=True)
+            gen += 1
             
             if update_data:
                 self.save_data()
@@ -235,6 +242,9 @@ class CRO_SL:
         """
         Execute the classic version of the algorithm
         """
+
+        if self.verbose:
+            self.init_info()
         
         gen = 0
         time_start = time.process_time()
@@ -242,7 +252,15 @@ class CRO_SL:
         display_timer = time.time()
 
         self.population.generate_random()
+
+        if self.verbose:
+            self.step_info(gen, real_time_start)
+        
         self.step(0, depredate=False)
+
+        if self.verbose:
+            self.step_info(gen, real_time_start)
+
         while not self.stopping_condition(gen, real_time_start):
             prog = self.progress(gen, real_time_start)
             self.step(prog, depredate=True, classic=True)
@@ -278,6 +296,12 @@ class CRO_SL:
         np.savetxt(file_name, ind.reshape([1, -1]), delimiter=',')
         with open(file_name, "a") as file:
             file.write(str(fit))
+
+    
+    def init_info(self):
+        print(f"Starting optimization of {self.objfunc.name}")
+        print(f"-------------------------{'-'*len(self.objfunc.name)}")
+        print()
 
     
     def step_info(self, gen, start_time):
