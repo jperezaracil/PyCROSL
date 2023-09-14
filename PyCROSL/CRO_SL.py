@@ -177,15 +177,13 @@ class CRO_SL:
         if self.dynamic:
             prob_data = np.array(self.population.substrate_w_history)
             np.savetxt(prob_file, prob_data, delimiter=',')
-        
 
 
-    
     def optimize(self, save_data = True, update_data = True):
         """
         Execute the algorithm to get the best solution possible along with it's evaluation
         """
-        
+
         if self.verbose:
             self.init_info()
 
@@ -197,35 +195,34 @@ class CRO_SL:
         self.population.generate_random()
 
         if self.verbose:
+            self.population.evaluate_fitnesses(self.population.population, self.Njobs)
             self.step_info(gen, real_time_start)
-            display_timer = time.time()
 
         self.step(0, depredate=False)
         while not self.stopping_condition(gen, real_time_start):
-            
-            if self.verbose and time.time() - display_timer > self.v_timer:
-                self.step_info(gen, real_time_start)
-                display_timer = time.time()
-            
             prog = self.progress(gen, real_time_start)
             self.step(prog, depredate=True)
             gen += 1
-            
+
+            if self.verbose and time.time() - display_timer > self.v_timer:
+                self.step_info(gen, real_time_start)
+                display_timer = time.time()
+
             if update_data:
                 self.save_data()
-                
+
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
         if save_data:
             self.save_data()
         return self.population.best_solution()
-    
-    
+
+
     def safe_optimize(self):
         """
         Execute the algorithm with early stopping
         """
-        
+
         result = (np.array([]), 0)
         try:
             result = self.optimize()
@@ -234,7 +231,7 @@ class CRO_SL:
             self.save_solution(file_name="stopped.csv")
             self.display_report(show_plots=False, save_figure=True, figure_name="stopped.eps")
             exit(1)
-        
+
         return result
 
     
@@ -245,7 +242,7 @@ class CRO_SL:
 
         if self.verbose:
             self.init_info()
-        
+
         gen = 0
         time_start = time.process_time()
         real_time_start = time.time()
@@ -254,8 +251,9 @@ class CRO_SL:
         self.population.generate_random()
 
         if self.verbose:
+            self.population.evaluate_fitnesses(self.population.population, self.Njobs)
             self.step_info(gen, real_time_start)
-        
+
         self.step(0, depredate=False)
 
         if self.verbose:
@@ -265,13 +263,14 @@ class CRO_SL:
             prog = self.progress(gen, real_time_start)
             self.step(prog, depredate=True, classic=True)
             gen += 1
+
             if self.verbose and time.time() - display_timer > self.v_timer:
                 self.step_info(gen, real_time_start)
                 display_timer = time.time()
-            
+
             if update_data:
                 self.save_data()
-                
+
         self.real_time_spent = time.time() - real_time_start
         self.time_spent = time.process_time() - time_start
         if save_data:
