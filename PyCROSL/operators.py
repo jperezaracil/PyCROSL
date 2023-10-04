@@ -48,18 +48,29 @@ def mutate_noise(vector, params):
     method = params["method"]
     n = round(params["N"])
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
-
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     np.random.shuffle(mask_pos)
 
-    rand_vec = sampleDistribution(method, n, 0, strength, low, up)
+    low = params.get("Low", -1)
+    if isinstance(low, np.ndarray) and low.size == vector.size:
+        low = low[mask_pos]
+
+    up = params.get("Up", 1)
+    if isinstance(up, np.ndarray) and up.size == vector.size:
+        up = up[mask_pos]
+    
+    strength = params.get("F", 1)
+    if isinstance(strength, np.ndarray) and strength.size == vector.size:
+        strength = strength[mask_pos]
+
+    avg = params.get("Avg", 0)
+    if isinstance(avg, np.ndarray) and avg.size == vector.size:
+        avg = avg[mask_pos]
+
+    rand_vec = sampleDistribution(method, n, avg, strength, low, up)
 
     vector[mask_pos] = vector[mask_pos] + rand_vec
     return vector
-
 
 def mutate_sample(vector, population, params):
     """
@@ -69,21 +80,29 @@ def mutate_sample(vector, population, params):
     method = params["method"]
     n = round(params["N"])
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
-
     mask_pos = np.hstack([np.ones(n), np.zeros(vector.size - n)]).astype(bool)
     np.random.shuffle(mask_pos)
+
+    low = params.get("Low", -1)
+    if isinstance(low, np.ndarray) and low.size == vector.size:
+        low = low[mask_pos]
+
+    up = params.get("Up", 1)
+    if isinstance(up, np.ndarray) and up.size == vector.size:
+        up = up[mask_pos]
+    
+    strength = params.get("F", 1)
+    if isinstance(strength, np.ndarray) and strength.size == vector.size:
+        strength = strength[mask_pos]
+    
     popul_matrix = np.vstack([i.solution for i in population])
     mean = popul_matrix.mean(axis=0)[mask_pos]
-    std = (popul_matrix.std(axis=0)[mask_pos] + 1e-6) * strength  # ensure there will be some standard deviation
+    std = np.maximum(popul_matrix.std(axis=0)[mask_pos], 1e-6) * strength  # ensure there will be some standard deviation
 
     rand_vec = sampleDistribution(method, n, mean, std, low, up)
 
     vector[mask_pos] = rand_vec
     return vector
-
 
 def rand_noise(vector, params):
     """
@@ -92,14 +111,14 @@ def rand_noise(vector, params):
 
     method = params["method"]
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
+    low = params.get("Low", -1)
+    up = params.get("Up", 1)
+    strength = params.get("F", 1)
+    avg = params.get("Avg", 0)
 
-    noise = sampleDistribution(method, vector.shape, 0, strength, low, up)
+    noise = sampleDistribution(method, vector.shape, avg, strength, low, up)
 
     return vector + noise
-
 
 def rand_sample(vector, population, params):
     """
@@ -108,13 +127,13 @@ def rand_sample(vector, population, params):
 
     method = params["method"]
 
-    low = params["Low"] if "Low" in params else -1
-    up = params["Up"] if "Low" in params else 1
-    strength = params["F"] if "F" in params else 1
+    low = params.get("Low", -1)
+    up = params.get("Up", 1)
+    strength = params.get("F", 1)
 
     popul_matrix = np.vstack([i.solution for i in population])
     mean = popul_matrix.mean(axis=0)
-    std = (popul_matrix.std(axis=0) + 1e-6) * strength  # ensure there will be some standard deviation
+    std = np.maximum(popul_matrix.std(axis=0), 1e-6) * strength  # ensure there will be some standard deviation
 
     rand_vec = sampleDistribution(method, vector.shape, mean, std, low, up)
 
