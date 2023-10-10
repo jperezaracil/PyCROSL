@@ -32,7 +32,7 @@ class CRO_SL:
 
     """
 
-    def __init__(self, objfunc, substrates, params, file_postfix=""):
+    def __init__(self, objfunc, substrates, params, file_name_extra=""):
         self.params = params
 
         # Dynamic parameters
@@ -42,7 +42,7 @@ class CRO_SL:
         # Verbose parameters
         self.verbose = params.get("verbose", True) 
         self.v_timer = params.get("v_timer", 1) 
-        self.file_postfix = file_postfix
+        self.file_name_extra = file_name_extra
 
         # Parallelization parameters
         self.Njobs = params.get("Njobs", 1) 
@@ -165,7 +165,7 @@ class CRO_SL:
         Save execution data
         """
 
-        postfix = "" if self.file_postfix == "" else "_" + self.file_postfix
+        postfix = "" if self.file_name_extra == "" else "_" + self.file_name_extra
 
         if solution_file is None:
             solution_file = f"best_solution{postfix}.csv"
@@ -247,7 +247,7 @@ class CRO_SL:
             result = self.optimize()
         except KeyboardInterrupt:
             print("stopped early")
-            postfix = "" if self.file_postfix == "" else "_" + self.file_postfix
+            postfix = "" if self.file_name_extra == "" else "_" + self.file_name_extra
             self.save_solution(file_name=f"stopped{postfix}.csv")
             self.display_report(show_plots=False, save_figure=True, figure_name=f"stopped{postfix}.eps")
             exit(1)
