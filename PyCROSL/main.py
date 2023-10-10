@@ -323,12 +323,51 @@ def test_parallelism():
     for n_jobs, time_elapsed in zip(jobs_list, times_elapsed):
         print(f"{n_jobs} jobs: {time_elapsed:.2f}s")
 
+
+def test_dist_params():
+    objfunc = Sphere(5)
+    objfunc.random_solution = lambda: np.full(objfunc.size, 200.0)
+    substrates_real = [
+        SubstrateReal("MutSample", {"method": "Uniform", "Low":np.array([40,10,2,7,30]), "Up":np.array([100,100,100,100,100]), "N": 2})
+    ]
+
+    params = {
+        "popSize": 100,
+        "rho": 0.6,
+        "Fb": 0.98,
+        "Fd": 0.2,
+        "Pd": 0.8,
+        "k": 3,
+        "K": 20,
+        "group_subs": True,
+
+        "stop_cond": "Ngen",
+        "Ngen": 500,
+
+        "verbose": True,
+        "v_timer": 1,
+        "Njobs": 1,
+
+        "dynamic": True,
+        "dyn_method": "success",
+        "dyn_metric": "avg",
+        "dyn_steps": 10,
+        "prob_amp": 0.01
+    }
+    
+    c = CRO_SL(objfunc, substrates_real, params)
+    ind, fit = c.optimize()
+    print(ind)
+    print()
+    c.display_report(show_plots=False)
+
 def main():
-    #thirty_runs()
-    #test_cro()
-    test_multi_cond()
-    #test_files()
-    #test_parallelism()
+    # thirty_runs()
+    # test_cro()
+    # test_multi_cond()
+    # test_files()
+    # test_parallelism()
+    test_dist_params()
 
 if __name__ == "__main__":
     main()
