@@ -32,7 +32,7 @@ class CRO_SL:
 
     """
 
-    def __init__(self, objfunc, substrates, params):
+    def __init__(self, objfunc, substrates, params, file_name_extra=""):
         self.params = params
 
         # Dynamic parameters
@@ -42,6 +42,7 @@ class CRO_SL:
         # Verbose parameters
         self.verbose = params.get("verbose", True) 
         self.v_timer = params.get("v_timer", 1) 
+        self.file_name_extra = file_name_extra
 
         # Parallelization parameters
         self.Njobs = params.get("Njobs", 1) 
@@ -159,10 +160,28 @@ class CRO_SL:
         return process_progress(self.stop_cond_parsed, neval_reached, ngen_reached, real_time_reached, target_reached)
     
     
-    def save_data(self, solution_file="best_solution.csv", population_file="last_population.csv", history_file="fit_history.csv", prob_file="prob_history.csv", indiv_history="indiv_history.csv"):
+    def save_data(self, solution_file=None, population_file=None, history_file=None, prob_file=None, indiv_history=None):
         """
         Save execution data
         """
+
+        postfix = "" if self.file_name_extra == "" else "_" + self.file_name_extra
+
+        if solution_file is None:
+            solution_file = f"best_solution{postfix}.csv"
+
+        if population_file is None:
+            population_file = f"last_population{postfix}.csv"
+
+        if history_file is None:
+            history_file = f"fit_history{postfix}.csv"
+        
+        if prob_file is None:
+            prob_file = f"prob_history{postfix}.csv"
+
+        if indiv_history is None:
+            indiv_history = f"indiv_history{postfix}.csv"
+        
         
         ind, fit = self.population.best_solution()
         np.savetxt(solution_file, ind.reshape([1, -1]), delimiter=',')
@@ -228,8 +247,9 @@ class CRO_SL:
             result = self.optimize()
         except KeyboardInterrupt:
             print("stopped early")
-            self.save_solution(file_name="stopped.csv")
-            self.display_report(show_plots=False, save_figure=True, figure_name="stopped.eps")
+            postfix = "" if self.file_name_extra == "" else "_" + self.file_name_extra
+            self.save_solution(file_name=f"stopped{postfix}.csv")
+            self.display_report(show_plots=False, save_figure=True, figure_name=f"stopped{postfix}.eps")
             exit(1)
 
         return result
